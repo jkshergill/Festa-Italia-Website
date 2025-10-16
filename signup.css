@@ -1,0 +1,21 @@
+.body { /* This is for the body */
+  background-color: rgb(96, 197, 103);
+  height: 1020px;
+  overflow: hidden; 
+}
+
+.signup-border {
+  background-color: rgb(254, 254, 254);
+  width: 700px;
+  height: 600px;
+  margin-left: 500px;
+  margin-top: 100px;
+  border-radius: 20px;
+  border-style: solid; /* This create the black outline of the border */
+  box-shadow: 6px 5px 8px rgba(0, 0, 0, 0.05);
+}
+
+.signup-text {
+  margin-left: 205px;
+  font-size: 65px;
+}
