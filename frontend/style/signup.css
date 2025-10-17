@@ -19,3 +19,20 @@
   margin-left: 205px;
   font-size: 65px;
 }
+
+.email-container {
+  background-color: aquamarine;
+}
+
+.email-section {
+  font-size: 40px;
+  margin-left: 160px;
+  height: 50px;
+  width: 450px;
+}
+
+.email-textbox {
+  width: 250px;
+  height: 20px;
+  vertical-align: 25%;
+}
