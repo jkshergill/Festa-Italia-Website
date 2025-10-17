@@ -20,7 +20,7 @@
     align-items: center;
     margin: 0 auto;
     height: 100vh;
-    background-color: rgb(97, 176, 18);
+    background-color: rgb(75, 126, 35);
     z-index: 1;
     width: 100%;
     padding: relative;
@@ -58,13 +58,13 @@
 }
 
 .form__signin--link {
-    color: #0CABA8;
+    color: rgb(185, 39, 26);
     text-decoration: none;
     transition: all 0.3s ease;
 }
 
 .form__signin--link:hover {
-    color: #10c7c4;
+    color: rgb(205, 43, 29);
     transition: all 0.3s ease;
 }
 
@@ -111,7 +111,7 @@
 .form__submit {
     border: none;
     outline: none;
-    background: #0CABA8;
+    background: rgb(185, 39, 26);
     padding: 10px;
     border-radius: 10px;
     color: #fff;
@@ -120,7 +120,41 @@
 }
 
 .form__submit:hover{
-    background: #10c7c4;
+    background: rgb(205, 43, 29);
+    transition: all 0.3s ease;
+}
+
+.form__login--redirect {
+    color: #fff;
+    font-size: 14px;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.form__signup--link {
+    color: rgb(185, 39, 26);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.form__signup--link:hover {
+    color: rgb(205, 43, 29);
+    transition: all 0.3s ease;
+}
+
+.form__forgot-password {
+    color: #fff;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.form__forgot-password--link {
+    color: rgb(185, 39, 26);
+    text-decoration: none;
+}
+
+.form__forgot-password--link:hover {
+    color: rgb(205, 43, 29);
     transition: all 0.3s ease;
 }
 
