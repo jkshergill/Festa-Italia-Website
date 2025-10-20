@@ -24,13 +24,13 @@
 
 /* team name label styling */
 .team-label {
-  font-size: 24pt;
+  font-size: 26pt;
   margin-right: 12px; 
 }
 
 /* heading for players */
 .players-heading {
-  font-weight: bold;
+  font-size: 20pt;
   margin-top: 24px; /* space above */
   margin-bottom: 8px;
 }
