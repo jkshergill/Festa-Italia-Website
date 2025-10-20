@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Bocce Team Signup</title>
+    <link rel="stylesheet" href="../style/bocce-sign-up.css" />
+  </head>
+
+  <body class="body">
+    <!-- logo -->
+    <img
+      src="../images/logo2.gif"
+      alt="Festa Italia Logo"
+      class="logo"
+    />
+
+    <div class="border">
+    <!-- heading -->
+    <h1 class="title">Bocce Team Sign-up</h1>
+
+    <!-- form -->
+    <form class="signup-form">
+    <label for="team-name" class="team-label">What is the name of your team?</label>
+    <input type="text" id="team-name" name="team-name" required />
+
+    <p class="players-heading">Who will be your team players?</p>
+
+    <!-- fields for 6 players -->
+    <div class="players-list">
+        <label for="player1">1.</label>
+        <input type="text" id="player1-name" name="player1-name" required />
+
+        <label for="player2">2.</label>
+        <input type="text" id="player2-name" name="player2-name" required />
+
+        <label for="player3">3.</label>
+        <input type="text" id="player3-name" name="player3-name" required />
+
+        <label for="player4">4.</label>
+        <input type="text" id="player4-name" name="player4-name" required />
+
+        <label for="player5">5.</label>
+        <input type="text" id="player5-name" name="player5-name" required />
+
+        <label for="player6">6.</label>
+        <input type="text" id="player6-name" name="player6-name" required />
+    </div>
+
+    <button type="submit">Submit</button>
+    </form>
+    </div>
+  </body>
+</html>
