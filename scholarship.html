@@ -7,25 +7,107 @@
     <title>Scholarship</title>
     <style>
         body{
-            margin: 0;
+            margin: 4;
             font-family: "Kumbh Sans", sans-serif;
+            display: flex;
+            flex-direction: column;
+            
         }
 
+        ul {
+            list-style-type: disc;
+            padding-right: 20px;
+        }
+
+        img {
+            width: 150px;
+            height: auto;
+            border-radius: 8px;
+            padding-right: 480px;
+            transform: translateY(-200px);
+            transform: translateX(5%);
+        }
+
+        main{
+            display: flex;
+            align-items: flex-start;
+            padding: 30px;
+            gap: 40px;
+            flex-direction: column;
+        }
+/* Title */
         header{
             display: flex;
             justify-content: space-between;
             align-items: center;
             background-color: #21BD12;
             color: white;
-            padding: 15px 40px;
+            padding: 15px 30px;
         }
 
         .logo{
             font-size: 1.5rem;
             font-weight: bold;
         }
+/* Hamburger menu */
+        .hmenu-btn {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;        
+            width: 40px;
+            height: 33px;
+            background-color: white;
+            padding: 4.5px;
+            cursor: pointer;
+        }
 
-        .header-btn{
+        .hmenu-btn span {
+            display: block;
+            height: 4.2px;
+            background-color: black;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .hmenu-btn:hover span {
+            background-color: grey;
+        }
+
+        .container2 {
+            display: flex;
+            align-items: flex-start;
+        
+
+        }
+
+        .text-content  {
+            display: flex;
+            flex-direction: column;
+            font-size: 22px;
+
+        }
+        .container3{
+            background-color: white;
+
+        }
+
+        .container1{
+            background-color: white;
+
+        }
+
+        .full-width{
+            width: 100vw;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0 20px;
+            font-size: 3rem;
+            text-align: left;
+        }
+        
+
+
+       /* .header-btn{
             background-color: white;
             color: #21BD12;
             border: none;
@@ -38,14 +120,67 @@
 
         .header-btn:hover{
             background-color: #e2e8f0;
-        }
+        }. */
 
        </style>
     </head>
+
     <body>
         <header>
-            <div class="logo">Scholarship</div>
-            <button class="header-btn">Burger Menu</button>
+            <div class="logo"><img src="logo2 (1).jpeg" alt="Logo" style="height:40px;"></div>
+            <div class="hmenu-btn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
         </header>
+
+<main>
+    <div class="container1">
+        <h1>
+            Scholarships
+        </h1>
+
+        <div class="container2">
+          <div class="text-content"> 
+
+          <p> Our fundraising efforts benefit various local organizations and provide scholarships as well. Each 
+            year thousands of dollars in scholarship money is awarded to local high school students.</p>
+          
+
+          <p> In order to be eligible for a scholarship the student must meet the following criteria:</p> 
+          <ul>
+            <li>The applicant must have a parent or grandparent who is a current member of the Festa
+                Italia Foundation </li>
+            <li>The applicant must reside on the Monterey Peninsula or the Salinas area.</li>
+            <li>Must be atleast 17 years of age at the time of selection</li>
+            <li>To be eligible for a scholarship , the candidate must have earned at least 3.5 grade point average.</li>
+            <li>The applicant must be attending or planning to attend college.</li>
+          </ul>
+          </div>
+        <img src="logo_01.jpeg" alt="fest img">
+          
+
+        </div>
+    </div>
+
+    <p class="full-width">  For scholarship application link: <a href="https://festaitaliamonterey.org/Publish/docs/2020_scholarship_application_form.pdf" target="_blank" rel="noopener noreferrer" style="font-size: 4rem;"> 
+        CLICK HERE
+        </a>
+        
+    </p>
+
+    <div class="container3">
+        <p style="width:60%; font-size: 22px;"> The value of the scholarship and the number of scholarships awarded annually will be determined at the discretion of the
+             Festa Italia Foundation's Board of Trustees. All applications must be postmarked by April 20th, 2020. Any applications not
+              meeting the deadline will not be considered. Applicants will be notified by May 16th, 2020.
+
+        </p>
+        <p style="font-size: 22px;"> For more information send and email to  
+            <a href="mailto:scholarships@FestaItaliaMonterey.org" target="_blank" rel="noopener noreferrer">
+            scholarships@FestaItaliaMonterey.org </a>
+        </p>
+    </div>
+    </main>
     </body>
 </html>
