@@ -31,7 +31,7 @@ export default function BocceSignUp() {
           <input type="text" id="team-name" name="team-name" required />
 
           {/* Players heading */}
-          <p className="players-heading">Who will be your team players?</p>
+          <p className="players-heading">Who will be your team members?</p>
 
           {/* Four players (INPUT ONLY ATM) */}
           <div className="players-list">

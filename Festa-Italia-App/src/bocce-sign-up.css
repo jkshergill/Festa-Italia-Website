@@ -64,10 +64,15 @@
 
 /* space above the submit button */
 button {
+  background-color: #8dcf7f;
   margin-top: 24px;
   margin-left: 110px;
   padding: 8px 16px;
   font-size: 1rem;
+}
+
+button:hover {
+  background-color: #218838; /* darker green on hover */
 }
 
 /* border container styling */
