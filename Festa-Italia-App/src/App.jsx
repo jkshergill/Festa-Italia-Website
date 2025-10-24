@@ -1,11 +1,7 @@
-import Signup from './Signup.jsx';
+import FestivalInfo from './FestivalInfo'
 
-function App() {
-  return (
-    <>
-      <Signup></Signup>
-    </>
-  );
+export default function App(){
+    return (
+        <FestivalInfo />
+    )
 }
-
-export default App
