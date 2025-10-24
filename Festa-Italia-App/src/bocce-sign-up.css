@@ -1,0 +1,84 @@
+/* body styling */
+.body {
+  width: 100vw;         /* full viewport width */
+  height: 100vh;        /* full viewport height */
+  background-color: #8dcf7f; /* green background */
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* keeps logo + form starting from top */
+}
+
+/* heading styling */
+.title {
+  margin-top: 40px;
+  font-size: clamp(2rem, 8vw, 64px);
+  line-height: 1.1;
+  text-align: center;
+}
+
+/* logo top-right corner */
+.logo {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  height: 60px;
+}
+
+/* team name label styling */
+.team-label {
+  font-size: 26pt;
+  margin-right: 12px; 
+}
+
+/* heading for players */
+.players-heading {
+  font-size: 20pt;
+  margin-top: 24px; /* space above */
+  margin-bottom: 8px;
+}
+
+/* players list grid */
+.players-list {
+  margin-left: 24px; /* indent */
+  display: grid; /* use grid layout */
+  grid-template-columns: auto 1fr; /* label then input */
+  row-gap: 8px; /* space between rows */
+  column-gap: 8px; /* small space between number and textbox */
+  max-width: 400px; /* limit width */
+}
+
+/* space between label and input box */
+.players-list label {
+  margin-right: 4px;
+}
+
+/* input box width */
+.players-list input {
+  width: 200px;
+}
+
+/* space above the submit button */
+button {
+  margin-top: 24px;
+  margin-left: 110px;
+  padding: 8px 16px;
+  font-size: 1rem;
+}
+
+/* border container styling */
+.border {
+  background-color: rgb(230, 170, 170); /* light pink background */
+  width: 90%;
+  height: 100%;
+  margin: 100px auto;     /* top-bottom 100px, left-right auto centers */
+  border-radius: 20px; /* rounded corners */
+  border: 2px solid black; /* outline color*/
+  box-shadow: 6px 5px 8px rgba(0, 0, 0, 0.05);
+  padding: 3rem; /* space inside border */
+  box-sizing: border-box;
+}
