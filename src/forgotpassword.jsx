@@ -14,13 +14,18 @@ function App() {
   <main>
     <p>Festa Italia Password Reset:</p>
     <div className="form-group">
-      <label htmlFor="festa-email" className="form-label">Email address</label>
+      <label htmlFor="festa-email" className="form-label">Email Address</label>
       <input id="festa-email" className="form-input" type="email" placeholder="name@domain.com" />
     </div>
     <div className="form-group">
       <label htmlFor="festa-password" className="form-label">New Password</label>
       <input id="festa-password" className="form-input" type="password" placeholder="Enter new password" />
     </div>
+    <div className="form-group">
+      <label htmlFor="festa-password" className="form-label">Confirm Password</label>
+      <input id="festa-password" className="form-input" type="password" placeholder="Confirm new password" />
+    </div>
+    <button className="submit-button" type="submit">Reset Password</button>
   </main>
 </div>
   );
