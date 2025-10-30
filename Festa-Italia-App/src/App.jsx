@@ -1,9 +1,10 @@
 import Signup from './Signup.jsx';
+import Donate from './Donate.jsx';
 
 function App() {
   return (
     <>
-      <Signup></Signup>
+      <Donate></Donate>
     </>
   );
 }
