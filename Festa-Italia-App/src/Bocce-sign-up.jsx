@@ -32,22 +32,32 @@ export default function BocceSignUp() {
 
           {/* Players heading */}
           <p className="players-heading">Who will be your team members?</p>
+          <div className="players-section">
+            {/* Player inputs */}
+            <div className="players-list">
+              <label htmlFor="player1-name">1.</label>
+              <input type="text" id="player1-name" name="player1-name" required />
 
-          {/* Four players (INPUT ONLY ATM) */}
-          <div className="players-list">
-            <label htmlFor="player1-name">1.</label>
-            <input type="text" id="player1-name" name="player1-name" required />
+              <label htmlFor="player2-name">2.</label>
+              <input type="text" id="player2-name" name="player2-name" required />
 
-            <label htmlFor="player2-name">2.</label>
-            <input type="text" id="player2-name" name="player2-name" required />
+              <label htmlFor="player3-name">3.</label>
+              <input type="text" id="player3-name" name="player3-name" required />
 
-            <label htmlFor="player3-name">3.</label>
-            <input type="text" id="player3-name" name="player3-name" required />
+              <label htmlFor="player4-name">4.</label>
+              <input type="text" id="player4-name" name="player4-name" required />
+            </div>
 
-            <label htmlFor="player4-name">4.</label>
-            <input type="text" id="player4-name" name="player4-name" required />
+            {/* Bocce balls image */}
+            <img
+              src="/bocceball.png"
+              alt="Bocce balls"
+              className="bocce-image"
+              decoding="async"
+              loading="eager"
+            />
           </div>
-
+          
           {/* Submit */}
           <button type="submit">Submit</button>
         </form>
