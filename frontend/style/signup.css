@@ -25,7 +25,14 @@
 }
 
 .email-section {
-  font-size: 40px;
+  font-size: 35px;
+  margin-left: 160px;
+  height: 50px;
+  width: 450px;
+}
+
+.password-section {
+  font-size: 35px;
   margin-left: 160px;
   height: 50px;
   width: 450px;
@@ -35,4 +42,35 @@
   width: 250px;
   height: 20px;
   vertical-align: 25%;
+}
+
+.password-textbox {
+  width: 250px;
+  height: 20px;
+  vertical-align: 25%;
+}
+
+.signup-button {
+  margin-left: 230px;
+  color: white;
+  font-size: 17px;
+  width: 250px;
+  height: 35px;
+  border-radius: 30px;
+  background-color: rgb(37, 187, 52);
+}
+
+.signup-button:hover {
+  cursor: pointer;
+  opacity: 0.9;
+  box-shadow: 5px 5px 10px rgb(0, 0, 0, 0.15);
+}
+
+.login-link {
+  font-size: 23px;
+  margin-left: 320px;
+}
+
+.login-link:hover {
+  opacity: 0.9;
 }
