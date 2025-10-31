@@ -1,0 +1,76 @@
+.body { /* This is for the body */
+  background-color: rgb(96, 197, 103);
+  height: 1020px;
+  overflow: hidden; 
+}
+
+.signup-border {
+  background-color: rgb(254, 254, 254);
+  width: 700px;
+  height: 600px;
+  margin-left: 500px;
+  margin-top: 100px;
+  border-radius: 20px;
+  border-style: solid; /* This create the black outline of the border */
+  box-shadow: 6px 5px 8px rgba(0, 0, 0, 0.05);
+}
+
+.signup-text {
+  margin-left: 205px;
+  font-size: 65px;
+}
+
+.email-container {
+  background-color: aquamarine;
+}
+
+.email-section {
+  font-size: 35px;
+  margin-left: 160px;
+  height: 50px;
+  width: 450px;
+}
+
+.password-section {
+  font-size: 35px;
+  margin-left: 160px;
+  height: 50px;
+  width: 450px;
+}
+
+.email-textbox {
+  width: 250px;
+  height: 20px;
+  vertical-align: 25%;
+}
+
+.password-textbox {
+  width: 250px;
+  height: 20px;
+  vertical-align: 25%;
+}
+
+.signup-button {
+  margin-left: 230px;
+  color: white;
+  font-size: 17px;
+  width: 250px;
+  height: 35px;
+  border-radius: 30px;
+  background-color: rgb(37, 187, 52);
+}
+
+.signup-button:hover {
+  cursor: pointer;
+  opacity: 0.9;
+  box-shadow: 5px 5px 10px rgb(0, 0, 0, 0.15);
+}
+
+.login-link {
+  font-size: 23px;
+  margin-left: 320px;
+}
+
+.login-link:hover {
+  opacity: 0.9;
+}
