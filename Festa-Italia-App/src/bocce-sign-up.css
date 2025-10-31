@@ -1,5 +1,5 @@
 /* body styling */
-.body {
+.Bocce-signup-body {
   width: 100vw;         /* full viewport width */
   height: 100vh;        /* full viewport height */
   background-color: #8dcf7f; /* green background */
@@ -58,6 +58,16 @@
   align-items: center;
   row-gap: 12px;
   column-gap: 10px;
+}
+
+/* Larger font and spacing for team name row */
+.team-input label {
+  font-size: 26pt;     /* matches your original .team-label size */
+}
+
+.team-input input {
+  font-size: 20pt;     /* larger text inside box */
+  width: 300px;        /* slightly wider box looks better with big font */
 }
 
 /* Tighter spacing between number and input */
