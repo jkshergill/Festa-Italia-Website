@@ -36,3 +36,21 @@
   font-size: clamp(2rem, 8vw, 64px);
   text-align: center;
 }
+
+/* Bocce game image area */
+.bocce-game-section {
+  display: flex;
+  justify-content: flex-start; /* align left */
+  align-items: center;
+  margin-top: 2rem; /* spacing under title */
+}
+
+/* Image itself */
+.bocce-game-image {
+  width: 100%;
+  max-width: 450px;     /* controls how big it can get */
+  height: auto;         /* keeps aspect ratio */
+  border-radius: 12px;
+  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.25);
+  border: 2px solid rgba(0, 0, 0, 0.15);
+}
