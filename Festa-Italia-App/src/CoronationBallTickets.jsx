@@ -57,6 +57,10 @@ export default function TicketPurchase() {
     // navigate("/checkout");
   };
 
+  useEffect(() => {
+        document.body.id = 'coronation-ball-tickets-body';
+      }, []);
+
   return (
     <div className="ticket-container">
       <h1>🎟️ Festa Italia Ticket Purchase</h1>

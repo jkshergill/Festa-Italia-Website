@@ -1,3 +1,9 @@
+#coronation-ball-tickets-body {
+  background-color: white;
+  height: 1020px;
+  overflow: hidden;
+}
+
 .ticket-container {
   font-family: Arial, sans-serif;
   background-color: #f5f5f5;

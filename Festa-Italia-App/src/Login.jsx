@@ -1,6 +1,9 @@
 import './Login.css';
 
 function Login() {
+     useEffect(() => {
+        document.body.id = 'login-body';
+      }, []);
     return (
         <div className="form__container">
             <form autoComplete="off" className="form" method="POST">
