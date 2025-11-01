@@ -1,7 +1,14 @@
+import { useEffect } from 'react';
 import './Signup.css';
 
 function Signup() {
+
+  useEffect(() => {
+      document.body.id = 'signup-body';
+    }, []);
+
   return (
+
     <div className='signup-border'>
       <img className='logo-02' src='../images/logo2.jpeg'/>
       <span className='signup-text'>

@@ -1,0 +1,56 @@
+.Bocce-dashboard-body {
+  width: 100vw;
+  height: 100vh;
+  background-color: #8dcf7f; /* same green as sign-up */
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* Reuse or adapt these if not already present */
+.logo {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  height: 60px;
+}
+
+.border {
+  background-color: rgb(230, 170, 170); /* light pink box like sign-up */
+  width: 90%;
+  margin: 100px auto;
+  border-radius: 20px;
+  border: 2px solid black;
+  box-shadow: 6px 5px 8px rgba(0, 0, 0, 0.05);
+  padding: 3rem;
+  box-sizing: border-box;
+}
+
+.title {
+  margin-top: 40px;
+  font-size: clamp(2rem, 8vw, 64px);
+  text-align: center;
+}
+
+/* Bocce game image area */
+.bocce-game-section {
+  display: flex;
+  justify-content: flex-start; /* align left */
+  align-items: center;
+  margin-top: 2rem; /* spacing under title */
+}
+
+/* Image itself */
+.bocce-game-image {
+  width: 100%;
+  max-width: 450px;     /* controls how big it can get */
+  height: auto;         /* keeps aspect ratio */
+  border-radius: 12px;
+  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.25);
+  border: 2px solid rgba(0, 0, 0, 0.15);
+}
