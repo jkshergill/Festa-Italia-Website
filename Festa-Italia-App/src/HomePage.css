@@ -1,0 +1,70 @@
+:root{
+  --flag-green: #009246;
+  --flag-white: #ffffff;
+  --flag-red: #ce2b37;
+  --bg: var(--flag-white);
+  --text: #1f1f1f;
+  --container: 1100px;
+}
+
+*{box-sizing:border-box}
+html,body,#root{height:100%}
+body{margin:0;font-family:system-ui,-apple-system,'Segoe UI',Roboto,Arial;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;line-height:1.45}
+
+/* Scope all page styles under .page-root to avoid global stylesheet interference */
+.page-root{width:100%;box-sizing:border-box}
+.page-root .container{width:100%;max-width:var(--container);margin:0 auto;padding:0 1rem}
+
+.page-root .site-header{background:var(--flag-green);color:var(--flag-white);display:block;width:100%;box-sizing:border-box;position:relative;z-index:10}
+.page-root .header-inner{display:flex;align-items:center;justify-content:flex-start;padding:0.75rem 0;position:relative}
+.page-root .logo{font-weight:700;color:var(--flag-white);text-decoration:none;font-size:1.25rem}
+.page-root .logo-wrap{display:flex;align-items:center;gap:0.5rem}
+.page-root .logo img{display:block;height:auto;max-height:40px;width:auto}
+
+.page-root .nav-toggle{display:inline-flex;background:#333333;border:none;color:var(--flag-white);padding:0.25rem;border-radius:6px;align-items:center;justify-content:center;position:absolute;right:0.5rem;top:50%;transform:translateY(-50%);z-index:20}
+.page-root .nav-toggle svg{display:block}
+.page-root .nav-toggle svg .line-top{stroke:var(--flag-green)}
+.page-root .nav-toggle svg .line-mid{stroke:var(--flag-white)}
+.page-root .nav-toggle svg .line-bottom{stroke:var(--flag-red)}
+.page-root .nav-toggle svg path{stroke-width:2;stroke-linecap:round}
+.page-root .nav-toggle:focus{outline:2px solid rgba(255,255,255,0.25);outline-offset:3px}
+
+/* Primary navigation dropdown (used by the hamburger) */
+.page-root .primary-nav{position:absolute;top:100%;right:0.75rem;background:var(--flag-white);color:var(--text);padding:0.5rem;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.12);display:none;z-index:18;min-width:180px}
+.page-root .primary-nav.open{display:block}
+.page-root .primary-nav ul{list-style:none;margin:0;padding:0}
+.page-root .primary-nav li a{display:block;padding:0.5rem 0.75rem;color:var(--text);text-decoration:none;border-radius:4px}
+.page-root .primary-nav li a:hover,.page-root .primary-nav li a:focus{background:rgba(0,0,0,0.04)}
+
+
+.page-root .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+.page-root .section{padding:2rem 0}
+
+/* Gallery: five images in a row on wide screens, responsive wrap on small */
+.page-root .gallery-row{display:flex;gap:0.75rem;align-items:stretch;justify-content:space-between;flex-wrap:wrap}
+.page-root .gallery-row figure{margin:0;flex:1 1 18%;min-width:120px;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:8px;border:1px solid rgba(0,0,0,0.06);background:var(--flag-white)}
+.page-root .gallery-row img{display:block;width:100%;height:auto;object-fit:cover}
+
+.page-root .gallery h2{margin-bottom:0.5rem}
+
+.page-root .site-footer{padding:1rem 0;background:#f6f6f6}
+.page-root .footer-inner{display:flex;justify-content:space-between;align-items:center;gap:1rem}
+
+/* Social links in footer (bottom-left) */
+.page-root .social-links{display:flex;gap:0.5rem;align-items:center}
+.page-root .social-links a{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:6px;text-decoration:none;color:var(--text);background:transparent}
+.page-root .social-links svg{width:18px;height:18px;fill:currentColor}
+.page-root .social-links a:hover{background:rgba(0,0,0,0.04)}
+
+@media (max-width:800px){
+  .page-root .header-inner{gap:1rem}
+  .page-root .primary-nav{position:absolute;top:64px;right:1rem;background:rgba(255,255,255,0.97);padding:0.75rem;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.08);display:none}
+  .page-root .primary-nav.open{display:block}
+  .page-root .nav-toggle{display:inline-block}
+  
+  /* On small screens stack images, keep them touch-friendly */
+  .page-root .gallery-row{flex-wrap:wrap}
+  .page-root .gallery-row figure{flex:1 1 48%;max-width:48%}
+  .page-root .gallery-row img{max-height:220px}
+}
