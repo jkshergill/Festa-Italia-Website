@@ -12,6 +12,15 @@
   justify-content: flex-start;
 }
 
+/* Reuse or adapt these if not already present
+.logo {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  height: 60px;
+}
+
+conflicts with app css */
 .border {
   background-color: rgb(230, 170, 170); /* light pink box like sign-up */
   width: 90%;

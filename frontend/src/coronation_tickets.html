@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Festa Italia Ticket Purchase</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+      padding: 40px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #b71c1c;
+    }
+
+    .ticket-section {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 500px;
+      margin: 20px auto;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .ticket-type {
+      display: flex;
+      justify-content: space-between;
+      margin: 12px 0;
+      align-items: center;
+    }
+
+    .ticket-type label {
+      font-weight: bold;
+    }
+
+    .ticket-type input {
+      width: 60px;
+      padding: 5px;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      margin-top: 20px;
+      background-color: #d32f2f;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #b71c1c;
+    }
+
+    #names-section {
+      display: none;
+      margin-top: 30px;
+    }
+
+    .name-input {
+      margin: 10px 0;
+    }
+
+    .total {
+      font-weight: bold;
+      text-align: center;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎟️ Festa Italia Ticket Purchase</h1>
+
+  <div class="ticket-section" id="ticket-selection">
+    <div class="ticket-type">
+      <label>Adult Ticket ($20)</label>
+      <input type="number" id="adultQty" min="0" value="0" />
+    </div>
+    <div class="ticket-type">
+      <label>Child Ticket ($10)</label>
+      <input type="number" id="childQty" min="0" value="0" />
+    </div>
+    <div class="ticket-type">
+      <label>Senior Ticket ($15)</label>
+      <input type="number" id="seniorQty" min="0" value="0" />
+    </div>
+
+    <div class="total" id="totalPrice">Total: $0</div>
+
+    <button id="nextBtn">Continue</button>
+  </div>
+
+  <div class="ticket-section" id="names-section">
+    <h3>Enter Ticket Holder Names</h3>
+    <div id="nameInputs"></div>
+    <button id="checkoutBtn">Checkout</button>
+  </div>
+
+  <script>
+    const prices = { adult: 20, child: 10, senior: 15 };
+
+    const adultQty = document.getElementById('adultQty');
+    const childQty = document.getElementById('childQty');
+    const seniorQty = document.getElementById('seniorQty');
+    const totalPrice = document.getElementById('totalPrice');
+    const nextBtn = document.getElementById('nextBtn');
+    const namesSection = document.getElementById('names-section');
+    const nameInputs = document.getElementById('nameInputs');
+    const checkoutBtn = document.getElementById('checkoutBtn');
+
+    // Update total whenever a quantity changes
+    function updateTotal() {
+      const total =
+        adultQty.value * prices.adult +
+        childQty.value * prices.child +
+        seniorQty.value * prices.senior;
+      totalPrice.textContent = `Total: $${total}`;
+    }
+
+    adultQty.addEventListener('input', updateTotal);
+    childQty.addEventListener('input', updateTotal);
+    seniorQty.addEventListener('input', updateTotal);
+
+    nextBtn.addEventListener('click', () => {
+      const totalTickets =
+        parseInt(adultQty.value) +
+        parseInt(childQty.value) +
+        parseInt(seniorQty.value);
+
+      if (totalTickets === 0) {
+        alert("Please select at least one ticket.");
+        return;
+      }
+
+      // Hide ticket selection and show name inputs
+      document.getElementById('ticket-selection').style.display = 'none';
+      namesSection.style.display = 'block';
+
+      // Generate name input fields
+      nameInputs.innerHTML = '';
+      for (let i = 1; i <= totalTickets; i++) {
+        const div = document.createElement('div');
+        div.classList.add('name-input');
+        div.innerHTML = `<label>Ticket ${i} Name:</label>
+                         <input type="text" required placeholder="Enter name">`;
+        nameInputs.appendChild(div);
+      }
+    });
+
+    checkoutBtn.addEventListener('click', () => {
+      const names = [...nameInputs.querySelectorAll('input')].map(input => input.value.trim());
+      if (names.some(name => name === "")) {
+        alert("Please fill in all ticket holder names.");
+        return;
+      }
+
+      // Simulate redirecting to checkout (you can replace this with a real link)
+      alert(`Proceeding to checkout for ${names.length} tickets.\nThank you!`);
+      window.location.href = "#"; // Replace "#" with your payment or checkout page URL
+    });
+  </script>
+
+</body>
+</html>

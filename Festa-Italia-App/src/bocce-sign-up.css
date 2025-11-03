@@ -21,6 +21,16 @@
   text-align: center;
 }
 
+/* logo top-right corner
+.logo {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  height: 60px;
+}
+
+conflicts with app css */
+
 /* team name label styling */
 .team-label {
   font-size: 26pt;
@@ -115,8 +125,7 @@
 button:hover {
   background-color: #218838; // darker green on hover
 }
-  both of these conflict with app.css buttons and need to be worked on together
-*/
+  both of these conflict with app.css buttons and need to be worked on together */
 
 
 /* border container styling */
