@@ -1,11 +1,8 @@
-import React from 'react';
 import './HomePage.css';
-import Header from './Header';
 
 export default function HomePage() {
   return (
     <div className="page-root">
-      <Header />
 
       <main>
         <section id="gallery" className="container section gallery">

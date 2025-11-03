@@ -1,9 +1,10 @@
+import { useEffect } from 'react';
 import './Login.css';
 
 function Login() {
-     useEffect(() => {
+    useEffect(() => {
         document.body.id = 'login-body';
-      }, []);
+    }, []);
     return (
         <div className="form__container">
             <form autoComplete="off" className="form" method="POST">

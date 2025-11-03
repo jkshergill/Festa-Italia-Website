@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./CoronationBallTickets.css"; // optional external CSS file if you want to style separately
 
 export default function TicketPurchase() {

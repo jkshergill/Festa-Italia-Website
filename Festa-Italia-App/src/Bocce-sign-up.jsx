@@ -10,12 +10,6 @@ export default function BocceSignUp() {
   return (
     // Using a wrapper instead of <body>. "body" class for styling.
     <div className="Bocce-signup-body">
-      {/* Logo (place logo2.gif in /public so it serves at /logo2.gif) */}
-      <img
-        src="/logo2.gif"              // If you put logo2.gif in the project's /public folder
-        alt="Festa Italia Logo"
-        className="logo"
-      />
 
       {/* Border wrapper */}
       <div className="border">

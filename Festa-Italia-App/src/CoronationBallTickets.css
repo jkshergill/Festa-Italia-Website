@@ -42,7 +42,7 @@ h1 {
   padding: 5px;
 }
 
-button {
+/*button {
   display: block;
   width: 100%;
   padding: 12px;
@@ -58,6 +58,8 @@ button {
 button:hover {
   background-color: #b71c1c;
 }
+  both of these conflict with app.css buttons and need to be worked on together
+*/
 
 .total {
   font-weight: bold;
