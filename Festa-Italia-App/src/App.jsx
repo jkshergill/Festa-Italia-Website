@@ -11,6 +11,7 @@ import Home from './HomePage'
 import Login from './Login'
 import Scholarship from './Scholarship'
 import Signup from './Signup'
+import Shopping from './Shopping'
 
 export default function App(){
     const [page, setPage] = useState('home')
@@ -29,6 +30,7 @@ export default function App(){
             case 'login': return <Login />
             case 'signup': return <Signup />
             case 'scholarships': return <Scholarship />
+            case 'shopping': return <Shopping />
             
             default: return <Home />
         }
@@ -65,6 +67,7 @@ export default function App(){
                     <button role="menuitem" onClick={() => { setPage('scholarships'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Scholarships</button>
                     <button role="menuitem" onClick={() => { setPage('donate'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Donate</button>
                     <button role="menuitem" onClick={() => { setPage('login'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Log in</button>
+                    <button role="menuitem" onClick={() => { setPage('shopping'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Shopping</button>
 {/*will be removed*/}<button role="menuitem" onClick={() => { setPage('bocce-sign'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Bocce Sign up</button>
 {/*will be removed*/}<button role="menuitem" onClick={() => { setPage('coronation-tix'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Bocce Sign up</button>
 {/*will be removed*/}<button role="menuitem" onClick={() => { setPage('forgot-pass'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Bocce Sign up</button>
