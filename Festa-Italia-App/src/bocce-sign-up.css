@@ -1,0 +1,144 @@
+/* body styling */
+.Bocce-signup-body {
+  width: 100vw;         /* full viewport width */
+  height: 100vh;        /* full viewport height */
+  background-color: #8dcf7f; /* green background */
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* keeps logo + form starting from top */
+}
+
+/* heading styling */
+.title {
+  margin-top: 40px;
+  font-size: clamp(2rem, 8vw, 64px);
+  line-height: 1.1;
+  text-align: center;
+}
+
+/* team name label styling */
+.team-label {
+  font-size: 26pt;
+  margin-right: 12px; 
+}
+
+/* heading for players */
+.players-heading {
+  font-size: 20pt;
+  margin-top: 24px; /* space above */
+  margin-bottom: 8px;
+}
+
+/* Keep the image on the right of the inputs */
+.players-section {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start; /* inputs first, image second */
+  gap: 1.5rem;
+  flex-wrap: nowrap;           /* keep side-by-side on wide screens */
+}
+
+/* Grid for aligning number + input on same line */
+.players-list {
+  display: grid;
+  grid-template-columns: auto 1fr; /* number | input */
+  align-items: center;
+  row-gap: 12px;
+  column-gap: 10px;
+}
+
+/* Larger font and spacing for team name row */
+.team-input label {
+  font-size: 26pt;     /* matches your original .team-label size */
+}
+
+.team-input input {
+  font-size: 20pt;     /* larger text inside box */
+  width: 300px;        /* slightly wider box looks better with big font */
+}
+
+/* Tighter spacing between number and input */
+/* Number labels */
+.players-list label {
+  text-align: right;
+  font-weight: 600;
+}
+
+/* Input boxes */
+.players-list input {
+  width: 240px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(0,0,0,0.25);
+  outline: none;
+}
+.players-list input:focus {
+  border-color: #218838;
+  box-shadow: 0 0 0 3px rgba(33,136,56,0.15);
+}
+
+/* Keep the image a bit larger and to the right */
+.bocce-image {
+  max-width: clamp(160px, 22vw, 240px);
+  border-radius: 12px;
+  height: auto;
+  border: 2px solid rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.18);
+  object-fit: cover;
+}
+
+/* space between label and input box */
+.players-list label {
+  margin-right: 4px;
+}
+
+/* input box width */
+.players-list input {
+  width: 200px;
+}
+
+/* space above the submit button */
+
+/*button {
+  background-color: #8dcf7f;
+  margin-top: 24px;
+  margin-left: 110px;
+  padding: 8px 16px;
+  font-size: 1rem;
+}
+
+button:hover {
+  background-color: #218838; // darker green on hover
+}
+  both of these conflict with app.css buttons and need to be worked on together
+*/
+
+
+/* border container styling */
+.border {
+  background-color: rgb(230, 170, 170); /* light pink background */
+  width: 90%;
+  height: 100%;
+  margin: 100px auto;     /* top-bottom 100px, left-right auto centers */
+  border-radius: 20px; /* rounded corners */
+  border: 2px solid black; /* outline color*/
+  box-shadow: 6px 5px 8px rgba(0, 0, 0, 0.05);
+  padding: 3rem; /* space inside border */
+  box-sizing: border-box;
+}
+
+/* Responsive: stack on small screens so the image moves underneath */
+@media (max-width: 640px) {
+  .players-section {
+    flex-wrap: wrap;        /* allow stacking on phones */
+    gap: 1rem;
+  }
+  .bocce-image {
+    max-width: 70%;
+  }
+}

@@ -9,9 +9,11 @@ return (
         <div className="page-layout has-sidebar container">
             <div className="content-column">
                 <section id="about" className="section features">
-                    <h2>Friday Event Schedule</h2>
 
+                    <h2>Friday Event Schedule</h2>
+                    
                 <div className="schedule-grid" role="list">
+
                     <article className="schedule-item" role="listitem">
                         <div className="meta">
                             <div className="time">3:00pm - 5:00pm</div>
