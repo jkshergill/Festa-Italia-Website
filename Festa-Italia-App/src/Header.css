@@ -1,0 +1,22 @@
+.site-header{background:var(--flag-green);color:var(--flag-white);display:block;width:100%;box-sizing:border-box;position:relative;z-index:10}
+.header-inner{display:flex;align-items:center;justify-content:flex-start;padding:0.75rem 0;position:relative}
+.logo{font-weight:700;color:var(--flag-white);text-decoration:none;font-size:1.25rem}
+.logo-wrap{display:flex;align-items:center;gap:0.5rem}
+.logo img{display:block;height:auto;max-height:40px;width:auto}
+
+.nav-toggle{display:inline-flex;background:#333333;border:none;color:var(--flag-white);padding:0.25rem;border-radius:6px;align-items:center;justify-content:center;position:absolute;right:0.5rem;top:50%;transform:translateY(-50%);z-index:20}
+.nav-toggle svg{display:block}
+.nav-toggle svg .line-top{stroke:var(--flag-green)}
+.nav-toggle svg .line-mid{stroke:var(--flag-white)}
+.nav-toggle svg .line-bottom{stroke:var(--flag-red)}
+.nav-toggle svg path{stroke-width:2;stroke-linecap:round}
+.nav-toggle:focus{outline:2px solid rgba(255,255,255,0.25);outline-offset:3px}
+
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* Primary navigation dropdown (used by the hamburger) */
+.primary-nav{position:absolute;top:100%;right:0.75rem;background:var(--flag-white);color:var(--text);padding:0.5rem;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.12);display:none;z-index:18;min-width:180px}
+.primary-nav.open{display:block}
+.primary-nav ul{list-style:none;margin:0;padding:0}
+.primary-nav li a{display:block;padding:0.5rem 0.75rem;color:var(--text);text-decoration:none;border-radius:4px}
+.primary-nav li a:hover,.primary-nav li a:focus{background:rgba(0,0,0,0.04)}

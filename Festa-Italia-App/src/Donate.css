@@ -1,0 +1,66 @@
+#donate-body {
+  background-color: rgb(228, 225, 225);
+  background-image: none;
+}
+
+.header {
+  background-color: rgb(59, 149, 6);
+  position: relative;
+  top: -390px;
+  width: 1699px;
+}
+
+.header-text {
+  color: rgb(0, 0, 0);
+  font-size: 32px;
+  text-align: center;
+  padding: 10px;
+}
+
+.donate-form {
+ background-color: rgb(175, 173, 173);
+ width: 750px;
+ position:absolute;
+ height: 570px;
+ top: 110px;
+ left: 100px;
+}
+
+.amount-section {
+  font-size: 24px;
+  color: black;
+  margin-left: 25px;
+}
+
+.enter-amount {
+  margin-left: 25px;
+  width: 200px;
+  height: 30px;
+  font-size: 18px;
+  background-color: white;
+  color: black;
+}
+
+.enter-amount-div { /* The only purpose of this div is to add margin-top to the input field */
+  margin-top: 15px;
+}
+
+.note-section {
+  font-size: 24px;
+  color: black;
+  margin-left: 25px;
+}
+
+.note-div { /* The only purpose of this div is to add margin-top to the textarea field */
+  margin-top: 25px;
+}
+
+.note-box {
+  color: black;
+  background-color: white;
+  margin-left: 25px;
+  font-size: large;
+  width: 650px;
+  height: 200px; 
+  overflow: hidden;
+}

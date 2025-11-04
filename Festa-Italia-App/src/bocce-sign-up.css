@@ -21,13 +21,15 @@
   text-align: center;
 }
 
-/* logo top-right corner */
+/* logo top-right corner
 .logo {
   position: fixed;
   top: 16px;
   left: 16px;
   height: 60px;
 }
+
+conflicts with app css */
 
 /* team name label styling */
 .team-label {
@@ -111,7 +113,8 @@
 }
 
 /* space above the submit button */
-button {
+
+/*button {
   background-color: #8dcf7f;
   margin-top: 24px;
   margin-left: 110px;
@@ -120,8 +123,10 @@ button {
 }
 
 button:hover {
-  background-color: #218838; /* darker green on hover */
+  background-color: #218838; // darker green on hover
 }
+  both of these conflict with app.css buttons and need to be worked on together */
+
 
 /* border container styling */
 .border {
