@@ -1,38 +1,32 @@
-#donate-body {
-  background-color: rgb(228, 225, 225);
+.donate-body {
+  background-color: rgb(228, 239, 151);
   background-image: none;
 }
 
-.header {
-  background-color: rgb(59, 149, 6);
-  position: relative;
-  top: -390px;
-  width: 1699px;
-}
-
-.header-text {
-  color: rgb(0, 0, 0);
+.donate-thank-you-message {
   font-size: 32px;
-  text-align: center;
-  padding: 10px;
+  color: black;
+  position: relative;
+  top: -230px;
+  margin-top: 50px;
 }
 
 .donate-form {
- background-color: rgb(175, 173, 173);
- width: 750px;
- position:absolute;
- height: 570px;
- top: 110px;
- left: 100px;
+  background-color: rgb(243, 132, 132);
+  width: 750px;
+  position:absolute;
+  height: 570px;
+  top: 150px;
+  left: 100px;
 }
 
-.amount-section {
+.donate-amount-section {
   font-size: 24px;
   color: black;
   margin-left: 25px;
 }
 
-.enter-amount {
+.donate-enter-amount {
   margin-left: 25px;
   width: 200px;
   height: 30px;
@@ -41,26 +35,72 @@
   color: black;
 }
 
-.enter-amount-div { /* The only purpose of this div is to add margin-top to the input field */
+.donate-enter-amount-div { /* The only purpose of this div is to add margin-top to the input field */
   margin-top: 15px;
 }
 
-.note-section {
+.donate-note-section {
   font-size: 24px;
   color: black;
   margin-left: 25px;
 }
 
-.note-div { /* The only purpose of this div is to add margin-top to the textarea field */
+.donate-note-div { /* The only purpose of this div is to add margin-top to the textarea field */
   margin-top: 25px;
 }
 
-.note-box {
+.donate-note-box {
   color: black;
   background-color: white;
   margin-left: 25px;
   font-size: large;
-  width: 650px;
+  width: 670px;
   height: 200px; 
   overflow: hidden;
+}
+
+.donate-character-counter-div {
+  margin-left: 618px;
+  width: fit-content;
+  background-color: white;
+}
+
+.donate-character-counter {
+  font-size: 20px;
+  color: black;
+}
+
+.donate-logo-section {
+  font-size: 22px;
+  color: black;
+  margin-left: 25px;
+}
+
+.donate-upload-logo {
+  margin-left: 25px;
+  font-size: 18px;
+  background-color: white;
+  color: rgb(0, 0, 0);
+}
+
+.donate-clover-button-div {
+  margin-top: 30px;
+  margin-left: 25px;
+}
+
+.donate-clover-button {
+  width: 200px;
+  height: 40px;
+  background-color: rgb(59, 149, 6);
+  color: white;
+  font-size: 18px;
+  border: none;
+  border-radius: 30px;
+}
+
+.donate-clover-button:hover {
+  cursor: pointer;
+  background-color: rgb(59, 149, 6);
+  opacity: 0.8;
+  box-shadow: 5px 5px 10px rgb(0, 0, 0, 0.15);
 }
