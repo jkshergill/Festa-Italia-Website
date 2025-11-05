@@ -13,8 +13,15 @@ import Scholarship from './Scholarship'
 import Signup from './Signup'
 import Shopping from './Shopping'
 import AuthStatus from './AuthStatus';
+import MockCheckout from "./MockCheckout";
 
 export default function App(){
+  
+  //MOCK CHECKOUT ROUTE - REMOVE AFTER ADDING CLOVER
+  if (window.location.pathname === "/mock-checkout") {
+  return <MockCheckout />;
+}
+
   const [page, setPage] = useState('home')
   const [menuOpen, setMenuOpen] = useState(false)
 
