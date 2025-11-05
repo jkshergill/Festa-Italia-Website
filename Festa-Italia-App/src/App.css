@@ -59,6 +59,7 @@ button:hover {
 .nav-toggle svg .line-bottom{stroke:var(--flag-red)}
 .nav-toggle svg path{stroke-width:2;stroke-linecap:round}
 .nav-toggle:focus{outline:2px solid rgba(255,255,255,0.25);outline-offset:3px}
+.top-menu{ width:min(88vw, 320px); }
 
 .header-inner{gap:1rem}
   .primary-nav{position:absolute;top:64px;right:1rem;background:rgba(255,255,255,0.97);padding:0.75rem;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.08);display:none}
