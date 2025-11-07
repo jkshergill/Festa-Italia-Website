@@ -13,7 +13,15 @@ import Scholarship from './Scholarship'
 import Signup from './Signup'
 import Shopping from './Shopping'
 
+import { useEffect } from 'react'
+
 export default function App(){
+
+    useEffect(() => { {/* Set body ID for styling */}
+        document.body.id = 'app-body-id';
+        document.body.className = 'app-body';
+      }, []);
+
     const [page, setPage] = useState('home')
     const [menuOpen, setMenuOpen] = useState(false)
 
@@ -59,7 +67,7 @@ export default function App(){
     function navButtons(){
         return(
             menuOpen && (
-                <div className="top-menu" role="menu" aria-label="App pages" style={{position:'absolute',right:16,top:'56px',background:'#fff',borderRadius:8,boxShadow:'0 6px 18px rgba(0,0,0,0.12)',padding:'0.5rem'}}>
+                <div className="top-menu" role="menu" aria-label="App pages" style={{position:'absolute',right:16,top:'56px',background:'#37b932ff',borderRadius:8,boxShadow:'0 6px 18px rgba(0,0,0,0.12)',padding:'0.5rem'}}>
                     <button role="menuitem" onClick={() => { setPage('home'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Home</button>
                     <button role="menuitem" onClick={() => { setPage('festival'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Fishermans Festival</button>
                     <button role="menuitem" onClick={() => { setPage('bocce-dash'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Bocce Tournament</button>
@@ -69,9 +77,9 @@ export default function App(){
                     <button role="menuitem" onClick={() => { setPage('login'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Log in</button>
                     <button role="menuitem" onClick={() => { setPage('shopping'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Shopping</button>
 {/*will be removed*/}<button role="menuitem" onClick={() => { setPage('bocce-sign'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Bocce Sign up</button>
-{/*will be removed*/}<button role="menuitem" onClick={() => { setPage('coronation-tix'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Buy Coronation Tickets</button>
+{/*will be removed*/}<button role="menuitem" onClick={() => { setPage('coronation-tix'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Coronation Ball Tickets</button>
 {/*will be removed*/}<button role="menuitem" onClick={() => { setPage('forgot-pass'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Forgot Password</button>
-{/*will be removed*/}<button role="menuitem" onClick={() => { setPage('signup'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Signup</button>
+{/*will be removed*/}<button role="menuitem" onClick={() => { setPage('signup'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Create Account </button>
 
                 </div>
             )
@@ -90,9 +98,11 @@ export default function App(){
 
     function footer(){
         return(
-            <div className="container footer-inner">
-                <img src="../../images/logo_01.jpeg" alt="Festa Italia logo" height={100} />
-                <p> Festa Italia Foundation, Inc. All rights reserved.</p>
+            <div className='footer-div'>
+                <div className="container-footer-inner">
+                    <img className='footer-logo' src="../../images/logo_01.jpeg" alt="Festa Italia logo" height={100} />
+                    <p className='footer-text'> Festa Italia Foundation, Inc. All rights reserved.</p>
+                </div>
             </div>
         )
     }
@@ -100,14 +110,16 @@ export default function App(){
     return (
         <div>
             {/* App header: logo on left, small menu button on the right */}
-            <header className="site-header">
-                <div className="container header-inner" style={{alignItems:'center'}}>
-                    {header()}
-                    <div style={{flex:1}} />
-                    {burgerButton()}
-                    {navButtons()}
-                </div>
-            </header>
+            <div className="site-header-div">
+                <header className="site-header">
+                    <div className="container header-inner" style={{alignItems:'center'}}>
+                        {header()}
+                        <div style={{flex:1}} />
+                        {burgerButton()}
+                        {navButtons()}
+                    </div>
+                </header>
+            </div>
 
             <main>
                 <div>
@@ -115,9 +127,11 @@ export default function App(){
                 </div>
             </main>
 
-            <footer className="site-footer">
-                {footer()}
-            </footer>
+            <div className='site-footer-div'>
+                <footer className="site-footer">
+                    {footer()}
+                </footer>
+            </div>
         </div>
     )
 }

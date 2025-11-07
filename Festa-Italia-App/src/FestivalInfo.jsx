@@ -1,8 +1,15 @@
 // Import the original stylesheet from the sibling `frontend/style` folder.
 // Note: this path goes up two levels from this file (src -> react-festival -> frontend)
 import './festival_info.css'
+import { useEffect } from 'react'
 
 export default function FestivalInfo(){
+
+useEffect(() => { {/* Set body ID for styling */}
+    document.body.id = 'festival-info-body-id';
+    document.body.className = 'festival-info-body';
+  }, []);
+
 return (
     <div>
     <main>

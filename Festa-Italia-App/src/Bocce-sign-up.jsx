@@ -1,11 +1,17 @@
 //src/bocce-sign-up.css
 import './bocce-sign-up.css'; 
+import { useEffect } from 'react';
 
 export default function BocceSignUp() {
   // Prevent full page reload on submit; ***PLUG IN submit logic later***
   const handleSubmit = (e) => {
     e.preventDefault();
   };
+
+    useEffect(() => { // Set body ID for styling
+      document.body.id = 'bocce-body-id';
+      document.body.className = 'bocce-body';
+    }, []);
 
   return (
     // Using a wrapper instead of <body>. "body" class for styling.

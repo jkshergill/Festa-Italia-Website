@@ -3,7 +3,8 @@ import './Login.css';
 
 function Login() {
     useEffect(() => {
-        document.body.id = 'login-body';
+        document.body.id = 'login-body-id';
+        document.body.className = 'login-body';
     }, []);
     return (
         <div className="form__container">

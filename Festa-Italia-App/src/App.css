@@ -45,11 +45,31 @@ button:hover {
 }
 
 /* old header - to be made pretty */
-.site-header{background:linear-gradient(90deg, rgba(0,146,70,0.95), rgba(255,255,255,0.0));color:var(--flag-white)}
+/*.site-header{background:linear-gradient(90deg, rgba(0,146,70,0.95), rgba(255,255,255,0.0));color:var(--flag-white)}
 .header-inner{display:flex;align-items:center;justify-content:flex-start;padding:0.75rem 0;position:relative}
 .logo{font-weight:700;color:var(--flag-white);text-decoration:none;font-size:1.25rem}
 .logo-wrap{display:flex;align-items:center;gap:0.5rem}
-.logo img{display:block;height:auto;max-height:40px;width:auto}
+.logo img{display:block;height:auto;max-height:40px;width:auto} */
+
+.site-header{
+  height: 80px;
+  background:linear-gradient(90deg, rgba(0,146,70,0.95), rgba(255,255,255,0));
+  width: 1650px;
+}
+
+.logo {
+  position: relative;
+  right: 650px;
+  top: 10px;
+}
+
+.logo-wrap{
+
+}
+
+.logo img{
+  height: 50px;
+}
 
 /* hamburger - to be made pretty */
 .nav-toggle{display:inline-flex;background:#333333;border:none;color:var(--flag-white);padding:0.25rem;border-radius:6px;align-items:center;justify-content:center;position:absolute;right:0.5rem;top:50%;transform:translateY(-50%);z-index:20}
@@ -64,3 +84,43 @@ button:hover {
   .primary-nav{position:absolute;top:64px;right:1rem;background:rgba(255,255,255,0.97);padding:0.75rem;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.08);display:none}
   .primary-nav.open{display:block}
   .nav-toggle{display:inline-block}
+
+.site-header-div {
+  position: relative;
+  top: -31px;
+  right: 245px;
+  width: 1650px;
+}
+
+.footer-div {
+  height: 160px;
+}
+
+.site-footer-div {
+}
+
+.site-footer {
+  border-color: black;
+  border-style: solid;
+  border-width: 50px;
+  width: 1680px;
+  position: relative;
+  top: 0;
+  right: 235px;
+}
+
+.footer-logo {
+  position: relative;
+  left: 45%;
+}
+
+.footer-text {
+  position: relative;
+  width: fit-content;
+  left: 35%;
+}
+
+.app-body {
+  height: 1510px;
+  background-color: white;
+}
