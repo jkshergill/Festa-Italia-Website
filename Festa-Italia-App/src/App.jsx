@@ -18,6 +18,8 @@ import AuthStatus from './AuthStatus';
 import MockCheckout from "./MockCheckout";
 
 export default function App(){
+    const [page, setPage] = useState('home')
+    const [menuOpen, setMenuOpen] = useState(false)
 
     useEffect(() => { {/* Set body ID for styling */}
         document.body.id = 'app-body-id';
@@ -29,9 +31,6 @@ export default function App(){
   if (window.location.pathname === "/mock-checkout") {
   return <MockCheckout />;
 }
-
-  const [page, setPage] = useState('home')
-  const [menuOpen, setMenuOpen] = useState(false)
 
   function renderPage(){
     switch(page){
