@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import "./CoronationBallTickets.css"; // optional external CSS file if you want to style separately
+import { createClient } from '@supabase/supabase-js';
 
 export default function TicketPurchase() {
+
   const prices = { adult: 20, child: 10, senior: 15 };
 
   const [quantities, setQuantities] = useState({
@@ -45,17 +47,74 @@ export default function TicketPurchase() {
     updated[index] = value;
     setNames(updated);
   };
+  
+  //SUPABASE CLIENT
+  const supabase = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY);
 
-  const handleCheckout = () => {
-    if (names.some((name) => name.trim() === "")) {
+  //Hook up checkout to MOCK or CLOVER based on env
+  const handleCheckout = async () => {
+  try {
+    // Build line items (amounts in cents)
+    const lineItems = [];
+    if (quantities?.adult > 0)  lineItems.push({ name: "Ball Ticket - Adult",  price: 2000, unitQty: quantities.adult });
+    if (quantities?.child > 0)  lineItems.push({ name: "Ball Ticket - Child",  price: 1000, unitQty: quantities.child });
+    if (quantities?.senior > 0) lineItems.push({ name: "Ball Ticket - Senior", price: 1500, unitQty: quantities.senior });
+
+    if (!lineItems.length) {
+      alert("Please select at least one ticket.");
+      return;
+    }
+    if (names?.some((n) => !n || !n.trim())) {
       alert("Please fill in all ticket holder names.");
       return;
     }
 
-    alert(`Proceeding to checkout for ${names.length} tickets.\nThank you!`);
-    // Here you could navigate to your checkout route, e.g.:
-    // navigate("/checkout");
-  };
+    // Get buyer email + JWT (use user token if logged-in; fall back to anon key)
+    const [{ data: userRes }, { data: sessionRes }] = await Promise.all([
+      supabase.auth.getUser(),
+      supabase.auth.getSession(),
+    ]);
+    const buyerEmail = userRes?.user?.email ?? null;
+    const jwt = sessionRes?.session?.access_token ?? import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+    const url = `${import.meta.env.VITE_SUPABASE_FUNCTION_URL}/create-checkout`;
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        // If Verify JWT is ON (recommended), keep BOTH of these:
+        "apikey": import.meta.env.VITE_SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${jwt}`,
+      },
+      body: JSON.stringify({
+        buyerEmail,
+        lineItems,
+        attendeeNames: names ?? [],
+      }),
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error(`Checkout HTTP ${res.status}:`, text);
+      alert(`Checkout failed (${res.status}). See console for details.`);
+      return;
+    }
+
+    const { href } = await res.json();
+    if (!href) {
+      console.error("No href in response");
+      alert("Checkout link missing. Please try again.");
+      return;
+    }
+
+    window.location.assign(href); // mock page (dev) or Clover (prod)
+  } catch (err) {
+    console.error(err);
+    alert("Unexpected error. Please try again.");
+  }
+};
+
 
   useEffect(() => {
         document.body.id = 'coronation-ball-tickets-body-id';
@@ -69,7 +128,7 @@ export default function TicketPurchase() {
       {step === "selection" && (
         <div className="ticket-section">
           <div className="ticket-type">
-            <label>Adult Ticket (${prices.adult})</label>
+            <label>{`Adult Ticket ($${prices.adult})`}</label>
             <input
               type="number"
               min="0"
@@ -79,7 +138,7 @@ export default function TicketPurchase() {
           </div>
 
           <div className="ticket-type">
-            <label>Child Ticket (${prices.child})</label>
+            <label>{`Child Ticket ($${prices.child})`}</label>
             <input
               type="number"
               min="0"
@@ -89,7 +148,7 @@ export default function TicketPurchase() {
           </div>
 
           <div className="ticket-type">
-            <label>Senior Ticket (${prices.senior})</label>
+            <label>{`Senior Ticket ($${prices.senior})`}</label>
             <input
               type="number"
               min="0"
@@ -98,7 +157,7 @@ export default function TicketPurchase() {
             />
           </div>
 
-          <div className="total">Total: ${total}</div>
+          <div className="total">{`Total: $${total}`}</div>
 
           <button onClick={handleContinue}>Continue</button>
         </div>

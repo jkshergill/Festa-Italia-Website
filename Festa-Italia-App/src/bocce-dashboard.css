@@ -43,6 +43,44 @@ conflicts with app css */
   text-align: center;
 }
 
+/* "Current Teams" container (top-left under title) */
+.current-teams {
+  background-color: #fff8f8;
+  color: #000;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
+  padding: 1rem 1.5rem;
+  width: 280px;
+  margin-top: 1.5rem;
+  margin-left: 1rem;  /* keeps it aligned to left side */
+}
+
+.current-teams h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+/* Current Teams list styling */
+.teams-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.team-item {
+  background-color: #f6f6f6;
+  color: #000;
+  border-radius: 8px;
+  padding: 6px 10px;
+  border: 1px solid rgba(0,0,0,0.15);
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+  font-weight: 500;
+}
+
 /* Bocce game image area */
 .bocce-game-section {
   display: flex;
@@ -59,4 +97,121 @@ conflicts with app css */
   border-radius: 12px;
   box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.25);
   border: 2px solid rgba(0, 0, 0, 0.15);
+}
+
+/* Layout container for image + winners (side-by-side under the title) */
+.bocce-dashboard-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+/* Right-side "Previous Winners" box */
+.previous-winners {
+  background-color: #fff8f8;  /* keep this if you like the light box color */
+  color: #000;                /* ✅ make all text inside black */
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
+  padding: 1.25rem 1rem;
+  width: 280px;
+  min-height: 200px;
+}
+
+/* Middle section for team details */
+.team-members-container {
+  flex: 1;
+  background-color: #fff8f8;
+  color: #000;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
+  padding: 1.5rem;
+  min-width: 350px;
+  max-width: 500px;
+  text-align: left;
+}
+
+/* Each team box inside the middle section */
+.team-card {
+  background-color: #f6f6f6;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  padding: 1rem;
+  margin-top: 1rem;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.team-card h3 {
+  margin-bottom: 0.5rem;
+  font-size: 1.25rem;
+}
+
+.member-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sponsor {
+  margin-top: 0.75rem;
+  font-weight: 600;
+  color: #222;
+}
+
+/* Adjust the dashboard layout to make space for the middle section */
+.bocce-dashboard-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+/* Winners list */
+.winners-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0 0;
+  display: grid;
+  row-gap: 10px;
+}
+
+.winner-item {
+  display: grid;
+  grid-template-columns: 70px 1fr; /* year | team */
+  column-gap: 10px;
+  align-items: baseline;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.winner-item:last-child {
+  border-bottom: none;
+}
+
+.winner-year {
+  font-weight: 700;
+}
+
+.winner-team {
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+/* Responsive: stack on small screens */
+@media (max-width: 720px) {
+  .bocce-dashboard-content {
+    flex-direction: column;
+    align-items: center;
+  }
+  .previous-winners {
+    width: 100%;
+    max-width: 420px;
+  }
 }
