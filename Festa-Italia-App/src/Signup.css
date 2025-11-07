@@ -14,7 +14,7 @@
   height: 600px;
   background-color: rgb(254, 254, 254);
   margin-bottom: 200px;
-  margin-left: 500px;
+  margin-left: 300px;
   border-radius: 20px;
   border-style: solid; /* This create the black outline of the border */
   box-shadow: 6px 5px 8px rgba(0, 0, 0, 0.05);
@@ -22,14 +22,14 @@
 }
 
 .signup-text {
-  margin-left: 235px;
+  margin-left: 265px;
   font-size: 65px;
   color: black;
 }
 
 .signup-logo-02 {
   margin-top: 50px;
-  margin-left: 175px;
+  margin-left: 220px;
   width: 350px;
 }
 

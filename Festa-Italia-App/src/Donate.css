@@ -1,13 +1,15 @@
 .donate-body {
   background-color: rgb(228, 239, 151);
   background-image: none;
+  min-height: 1080px;
+  display: flex;
 }
 
 .donate-thank-you-message {
   font-size: 32px;
   color: black;
   position: relative;
-  top: -230px;
+  top: -100px;
   margin-top: 50px;
 }
 

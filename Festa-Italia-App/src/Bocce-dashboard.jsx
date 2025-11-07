@@ -1,7 +1,14 @@
 // src/Bocce-dashboard.jsx
-import './bocce-dashboard.css';
+import './bocce-dashboard.css'; // Reuse existing shared styles
+import { useEffect } from 'react';
 
 export default function BocceDashboard() {
+
+    useEffect(() => { // Set body ID for styling
+      document.body.id = 'dashboard-body-id';
+      document.body.className = 'dashboard-body';
+    }, []);
+
   const currentYear = new Date().getFullYear();
 
   const previousWinners = [

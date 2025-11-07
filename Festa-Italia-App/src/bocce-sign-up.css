@@ -1,8 +1,8 @@
 /* body styling */
 .Bocce-signup-body {
-  width: 100vw;         /* full viewport width */
+  width: 1050px;         /* full viewport width */
   height: 100vh;        /* full viewport height */
-  background-color: #8dcf7f; /* green background */
+  background-color: #f0f182; /* green background */
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -11,6 +11,11 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start; /* keeps logo + form starting from top */
+}
+
+.bocce-body {
+  background-color: #f0f182;
+  height: 980px;
 }
 
 /* heading styling */

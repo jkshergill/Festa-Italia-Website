@@ -16,7 +16,8 @@ import { supabase } from './supabaseClient';
 
 function Login({ setPage }) {
   useEffect(() => {
-    document.body.id = 'login-body';
+    document.body.id = 'login-body-id';
+        document.body.className = 'login-body';
   }, []);
 
   // [SUPABASE] Controlled inputs + status message
