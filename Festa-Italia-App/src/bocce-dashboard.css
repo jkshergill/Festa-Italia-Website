@@ -1,49 +1,86 @@
-.Bocce-dashboard-body {
-  width: 1100px;
-  background-color: #8dcf7f; /* same green as sign-up */
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* =========================================================
+   BOCCE DASHBOARD - merged and updated stylesheet
+   ========================================================= */
 
+/* Green background for page */
+.bd-body {
+  min-height: 100vh;
+  background-color: #82c575; /* same green as sign-up */
+}
+
+/* Main container */
+.bd-page {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
 }
 
-.dashboard-body {
-  height: 1200px;
-  background-color: #8dcf7f;
-}
-
-/* Reuse or adapt these if not already present
-.logo {
-  position: fixed;
-  top: 16px;
-  left: 16px;
-  height: 60px;
-}
-
-conflicts with app css */
-.border {
-  background-color: rgb(230, 170, 170); /* light pink box like sign-up */
-  width: 90%;
-  height: 50px;
-  margin: 100px auto;
+/* Pink bordered container (was .border) */
+.bd-border {
+  background-color: rgb(230, 170, 170);
+  width: min(1400px, calc(100vw - 200px)); /* within 100px of edges */
   border-radius: 20px;
   border: 2px solid black;
   box-shadow: 6px 5px 8px rgba(0, 0, 0, 0.05);
-  padding: 3rem;
+  padding: 2rem;
   box-sizing: border-box;
 }
 
-.title {
-  margin-top: 40px;
+/* Dashboard title */
+.bd-title {
+  margin-top: 20px;
   font-size: clamp(2rem, 8vw, 64px);
   text-align: center;
 }
 
-/* "Current Teams" container (top-left under title) */
+/* Layout grid (image | teams | winners) */
+.bd-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 0.9fr;
+  gap: 1.5rem;
+  align-items: start;
+  margin-top: 1rem;
+}
+
+/* Columns */
+.bd-col-left {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.bd-col-middle {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.bd-col-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Bocce images */
+.bocce-game-image {
+  width: 100%;
+  max-width: 540px; /* bigger */
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.25);
+  border: 2px solid rgba(0, 0, 0, 0.15);
+}
+
+.bocce-side-image {
+  width: 100%;
+  max-width: 380px;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
+  border: 2px solid rgba(0, 0, 0, 0.15);
+  align-self: flex-start;
+}
+
+/* Current Teams box */
 .current-teams {
   background-color: #fff8f8;
   color: #000;
@@ -53,7 +90,7 @@ conflicts with app css */
   padding: 1rem 1.5rem;
   width: 280px;
   margin-top: 1.5rem;
-  margin-left: 1rem;  /* keeps it aligned to left side */
+  margin-left: 1rem;
 }
 
 .current-teams h2 {
@@ -61,7 +98,7 @@ conflicts with app css */
   font-size: 1.5rem;
 }
 
-/* Current Teams list styling */
+/* Teams list inside current teams */
 .teams-list {
   list-style: none;
   padding: 0;
@@ -76,51 +113,30 @@ conflicts with app css */
   color: #000;
   border-radius: 8px;
   padding: 6px 10px;
-  border: 1px solid rgba(0,0,0,0.15);
-  box-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
   font-weight: 500;
 }
 
-/* Bocce game image area */
-.bocce-game-section {
-  display: flex;
-  justify-content: flex-start; /* align left */
-  align-items: center;
-  margin-top: 2rem; /* spacing under title */
-}
-
-/* Image itself */
-.bocce-game-image {
-  width: 100%;
-  max-width: 450px;     /* controls how big it can get */
-  height: auto;         /* keeps aspect ratio */
+/* Sign Up button (below current teams) */
+.signup-info-btn {
+  margin-top: 1rem;
+  padding: 10px 14px;
   border-radius: 12px;
-  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.25);
-  border: 2px solid rgba(0, 0, 0, 0.15);
+  border: 1px solid #dcdcdc;
+  background: #0c0000;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  transition: transform 120ms ease, box-shadow 120ms ease;
 }
 
-/* Layout container for image + winners (side-by-side under the title) */
-.bocce-dashboard-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 2rem;
-  margin-top: 2rem;
+.signup-info-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.16);
 }
 
-/* Right-side "Previous Winners" box */
-.previous-winners {
-  background-color: #fff8f8;  /* keep this if you like the light box color */
-  color: #000;                /* ✅ make all text inside black */
-  border: 2px solid rgba(0, 0, 0, 0.2);
-  border-radius: 12px;
-  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
-  padding: 1.25rem 1rem;
-  width: 280px;
-  min-height: 200px;
-}
-
-/* Middle section for team details */
+/* Team Members (middle column) */
 .team-members-container {
   flex: 1;
   background-color: #fff8f8;
@@ -134,7 +150,6 @@ conflicts with app css */
   text-align: left;
 }
 
-/* Each team box inside the middle section */
 .team-card {
   background-color: #f6f6f6;
   border: 1px solid rgba(0, 0, 0, 0.15);
@@ -164,16 +179,18 @@ conflicts with app css */
   color: #222;
 }
 
-/* Adjust the dashboard layout to make space for the middle section */
-.bocce-dashboard-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 2rem;
-  margin-top: 2rem;
+/* Previous Winners (right column) */
+.previous-winners {
+  background-color: #fff8f8;
+  color: #000;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
+  padding: 1.25rem 1rem;
+  width: 280px;
+  min-height: 200px;
 }
 
-/* Winners list */
 .winners-list {
   list-style: none;
   padding: 0;
@@ -184,11 +201,11 @@ conflicts with app css */
 
 .winner-item {
   display: grid;
-  grid-template-columns: 70px 1fr; /* year | team */
+  grid-template-columns: 70px 1fr;
   column-gap: 10px;
   align-items: baseline;
   padding-bottom: 8px;
-  border-bottom: 1px solid rgba(0,0,0,0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .winner-item:last-child {
@@ -204,14 +221,44 @@ conflicts with app css */
   opacity: 0.9;
 }
 
-/* Responsive: stack on small screens */
-@media (max-width: 720px) {
-  .bocce-dashboard-content {
-    flex-direction: column;
-    align-items: center;
+/* Sponsor Information Box (below team names) */
+.sponsor-info-box {
+  background-color: #fff8f8;
+  color: #000;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
+  padding: 1.5rem 1rem;
+  text-align: center;
+}
+
+.sponsor-info-box h2 {
+  margin-top: 0;
+  font-size: 1.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.sponsor-info-box p {
+  margin: 0.5rem 0;
+  line-height: 1.4;
+  font-size: 1.05rem;
+}
+
+/* Responsive behavior */
+@media (max-width: 960px) {
+  .bd-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
-  .previous-winners {
+  .bocce-game-image,
+  .bocce-side-image {
+    max-width: 100%;
+  }
+  .previous-winners,
+  .team-members-container,
+  .sponsor-info-box {
     width: 100%;
     max-width: 420px;
+    margin: 0 auto;
   }
 }
