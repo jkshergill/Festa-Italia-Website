@@ -1,7 +1,15 @@
 import './HomePage.css';
+import { useEffect } from 'react';
 
 export default function HomePage() {
+
+  useEffect(() => { // Set body ID for styling
+    document.body.id = 'homepage-body-id';
+    document.body.className = 'homepage-body';
+  }, []);
+
   return (
+    
     <div className="page-root">
 
       <main>

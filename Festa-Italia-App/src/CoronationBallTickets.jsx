@@ -117,7 +117,8 @@ export default function TicketPurchase() {
 
 
   useEffect(() => {
-        document.body.id = 'coronation-ball-tickets-body';
+        document.body.id = 'coronation-ball-tickets-body-id';
+        document.body.className = 'coronation-ball-tickets-body';
       }, []);
 
   return (
