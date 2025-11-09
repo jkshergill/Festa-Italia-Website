@@ -77,7 +77,7 @@ export default function App(){
             right:'4.5rem',   // was 16px
             top:'64px',       // was 56px
             zIndex: 1000,     // sits under the 1001 button
-            background:'#fff',
+            background:'#fc0000ff',
             borderRadius:8,
             boxShadow:'0 6px 18px rgba(0,0,0,0.12)',
             padding:'0.5rem'
