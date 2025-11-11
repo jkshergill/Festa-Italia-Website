@@ -143,7 +143,10 @@ export default function App(){
               </div>
 
               <div style={{ flex: 1 }} />
-              <AuthStatus />
+
+              <div className="auth-status-wrap">
+                <AuthStatus onLogin={() => setPage('login')} />
+              </div>
 
               {burgerButton()}
               {navButtons()}
