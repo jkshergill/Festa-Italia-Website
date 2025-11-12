@@ -11,7 +11,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';
 
-export default function AuthStatus() {
+export default function AuthStatus({ onLogin }) {
   const [userEmail, setUserEmail] = useState(null);
 
   useEffect(() => {
@@ -72,8 +72,24 @@ export default function AuthStatus() {
             Sign out
           </button>
         </>
-      ) : (
-        <span style={{ fontSize: '0.9rem', color: '#000' }}>Not signed in</span>
+     ) : (
+        <button
+          type="button"
+          onClick={() => onLogin?.()}
+          style={{
+            cursor: 'pointer',
+            border: '1px solid rgba(0,0,0,0.25)',
+            borderRadius: '6px',
+            background: '#000',
+            color: '#fff',
+            padding: '2px 8px',
+            fontSize: '0.85rem'
+          }}
+          aria-label="Sign in"
+          title="Sign in"
+        >
+          Sign In
+        </button>
       )}
     </div>
   );

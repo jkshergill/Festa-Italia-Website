@@ -58,8 +58,6 @@ export default function HomePage() {
               </svg>
             </a>
           </div>
-
-          <p>Festa Italia Foundation, Inc. All rights reserved.</p>
         </div>
       </footer>
     </div>

@@ -84,7 +84,7 @@ export default function App(){
             right:'4.5rem',   // was 16px
             top:'64px',       // was 56px
             zIndex: 1000,     // sits under the 1001 button
-            background:'#fff',
+            background:'#fc0000ff',
             borderRadius:8,
             boxShadow:'0 6px 18px rgba(0,0,0,0.12)',
             padding:'0.5rem'
@@ -135,15 +135,25 @@ export default function App(){
       {/* App header: logo on left, small menu button on the right */}
         <div className="site-header-div">
           <header className="site-header">
-            <div className="container header-inner" style={{alignItems:'center'}}>
-            {header()}
-            <div style={{flex:1}} />
-            <AuthStatus />
-          {burgerButton()}
+            <div className="header-inner">
+              <div className="logo-wrap">
+                <a href="#" className="logo" aria-label="Festa Italia home" onClick={() => { setPage('home'); setMenuOpen(false); }}>
+                  <img src="../images/logo2.gif" alt="Festa Italia logo" />
+                </a>
+              </div>
+
+              <div style={{ flex: 1 }} />
+
+              <div className="auth-status-wrap">
+                <AuthStatus onLogin={() => setPage('login')} />
+              </div>
+
+              {burgerButton()}
               {navButtons()}
             </div>
           </header>
-            </div>
+        </div>
+
 
       <main>
         <div>{renderPage()}</div>
