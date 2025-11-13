@@ -18,12 +18,12 @@ export default function BocceSignUp() {
     <div className="Bocce-signup-body">
 
       {/* Border wrapper */}
-      <div className="border">
+      <div className="bocce-border">
         {/* Heading */}
-        <h1 className="title">Bocce Team Sign-up</h1>
+        <h1 className="bocce-title">Bocce Team Sign-up</h1>
 
         {/* Form */}
-        <form className="signup-form" onSubmit={handleSubmit}>
+        <form className="bocce-signup-form" onSubmit={handleSubmit}>
           {/* Team name */}
           <div className="players-list team-input">
             <label>What is the name of your team:</label>
