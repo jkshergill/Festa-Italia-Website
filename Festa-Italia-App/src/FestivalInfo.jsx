@@ -1,102 +1,112 @@
-// Import the original stylesheet from the sibling `frontend/style` folder.
-// Note: this path goes up two levels from this file (src -> react-festival -> frontend)
-import './festival_info.css'
+import './FestivalInfoPage.css';
+import { useEffect } from 'react';
 
-export default function FestivalInfo(){
-return (
-    <div>
-    <main>
-        <div className="page-layout has-sidebar container">
-            <div className="content-column">
-                <section id="about" className="section features">
+export default function FestivalInfo() {
+  useEffect(() => {
+    document.body.id = 'festival-info-body-id';
+    document.body.classList.add('festival-info-body');
+    return () => {
+      document.body.classList.remove('festival-info-body');
+    };
+  }, []);
 
-                    <h2>Friday Event Schedule</h2>
-                    
-                <div className="schedule-grid" role="list">
+  return (
+    <div className="festival-info-body">
+      <main>
+        <div className="festival-container">
+          <section id="about" className="section features">
+            <h2>Friday Event Schedule</h2>
 
-                    <article className="schedule-item" role="listitem">
-                        <div className="meta">
-                            <div className="time">3:00pm - 5:00pm</div>
-                            <img src="../../images/scarlet_band.jpg" alt="Scarlet band" />
-                        </div>
-                        <div className="desc">
-                            <div className="act">Scarlet</div>
-                            <div className="bio">Scarlet brings high-energy pop-rock and classic favorites to the Festa stage.</div>
-                        </div>
-                    </article>
-
-                    <article className="schedule-item" role="listitem">
-                        <div className="meta">
-                            <div className="time">6:00pm - 9:00pm</div>
-                            <img src="../../images/money_band.jpg" alt="The Money Band" />
-                        </div>
-                        <div className="desc">
-                            <div className="act">The Money Band</div>
-                            <div className="bio">A crowd favorite playing upbeat covers and original tunes to keep the party moving.</div>
-                        </div>
-                    </article>
-
-                    <h2>Saturday Event Schedule</h2>
-
-                    <article className="schedule-item" role="listitem">
-                        <div className="meta">
-                            <div className="time">TBD</div>
-                        </div>
-                        <div className="desc">
-                            <div className="act">Act 3</div>
-                            <div className="placeholder">Details coming soon</div>
-                        </div>
-                    </article>
-
-                    <article className="schedule-item" role="listitem">
-                        <div className="meta">
-                            <div className="time">TBD</div>
-                        </div>
-                        <div className="desc">
-                            <div className="act">Act 4</div>
-                            <div className="placeholder">Details coming soon</div>
-                        </div>
-                    </article>
-
-                    <h2>Sunday Event Schedule</h2>
-
-                    <article className="schedule-item" role="listitem">
-                        <div className="meta">
-                            <div className="time">TBD</div>
-                        </div>
-                        <div className="desc">
-                            <div className="act">Act 5</div>
-                            <div className="placeholder">Details coming soon</div>
-                        </div>
-                    </article>
-
-                    <article className="schedule-item" role="listitem">
-                        <div className="meta">
-                            <div className="time">TBD</div>
-                        </div>
-                        <div className="desc">
-                            <div className="act">Act 6</div>
-                            <div className="placeholder">Details coming soon</div>
-                        </div>
-                    </article>
-
-                    <h2>New Booths!</h2>
-
-                    <article className="schedule-item" role="listitem">
-                        <div className="meta">
-                            <div className="time">new booth 1</div>
-                            <div className="time">new booth 2</div>
-                        </div>
-                        
-                    </article>
-
-
-
+            <div className="schedule-grid" role="list">
+              <article className="schedule-item" role="listitem">
+                <div className="meta">
+                  <div className="time">3:00pm - 5:00pm</div>
+                  <img
+                    src="../../images/scarlet_band.jpg"
+                    alt="Scarlet band"
+                  />
                 </div>
-                </section>
+                <div className="desc">
+                  <div className="act">Scarlet</div>
+                  <div className="bio">
+                    Scarlet brings high-energy pop-rock and classic favorites to the Festa stage.
+                  </div>
+                </div>
+              </article>
+
+              <article className="schedule-item" role="listitem">
+                <div className="meta">
+                  <div className="time">6:00pm - 9:00pm</div>
+                  <img
+                    src="../../images/money_band.jpg"
+                    alt="The Money Band"
+                  />
+                </div>
+                <div className="desc">
+                  <div className="act">The Money Band</div>
+                  <div className="bio">
+                    A crowd favorite playing upbeat covers and original tunes to keep the party moving.
+                  </div>
+                </div>
+              </article>
+
+              <h2>Saturday Event Schedule</h2>
+
+              <article className="schedule-item" role="listitem">
+                <div className="meta">
+                  <div className="time">TBD</div>
+                </div>
+                <div className="desc">
+                  <div className="act">Act 3</div>
+                  <div className="placeholder">Details coming soon</div>
+                </div>
+              </article>
+
+              <article className="schedule-item" role="listitem">
+                <div className="meta">
+                  <div className="time">TBD</div>
+                </div>
+                <div className="desc">
+                  <div className="act">Act 4</div>
+                  <div className="placeholder">Details coming soon</div>
+                </div>
+              </article>
+
+              <h2>Sunday Event Schedule</h2>
+
+              <article className="schedule-item" role="listitem">
+                <div className="meta">
+                  <div className="time">TBD</div>
+                </div>
+                <div className="desc">
+                  <div className="act">Act 5</div>
+                  <div className="placeholder">Details coming soon</div>
+                </div>
+              </article>
+
+              <article className="schedule-item" role="listitem">
+                <div className="meta">
+                  <div className="time">TBD</div>
+                </div>
+                <div className="desc">
+                  <div className="act">Act 6</div>
+                  <div className="placeholder">Details coming soon</div>
+                </div>
+              </article>
+
+              <h2>New Booths!</h2>
+
+              <article className="schedule-item" role="listitem">
+                <div className="meta">
+                  <div className="time">New booth 1</div>
+                  <div className="time">New booth 2</div>
+                </div>
+              </article>
             </div>
+          </section>
         </div>
-    </main>
+      </main>
     </div>
-)
+  );
 }
+

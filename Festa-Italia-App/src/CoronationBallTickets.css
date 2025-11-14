@@ -1,7 +1,6 @@
-#coronation-ball-tickets-body {
+.coronation-ball-tickets-body {
   background-color: white;
-  height: 1020px;
-  overflow: hidden;
+  height: 1000px;
 }
 
 .ticket-container {

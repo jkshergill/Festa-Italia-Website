@@ -1,7 +1,15 @@
 import './HomePage.css';
+import { useEffect } from 'react';
 
 export default function HomePage() {
+
+  useEffect(() => { // Set body ID for styling
+    document.body.id = 'homepage-body-id';
+    document.body.className = 'homepage-body';
+  }, []);
+
   return (
+    
     <div className="page-root">
 
       <main>
@@ -50,8 +58,6 @@ export default function HomePage() {
               </svg>
             </a>
           </div>
-
-          <p>Festa Italia Foundation, Inc. All rights reserved.</p>
         </div>
       </footer>
     </div>

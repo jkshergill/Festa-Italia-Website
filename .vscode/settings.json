@@ -1,0 +1,8 @@
+{
+  // Enable Deno only for your Supabase Edge Functions folder
+  "deno.enable": false,
+  "deno.enablePaths": ["supabase/functions"],
+  "deno.lint": true,
+  "deno.unstable": true
+}
+

@@ -1,7 +1,13 @@
 import React, { useState } from "react";
 import "./index.css";
+import { useEffect } from "react";
 
 function Coronationball() {
+
+  useEffect(() => { {/* Set body ID for styling */}
+    document.body.id = 'coronationball-body-id';
+    document.body.className = 'coronationball-body';
+  }, []);
     return (
         <div className="min-h-screen bg-gray-100 flex flex-col font-sans">
             <header className= "flex justify-between items-center bg-green-700 text-white px-8 py-4">

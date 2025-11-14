@@ -1,6 +1,5 @@
-#signup-body {
-  background-color: white;
-  background-color: rgb(96, 197, 103);
+.signup-body {
+  background-color: rgb(196, 239, 202);
   height: 1020px;
   overflow: hidden;
   background-image: url('../images/logo_01.jpeg');
@@ -10,8 +9,8 @@
 }
 
 .signup-border {
-  width: 700px;
-  height: 600px;
+  width: 800px;
+  height: 690px;
   background-color: rgb(254, 254, 254);
   margin-bottom: 200px;
   margin-left: 500px;
@@ -22,14 +21,14 @@
 }
 
 .signup-text {
-  margin-left: 235px;
+  margin-left: 265px;
   font-size: 65px;
   color: black;
 }
 
-.logo-02 {
+.signup-logo-02 {
   margin-top: 50px;
-  margin-left: 175px;
+  margin-left: 220px;
   width: 350px;
 }
 
@@ -37,7 +36,7 @@
   margin-top: 50px;
 }
 
-.email-section {
+.signup-email-section {
   font-size: 35px;
   margin-left: 160px;
   height: 50px;
@@ -45,7 +44,7 @@
   color: black;
 }
 
-.email-textbox {
+.signup-email-textbox {
   width: 250px;
   height: 25px;
   margin-left: 10px;
@@ -57,7 +56,7 @@ input[type="email"] { /* Changes the text the user enters to black */
   color: black;
 }
 
-.password-section {
+.signup-password-section {
   font-size: 35px;
   margin-top: 160px;
   margin-left: 160px; 
@@ -66,11 +65,11 @@ input[type="email"] { /* Changes the text the user enters to black */
   color: black;
 }
 
-.password-section-span {
+.signup-password-section-span {
   margin-top: auto;
 }
 
-.password-textbox {
+.signup-password-textbox {
   width: 250px;
   height: 25px;
   margin-left: 10px;
@@ -79,6 +78,10 @@ input[type="email"] { /* Changes the text the user enters to black */
 }
 
 input[type="text"] { /* Changes the text the user enters to black */
+  color: black;
+}
+
+input[type="password"] { /* Changes the password the user enters to black */
   color: black;
 }
 
@@ -98,12 +101,27 @@ input[type="text"] { /* Changes the text the user enters to black */
   box-shadow: 5px 5px 10px rgb(0, 0, 0, 0.15);
 }
 
-.login-link {
+.signup-show-password-button {
+  background-color: rgba(164, 161, 161, 0.887);
+  color: rgb(0, 0, 0);
+  width: fit-content;
+  height: 28px;
+  font-size: 13px;
+}
+
+.signup-show-password-button:hover {
+  cursor: pointer;
+  background-color: rgba(164, 161, 161, 0.887);
+  opacity: 0.8;
+  box-shadow: 5px 5px 10px rgb(0, 0, 0, 0.15);
+}
+
+.signup-login-link {
   font-size: 23px;
   margin-left: 320px;
 }
 
-.password-div { /* The only purpose of this div is to add margin to the top of the password section */
+.signup-password-div { /* The only purpose of this div is to add margin to the top of the password section */
   margin-top: 10px;
 }
 
@@ -111,6 +129,43 @@ input[type="text"] { /* Changes the text the user enters to black */
   margin-top: 20px;
 }
 
-.login-link-div { /* The only purpose of this div is to add margin to the top of the login link */
+.signup-login-link-div { /* The only purpose of this div is to add margin to the top of the login link */
   margin-top: 20px;
+}
+
+/* --- New: First/Last name to match email/password --- */
+.signup-name-label {
+  font-size: 35px;
+  margin-left: 160px;
+  height: 50px;
+  width: 450px;
+  color: black;
+}
+
+.signup-name-textbox {
+  width: 250px;
+  height: 25px;
+  margin-left: 10px;
+  vertical-align: 25%;
+  background-color: white;
+}
+
+/* --- New: status messages consistent spacing --- */
+.signup-error,
+.signup-success {
+  margin-top: 10px;
+  margin-left: 160px;
+  width: 450px;
+  font-size: 14px;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.signup-error { background: #ffe5e5; color: #900; border: 1px solid #f5b5b5; }
+.signup-success { background: #e6ffe9; color: #0a5; border: 1px solid #b8f0c2; }
+
+/* Optional: keep the Show/Hide button aligned with inputs */
+.signup-show-password-button {
+  margin-left: 10px;      /* add to match input spacing */
+  vertical-align: 25%;
 }
