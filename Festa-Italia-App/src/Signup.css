@@ -1,6 +1,5 @@
 .signup-body {
-  background-color: white;
-  background-color: rgb(96, 197, 103);
+  background-color: rgb(196, 239, 202);
   height: 1020px;
   overflow: hidden;
   background-image: url('../images/logo_01.jpeg');
@@ -10,11 +9,11 @@
 }
 
 .signup-border {
-  width: 750px;
-  height: 600px;
+  width: 800px;
+  height: 690px;
   background-color: rgb(254, 254, 254);
   margin-bottom: 200px;
-  margin-left: 300px;
+  margin-left: 500px;
   border-radius: 20px;
   border-style: solid; /* This create the black outline of the border */
   box-shadow: 6px 5px 8px rgba(0, 0, 0, 0.05);

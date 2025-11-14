@@ -9,17 +9,49 @@
   font-size: 32px;
   color: black;
   position: relative;
-  top: -100px;
+  top: -70px;
   margin-top: 50px;
 }
 
 .donate-form {
   background-color: rgb(243, 132, 132);
-  width: 750px;
+  width: 780px;
   position:absolute;
-  height: 570px;
+  height: 690px;
   top: 150px;
   left: 100px;
+}
+
+.donate-donation-type-div {
+  margin-top: 15px;
+}
+
+.donate-donation-type-message {
+  font-size: 24px;
+  margin-left: 25px;
+}
+
+.donate-donation-type {
+  margin-left: 10px;
+  height: 25px;
+}
+
+.donate-name-section {
+  font-size: 24px;
+  margin-left: 25px;
+}
+
+.donate-enter-name {
+  margin-left: 25px;
+  width: 200px;
+  height: 30px;
+  font-size: 18px;
+  background-color: white;
+  color: black;
+}
+
+.donate-amount-section-div {
+  margin-top: 15px;
 }
 
 .donate-amount-section {
@@ -38,7 +70,7 @@
 }
 
 .donate-enter-amount-div { /* The only purpose of this div is to add margin-top to the input field */
-  margin-top: 15px;
+  margin-top: 10px;
 }
 
 .donate-note-section {
