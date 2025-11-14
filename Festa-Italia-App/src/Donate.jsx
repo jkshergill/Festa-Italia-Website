@@ -24,12 +24,53 @@ function Donate() {
       </h1>
 
       <form className='donate-form'> 
-        <label className='donate-amount-section'>
-          Amount:
-        </label>
 
-        <div className='donate-enter-amount-div'>
-          <input className='donate-enter-amount' type="number" placeholder="Enter amount" min={1} max={100} required/>
+        <div className='donate-name-section-div'>
+          <label className='donate-name-section'>
+            What is your name?
+          </label>
+
+          <div>
+            <input className='donate-enter-name' type="text" placeholder='Enter name' required/>
+          </div>
+        </div>
+
+        <div className='donate-donation-type-div'>
+          <label className='donate-donation-type-message'>
+            What kind of donation is this?
+          </label>
+
+          <select className='donate-donation-type'>
+            <option value='Basic'>
+              Basic Donation
+            </option>
+
+            <option value='Vendor'>
+              Vendor
+            </option>
+
+            <option value='Bocce'>
+              Bocce
+            </option>
+
+            <option value='Queens'>
+              Queens Court
+            </option>
+
+            <option value='Advertising'>
+              Advertising/Sponsorship
+            </option>
+          </select>
+        </div>
+
+        <div className='donate-amount-section-div'>
+          <label className='donate-amount-section'>
+            Amount:
+          </label>
+
+          <div className='donate-enter-amount-div'>
+            <input className='donate-enter-amount' type="number" placeholder="Enter amount" min={1} max={100} required/>
+          </div>
         </div>
 
         <div className='donate-note-div'>
