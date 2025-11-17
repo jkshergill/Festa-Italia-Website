@@ -10,13 +10,13 @@ import ForgotPass from './forgotpassword'
 import Home from './HomePage'
 import Login from './Login'
 import Scholarship from './Scholarship'
-import Shopping from './Shopping'
 import Signup from './Signup'
+import Shopping from './Shopping'
 import Volunteer from './Volunteer'
 
 import { useEffect } from 'react'
-import AuthStatus from './AuthStatus'
-import MockCheckout from "./MockCheckout"
+import AuthStatus from './AuthStatus';
+import MockCheckout from "./MockCheckout";
 
 export default function App(){
     const [page, setPage] = useState('home')
@@ -35,7 +35,7 @@ export default function App(){
 
   function renderPage(){
     switch(page){
-      case 'bocce-dash': return <BocceDash />
+      case 'bocce-dash': return <BocceDash setPage={setPage} />
       case 'bocce-sign': return <BocceSign />
       case 'coronation': return <CoronationBall />
       case 'coronation-tix': return <CoronationTix />
@@ -43,7 +43,7 @@ export default function App(){
       case 'festival': return <FestivalInfo />
       case 'forgot-pass': return <ForgotPass/>
       case 'home': return <Home />
-      case 'login': return <Login setPage={setPage} />;
+      case 'login': return <Login />;
       case 'signup': return <Signup />
       case 'scholarships': return <Scholarship />
       case 'shopping': return <Shopping />

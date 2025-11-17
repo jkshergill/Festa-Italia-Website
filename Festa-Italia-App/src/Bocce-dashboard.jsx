@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import "./bocce-dashboard.css";
 
-export default function BocceDashboard() {
+export default function BocceDashboard({ setPage }) {
   useEffect(() => {
     // page-level background
     document.body.classList.add("bd-body");
@@ -42,7 +42,7 @@ export default function BocceDashboard() {
                 type="button"
                 className="signup-info-btn"
                 aria-label="Sign Up Information"
-                onClick={() => (window.location.href = "/signup")}
+                onClick={() => setPage('bocce-sign')}
               >
                 Sign Up Information
               </button>
