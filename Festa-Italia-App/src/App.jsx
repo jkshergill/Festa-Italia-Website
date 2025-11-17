@@ -14,6 +14,7 @@ import Signup from './Signup'
 import Shopping from './Shopping'
 import AuthStatus from './AuthStatus';
 import MockCheckout from "./MockCheckout";
+import AdminDashboard from './AdminDashboard'
 
 export default function App(){
   
@@ -27,6 +28,7 @@ export default function App(){
 
   function renderPage(){
     switch(page){
+      case 'admin-dash': return <AdminDashboard />
       case 'bocce-dash': return <BocceDash />
       case 'bocce-sign': return <BocceSign />
       case 'coronation': return <CoronationBall />
@@ -83,6 +85,7 @@ export default function App(){
             padding:'0.5rem'
           }}
         >
+          <button role="menuitem" onClick={() => { setPage('admin-dash'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Admin Dashboard</button>
           <button role="menuitem" onClick={() => { setPage('home'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Home</button>
           <button role="menuitem" onClick={() => { setPage('festival'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Fishermans Festival</button>
           <button role="menuitem" onClick={() => { setPage('bocce-dash'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Bocce Tournament</button>
