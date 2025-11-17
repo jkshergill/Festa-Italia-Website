@@ -1,0 +1,112 @@
+/* ===================================================== */
+/* Scoped styles for Festival Info page only              */
+/* ===================================================== */
+
+.festival-info-body {
+  background-color: #ffffff;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Fill the viewport so footer sits flush at the bottom */
+.festival-info-body main {
+  flex: 1 0 auto;
+  margin: 0;
+  padding: 0;
+}
+
+/* Container for consistent width and spacing */
+.festival-info-body .festival-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* Headings */
+.festival-info-body h1,
+.festival-info-body h2 {
+  color: #009246; /* Italian green */
+  text-align: center;
+  margin: 1rem 0;
+}
+
+/* Schedule layout */
+.festival-info-body .schedule-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Each event item */
+.festival-info-body .schedule-item {
+  background: #fafafa;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.festival-info-body .schedule-item .meta {
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.festival-info-body .schedule-item .time {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #ce2b37; /* Italian red */
+}
+
+/* Responsive band/booth images */
+.festival-info-body .schedule-item img {
+  width: 100%;
+  height: auto;
+  max-width: 600px;     /* cap on very large screens */
+  max-height: 350px;
+  border-radius: 10px;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Responsive scaling */
+@media (max-width: 900px) {
+  .festival-info-body .schedule-item img {
+    max-width: 90%;
+    max-height: 260px;
+  }
+}
+
+@media (max-width: 600px) {
+  .festival-info-body .schedule-item img {
+    max-width: 100%;
+    max-height: 200px;
+  }
+}
+
+/* Text blocks */
+.festival-info-body .desc {
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.festival-info-body .desc .act {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #009246;
+}
+
+.festival-info-body .desc .bio,
+.festival-info-body .desc .placeholder {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #333;
+}
+
+/* Make sure footer sits flush against white background */
+.site-footer {
+  margin-top: 0 !important;
+  padding-top: 0;
+}

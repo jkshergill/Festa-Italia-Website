@@ -1,8 +1,4 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-}
+#root { width: 100%; margin: 0; padding: 0; }
 
 .logo {
   height: 6em;
@@ -10,49 +6,89 @@
   will-change: filter;
   transition: filter 300ms;
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
+.logo:hover { filter: drop-shadow(0 0 2em #646cffaa); }
+.logo.react:hover { filter: drop-shadow(0 0 2em #61dafbaa); }
 
 @keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
-
 @media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+  a:nth-of-type(2) .logo { animation: logo-spin infinite 20s linear; }
 }
 
-.card {
-  padding: 2em;
+.card { padding: 2em; }
+.read-the-docs { color: #888; }
+
+button:hover { background-color: #b71c1c; }
+
+/* ================================================== */
+/* ===============  SITE HEADER  ==================== */
+/* ================================================== */
+.site-header {
+  height: 84px;
+  background: linear-gradient(90deg, rgba(0,146,70,0.95), rgba(255,255,255,0));
+  width: 100%;
 }
 
-.read-the-docs {
-  color: #888;
+.site-header-div {
+  position: relative;
+  width: 100%;
+  right: 0;
+  top: 0;
 }
 
-button:hover {
-  background-color: #b71c1c;
+.header-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  height: 84px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 16px;
 }
 
-/* old header - to be made pretty */
-.site-header{background:linear-gradient(90deg, rgba(0,146,70,0.95), rgba(255,255,255,0.0));color:var(--flag-white)}
-.header-inner{display:flex;align-items:center;justify-content:flex-start;padding:0.75rem 0;position:relative}
-.logo{font-weight:700;color:var(--flag-white);text-decoration:none;font-size:1.25rem}
-.logo-wrap{display:flex;align-items:center;gap:0.5rem}
-.logo img{display:block;height:auto;max-height:40px;width:auto}
+/* ---- Move logo farther left ---- */
+.logo-wrap {
+  display: flex;
+  align-items: center;
+  margin-left: -500px; /* shift slightly left from default padding */
+  margin-top: 36px; /* shift slightly up from default centering */
+}
 
-/* hamburger - to be made pretty */
-.nav-toggle{display:inline-flex;background:#333333;border:none;color:var(--flag-white);padding:0.25rem;border-radius:6px;align-items:center;justify-content:center;position:absolute;right:0.5rem;top:50%;transform:translateY(-50%);z-index:20}
+.logo {
+  position: static;
+  padding: 0;
+}
+
+.logo img {
+  height: 56px;
+}
+
+/* nav button stays on the right */
+.nav-toggle {
+  position: relative;
+  margin-left: auto;
+}
+
+/* ================================================== */
+/* ===============  NAV STYLES  ===================== */
+/* ================================================== */
+.nav-toggle {
+  display:inline-flex;
+  background:#333333;
+  border:none;
+  color:var(--flag-white);
+  padding:0.25rem;
+  border-radius:6px;
+  align-items:center;
+  justify-content:center;
+  position:absolute;
+  right:10rem;
+  top:50%;
+  transform:translateY(-50%);
+  z-index:20;
+}
 .nav-toggle svg{display:block}
 .nav-toggle svg .line-top{stroke:var(--flag-green)}
 .nav-toggle svg .line-mid{stroke:var(--flag-white)}
@@ -60,8 +96,75 @@ button:hover {
 .nav-toggle svg path{stroke-width:2;stroke-linecap:round}
 .nav-toggle:focus{outline:2px solid rgba(255,255,255,0.25);outline-offset:3px}
 .top-menu{ width:min(88vw, 320px); }
+.header-inner{ gap:1rem; }
+.primary-nav{
+  position:absolute;
+  top:64px;
+  right:1rem;
+  background:rgba(255,255,255,0.97);
+  padding:0.75rem;
+  border-radius:8px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.08);
+  display:none;
+}
+.primary-nav.open{ display:block; }
+.nav-toggle{ display:inline-block; }
 
-.header-inner{gap:1rem}
-  .primary-nav{position:absolute;top:64px;right:1rem;background:rgba(255,255,255,0.97);padding:0.75rem;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.08);display:none}
-  .primary-nav.open{display:block}
-  .nav-toggle{display:inline-block}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ================================================== */
+/* =============== AUTH SIGN IN ===================== */
+/* ================================================== */
+
+.auth-status-wrap {
+  position: absolute;
+  right: 13rem;        /* just to the left of the hamburger (10rem + ~3rem gap) */
+  top: 50%;
+  transform: translateY(-50%);
+  color: white;        /* make text readable on your header */
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ================================================== */
+/* ================= APP BODY ======================= */
+/* ================================================== */
+.app-body {
+  min-height: 100vh;
+  background-color: white;
+}
+
+/* ================================================== */
+/* ================= SITE FOOTER ==================== */
+/* ================================================== */
+.site-footer-div { width: 100%; }
+
+.site-footer {
+  width: 100%;
+  background: #f5f5f5;
+}
+
+.container-footer-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  text-align: center;
+}
+
+.footer-logo { position: static; }
+.footer-text { position: static; margin-top: 8px; }
+
+.footer-div { min-height: 160px; }
+

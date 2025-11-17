@@ -1,8 +1,6 @@
 /* body styling */
 .Bocce-signup-body {
-  width: 100vw;         /* full viewport width */
-  height: 100vh;        /* full viewport height */
-  background-color: #8dcf7f; /* green background */
+  background-color: #f0f182; /* green background */
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -13,8 +11,13 @@
   justify-content: flex-start; /* keeps logo + form starting from top */
 }
 
+.bocce-body {
+  background-color: #f0f182;
+  height: 980px;
+}
+
 /* heading styling */
-.title {
+.bocce-title {
   margin-top: 40px;
   font-size: clamp(2rem, 8vw, 64px);
   line-height: 1.1;
@@ -129,15 +132,13 @@ button:hover {
 
 
 /* border container styling */
-.border {
-  background-color: rgb(230, 170, 170); /* light pink background */
-  width: 90%;
-  height: 100%;
-  margin: 100px auto;     /* top-bottom 100px, left-right auto centers */
-  border-radius: 20px; /* rounded corners */
-  border: 2px solid black; /* outline color*/
+.bocce-border {
+  background-color: rgb(230, 170, 170);
+  width: min(1400px, calc(100vw - 200px)); /* within 100px of edges */
+  border-radius: 20px;
+  border: 2px solid black;
   box-shadow: 6px 5px 8px rgba(0, 0, 0, 0.05);
-  padding: 3rem; /* space inside border */
+  padding: 2rem;
   box-sizing: border-box;
 }
 
