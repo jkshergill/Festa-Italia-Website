@@ -10,12 +10,13 @@ import ForgotPass from './forgotpassword'
 import Home from './HomePage'
 import Login from './Login'
 import Scholarship from './Scholarship'
-import Signup from './Signup'
 import Shopping from './Shopping'
+import Signup from './Signup'
+import Volunteer from './Volunteer'
 
 import { useEffect } from 'react'
-import AuthStatus from './AuthStatus';
-import MockCheckout from "./MockCheckout";
+import AuthStatus from './AuthStatus'
+import MockCheckout from "./MockCheckout"
 
 export default function App(){
     const [page, setPage] = useState('home')
@@ -46,6 +47,7 @@ export default function App(){
       case 'signup': return <Signup />
       case 'scholarships': return <Scholarship />
       case 'shopping': return <Shopping />
+      case 'volunteer': return <Volunteer />
       default: return <Home />
     }
   }
@@ -92,6 +94,7 @@ export default function App(){
         >
           <button role="menuitem" onClick={() => { setPage('home'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Home</button>
           <button role="menuitem" onClick={() => { setPage('festival'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Fishermans Festival</button>
+          <button role="menuitem" onClick={() => { setPage('volunteer'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Festival Volunteering</button>
           <button role="menuitem" onClick={() => { setPage('bocce-dash'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Bocce Tournament</button>
           <button role="menuitem" onClick={() => { setPage('coronation'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Queen's Court</button>
           <button role="menuitem" onClick={() => { setPage('scholarships'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Scholarships</button>
