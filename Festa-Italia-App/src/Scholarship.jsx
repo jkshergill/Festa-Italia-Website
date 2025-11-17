@@ -6,7 +6,7 @@ function Scholarship() {
             <div className="min-h-screen flex flex-col font-sans">
             <header className= "flex justify-between items-center bg-green-700 text-white px-8 py-4">
                
-                <img src="logo2 (1).jpeg" alt="Logo" className="h-10 w-auto" />
+                <img src="./images/logo2.jpeg" alt="Logo" className="h-10 w-auto" />
                  <div className=" flex flex-col justify-between w-6 h-5 cursor-pointer">
                    <span className="block h-[3px] bg-white rounded"></span>
                    <span className="block h-[3px] bg-white rounded"></span>
@@ -38,7 +38,7 @@ function Scholarship() {
                 <li>The applicant must be attending or planning to attend college.</li>
            </ul>
           </div>
-           <img src="logo_01.jpeg" alt="Logo" className="w-64 h-64"/>
+           <img src="./images/logo_01.jpeg" alt="Logo" className="w-64 h-64"/>
           
           
           </div>  
