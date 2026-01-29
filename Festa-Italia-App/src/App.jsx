@@ -10,13 +10,14 @@ import ForgotPass from './forgotpassword'
 import Home from './HomePage'
 import Login from './Login'
 import Scholarship from './Scholarship'
-import Shopping from './Shopping'
 import Signup from './Signup'
+import Shopping from './Shopping'
 import Volunteer from './Volunteer'
 
 import { useEffect } from 'react'
-import AuthStatus from './AuthStatus'
-import MockCheckout from "./MockCheckout"
+import AuthStatus from './AuthStatus';
+import MockCheckout from "./MockCheckout";
+import AdminDashboard from './AdminDashboard'
 
 export default function App(){
     const [page, setPage] = useState('home')
@@ -35,6 +36,7 @@ export default function App(){
 
   function renderPage(){
     switch(page){
+      case 'admin-dash': return <AdminDashboard />
       case 'bocce-dash': return <BocceDash />
       case 'bocce-sign': return <BocceSign />
       case 'coronation': return <CoronationBall />
@@ -43,7 +45,7 @@ export default function App(){
       case 'festival': return <FestivalInfo />
       case 'forgot-pass': return <ForgotPass/>
       case 'home': return <Home />
-      case 'login': return <Login setPage={setPage} />;
+      case 'login': return <Login />;
       case 'signup': return <Signup />
       case 'scholarships': return <Scholarship />
       case 'shopping': return <Shopping />
@@ -92,6 +94,7 @@ export default function App(){
             padding:'0.5rem'
           }}
         >
+          <button role="menuitem" onClick={() => { setPage('admin-dash'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Admin Dashboard</button>
           <button role="menuitem" onClick={() => { setPage('home'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Home</button>
           <button role="menuitem" onClick={() => { setPage('festival'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Fishermans Festival</button>
           <button role="menuitem" onClick={() => { setPage('volunteer'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Festival Volunteering</button>

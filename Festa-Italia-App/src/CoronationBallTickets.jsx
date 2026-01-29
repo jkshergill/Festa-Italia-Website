@@ -38,7 +38,10 @@ export default function TicketPurchase() {
 
     // Create blank name inputs
     const newNames = Array(totalTickets).fill("");
+    const newFood = Array(totalTickets).fill("meat");
     setNames(newNames);
+    setFoodChoices(newFood);
+
     setStep("names");
   };
 
@@ -46,6 +49,18 @@ export default function TicketPurchase() {
     const updated = [...names];
     updated[index] = value;
     setNames(updated);
+  };
+
+  const handleFoodChange = (index, value) => {
+    const updated = [...foodChoices];
+    updated[index] = value;
+    setFoodChoices(updated);
+  };
+
+  const handleTableChange = (index, value) => {
+    const updated = [...otherTables];
+    updated[index] = value;
+    setOtherTables(updated);
   };
   
   //SUPABASE CLIENT
@@ -166,18 +181,38 @@ export default function TicketPurchase() {
       {step === "names" && (
         <div className="ticket-section">
           <h3>Enter Ticket Holder Names</h3>
+          
           {names.map((name, i) => (
-            <div className="name-input" key={i}>
-              <label>Ticket {i + 1} Name:</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => handleNameChange(i, e.target.value)}
-                placeholder="Enter name"
-                required
-              />
-            </div>
+            <div className="name-block" key={i}>
+              
+              <div className="name-input" key={i}>
+                <label>Ticket {i + 1} Name:</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => handleNameChange(i, e.target.value)}
+                  placeholder="Enter name"
+                  required
+                />
+              </div>
+
+              <div className="food-input">
+                  <label>What food would you like?</label>
+                  <select value={foodChoices[i]} onChange={(e) => handleFoodChange(i, e.target.value)}>
+                    <option value="meat">Meat</option>
+                    <option value="fish">Fish</option>
+                    <option value="vegetarian">Vegetarian</option>
+                  </select>
+                </div>
+
+              </div>
           ))}
+
+          <h4>Other Table Names</h4>
+          {otherTables.map((val, idx) => (
+            <input key={idx} type="text" value={val} placeholder={`Table Name ${idx + 1}`} onChange={(e) => handleTableChange(idx, e.target.value)} className="table-input" />
+          ))}
+
           <button onClick={handleCheckout}>Checkout</button>
         </div>
       )}

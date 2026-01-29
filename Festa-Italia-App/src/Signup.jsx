@@ -154,6 +154,9 @@ function Signup() {
             minLength={8}
             required
           />
+          <small style={{ marginLeft: 160, fontSize: 12, color: '#666', display: 'block', marginTop: 4, marginBottom: 8 }}>
+            Must be at least eight characters with one uppercase letter, one lowercase letter, and one special character
+          </small>
 
           <label className='signup-password-section' htmlFor='confirm'>Confirm password:</label>
           <input
@@ -183,7 +186,7 @@ function Signup() {
         <input type='hidden' name='is_donor' value={String(isDonor)} />
 
         {/* Live validation hints (optional, styled in your CSS additions) */}
-        <div className='signup-hints' style={{ marginLeft: 160, fontSize: 12 }}>
+        <div className='signup-hints' style={{ marginLeft: 160, fontSize: 8 }}>
           {!emailOk && email.length > 0 && <div>Enter a valid email address.</div>}
           {password && password.length < 8 && <div>Password must be at least 8 characters.</div>}
           {confirm && !pwMatch && <div>Passwords do not match.</div>}
