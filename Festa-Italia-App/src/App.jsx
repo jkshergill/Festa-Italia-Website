@@ -6,13 +6,15 @@ import CoronationBall from './coronationball'
 import CoronationTix from './CoronationBallTickets'
 import Donate from './Donate'
 import FestivalInfo from './FestivalInfo'
-import ForgotPass from './forgotpassword'
+import ResetPass from './resetPassword'
 import Home from './HomePage'
 import Login from './Login'
 import Scholarship from './Scholarship'
 import Signup from './Signup'
 import Shopping from './Shopping'
 import Volunteer from './Volunteer'
+
+import ForgotPass from './forgotpassword' // Not sure if this will be temporary. Used for Reset Password.
 
 import { useEffect } from 'react'
 import AuthStatus from './AuthStatus';
@@ -43,13 +45,15 @@ export default function App(){
       case 'coronation-tix': return <CoronationTix />
       case 'donate': return <Donate />
       case 'festival': return <FestivalInfo />
-      case 'forgot-pass': return <ForgotPass/>
+      case 'reset-pass': return <ResetPass />
       case 'home': return <Home />
       case 'login': return <Login />;
       case 'signup': return <Signup />
       case 'scholarships': return <Scholarship />
       case 'shopping': return <Shopping />
       case 'volunteer': return <Volunteer />
+
+      case 'forgot-pass': return <ForgotPass /> // Not sure if this will be temporary. Used to reset password.
       default: return <Home />
     }
   }
@@ -104,12 +108,15 @@ export default function App(){
           <button role="menuitem" onClick={() => { setPage('donate'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Donate</button>
           <button role="menuitem" onClick={() => { setPage('login'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Log in</button>
           <button role="menuitem" onClick={() => { setPage('shopping'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Shopping</button>
+          
 
           {/* Temporary items you noted */}
           <button role="menuitem" onClick={() => { setPage('bocce-sign'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Bocce Sign up</button>
           <button role="menuitem" onClick={() => { setPage('coronation-tix'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Coronation Ball Tickets</button>
-          <button role="menuitem" onClick={() => { setPage('forgot-pass'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Forgot Password</button>
+          <button role="menuitem" onClick={() => { setPage('reset-pass'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Reset Password</button>
           <button role="menuitem" onClick={() => { setPage('signup'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Create Account</button>
+
+          <button role="menuitem" onClick={() => { setPage('forgot-pass'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Forgot Password</button>
         </div>
       )
     )

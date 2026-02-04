@@ -1,34 +1,56 @@
+import { useState } from "react";
+import { useEffect } from "react";
+import { supabase } from "./supabaseClient";
+import "./forgotPassword.css";
 
-import "./forgotpassword.css"
+export default function forgotPassword() {
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
 
-function App() {
+  useEffect(() => {
+    document.body.id = 'forgot-body-id';
+    document.body.className = 'forgot-body';
+  }, []);
 
-  return(
-    <div>
-  <meta charSet="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Forgot Password</title>
-  <header className="fading-header">
-    <h1>Forgot Password</h1>
-  </header>
-  <main>
-    <p>Festa Italia Password Reset:</p>
-    <div className="form-group">
-      <label htmlFor="festa-email" className="form-label">Email Address</label>
-      <input id="festa-email" className="form-input" type="email" placeholder="name@domain.com" />
-    </div>
-    <div className="form-group">
-      <label htmlFor="festa-password" className="form-label">New Password</label>
-      <input id="festa-password" className="form-input" type="password" placeholder="Enter new password" />
-    </div>
-    <div className="form-group">
-      <label htmlFor="festa-password" className="form-label">Confirm Password</label>
-      <input id="festa-password" className="form-input" type="password" placeholder="Confirm new password" />
-    </div>
-    <button className="submit-button" type="submit">Reset Password</button>
-  </main>
-</div>
-  );
-}
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMessage('');
 
-export default App
+    const {error} = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/resetPassword`
+    });
+
+    if (error) {
+      setMessage(error.message);
+    } else {
+      setMessage('If an account with that email exists, a password reset link has been sent. If you don\'t see it, please check your spam folder.');
+    }
+  }
+
+  return (
+    <main>
+      <h1>
+        Forgot Your Password?
+      </h1>
+
+      <form className="forgot-form" onSubmit={handleSubmit}>
+        <label className="email-label">Email Address:</label>
+        <input
+          className="forgot-email-input"
+          type="email"
+          value={email}
+          placeholder="Enter your email"
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+
+        <button className="forgot-button" type="submit">Send Reset Link</button>
+      </form>
+
+      {message && <p className="reset-message">{message}</p>}
+      <p className="forgot-note">
+        <strong>Note:</strong> After clicking the link in the email, please go to the "Reset Password" page to set your new password.
+      </p>
+    </main>
+  )
+};
