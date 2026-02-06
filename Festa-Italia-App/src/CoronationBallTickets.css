@@ -100,3 +100,35 @@ h4 {
   border: 1px solid #ccc;
   border-radius: 4px;
 }
+
+.ticket-name-input {
+  color: white;                 /* typed text */
+  background-color: transparent;
+  border: 1px solid #ffffff;    /* keeps the box look */
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.ticket-name-input::placeholder {
+  color: white;
+  opacity: 0.7;
+}
+/* Optional: auth banner + food warning styling */
+.auth-banner {
+  margin: 12px 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+
+.food-warning {
+  margin-top: 6px;
+  font-size: 0.9rem;
+}
+
+.coronation-title {
+  font-family: "Great Vibes", cursive;
+  letter-spacing: 0.05em;
+  font-size: 3rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}

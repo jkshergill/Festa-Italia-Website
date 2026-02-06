@@ -1,27 +1,27 @@
 import React, { useState, useEffect } from "react";
-import "./CoronationBallTickets.css"; // optional external CSS file if you want to style separately
-import { createClient } from '@supabase/supabase-js';
+import "./CoronationBallTickets.css";
+import { supabase } from "./supabaseClient";
+
 
 export default function TicketPurchase() {
-
-  const prices = { adult: 20, child: 10, senior: 15 };
+  // Ticket prices
+  const prices = { adult: 20, child: 10 };
 
   const [quantities, setQuantities] = useState({
     adult: 0,
     child: 0,
-    senior: 0,
   });
 
   const [step, setStep] = useState("selection"); // "selection" or "names"
+  const [ticketTypes, setTicketTypes] = useState([]); // parallel array: "adult" | "child"
   const [names, setNames] = useState([]);
+  const [foodChoices, setFoodChoices] = useState([]);
+  const [otherTables, setOtherTables] = useState([]);
+  const [session, setSession] = useState(null);
+  const [authBanner, setAuthBanner] = useState("");
 
-  const total =
-    quantities.adult * prices.adult +
-    quantities.child * prices.child +
-    quantities.senior * prices.senior;
-
-  const totalTickets =
-    quantities.adult + quantities.child + quantities.senior;
+  const total = quantities.adult * prices.adult + quantities.child * prices.child;
+  const totalTickets = quantities.adult + quantities.child;
 
   const handleQuantityChange = (type, value) => {
     setQuantities((prev) => ({
@@ -31,14 +31,29 @@ export default function TicketPurchase() {
   };
 
   const handleContinue = () => {
+    // Gate: must be signed in to continue
+    if (!session) {
+      setAuthBanner("Please sign in to purchase tickets");
+      return;
+    }
+
     if (totalTickets === 0) {
       alert("Please select at least one ticket.");
       return;
     }
 
-    // Create blank name inputs
+    setAuthBanner("");
+
+    // Build ordered ticket types so we can label each ticket correctly
+    const types = [
+      ...Array(quantities.adult).fill("adult"),
+      ...Array(quantities.child).fill("child"),
+    ];
+    setTicketTypes(types);
+
+    // Create blank name inputs + default food selection
     const newNames = Array(totalTickets).fill("");
-    const newFood = Array(totalTickets).fill("meat");
+    const newFood = Array(totalTickets).fill(""); // "" means "Please select a dish"
     setNames(newNames);
     setFoodChoices(newFood);
 
@@ -62,88 +77,107 @@ export default function TicketPurchase() {
     updated[index] = value;
     setOtherTables(updated);
   };
-  
-  //SUPABASE CLIENT
-  const supabase = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY);
 
-  //Hook up checkout to MOCK or CLOVER based on env
   const handleCheckout = async () => {
   try {
-    // Build line items (amounts in cents)
-    const lineItems = [];
-    if (quantities?.adult > 0)  lineItems.push({ name: "Ball Ticket - Adult",  price: 2000, unitQty: quantities.adult });
-    if (quantities?.child > 0)  lineItems.push({ name: "Ball Ticket - Child",  price: 1000, unitQty: quantities.child });
-    if (quantities?.senior > 0) lineItems.push({ name: "Ball Ticket - Senior", price: 1500, unitQty: quantities.senior });
+    // Gate: must be signed in to checkout
+    if (!session) {
+      setAuthBanner("Please sign in to purchase tickets");
+      return;
+    }
 
-    if (!lineItems.length) {
+    // Validate ticket count
+    if ((quantities?.adult ?? 0) + (quantities?.child ?? 0) === 0) {
       alert("Please select at least one ticket.");
       return;
     }
+
+    // Validate names
     if (names?.some((n) => !n || !n.trim())) {
       alert("Please fill in all ticket holder names.");
       return;
     }
 
-    // Get buyer email + JWT (use user token if logged-in; fall back to anon key)
-    const [{ data: userRes }, { data: sessionRes }] = await Promise.all([
-      supabase.auth.getUser(),
-      supabase.auth.getSession(),
-    ]);
-    const buyerEmail = userRes?.user?.email ?? null;
-    const jwt = sessionRes?.session?.access_token ?? import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-    const url = `${import.meta.env.VITE_SUPABASE_FUNCTION_URL}/create-checkout`;
-
-    const res = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        // If Verify JWT is ON (recommended), keep BOTH of these:
-        "apikey": import.meta.env.VITE_SUPABASE_ANON_KEY,
-        "Authorization": `Bearer ${jwt}`,
-      },
-      body: JSON.stringify({
-        buyerEmail,
-        lineItems,
-        attendeeNames: names ?? [],
-      }),
-    });
-
-    if (!res.ok) {
-      const text = await res.text();
-      console.error(`Checkout HTTP ${res.status}:`, text);
-      alert(`Checkout failed (${res.status}). See console for details.`);
+    // Validate food
+    if (foodChoices?.some((f) => !f)) {
+      alert("Please pick out a dish");
       return;
     }
 
-    const { href } = await res.json();
-    if (!href) {
-      console.error("No href in response");
-      alert("Checkout link missing. Please try again.");
+    // Get buyer email (for display only in mock checkout)
+    const { data: userRes, error: userErr } = await supabase.auth.getUser();
+    if (userErr) {
+      console.error("getUser error:", userErr);
+      alert("Could not read user. Please try again.");
       return;
     }
 
-    window.location.assign(href); // mock page (dev) or Clover (prod)
+    const buyerEmail = userRes?.user?.email ?? "";
+
+    // Build ticketTypes array in the SAME order as names/foodChoices
+    // (this assumes you created ticketTypes when you hit Continue)
+    const amountCents = (quantities.adult * 2000) + (quantities.child * 1000);
+
+    const namesParam = encodeURIComponent((names ?? []).join("|"));
+    const typesParam = encodeURIComponent((ticketTypes ?? []).join("|"));
+    const foodParam = encodeURIComponent((foodChoices ?? []).join("|"));
+
+    const href =
+      `/mock-checkout` +
+      `?amount=${amountCents}` +
+      `&email=${encodeURIComponent(buyerEmail)}` +
+      `&names=${namesParam}` +
+      `&types=${typesParam}` +
+      `&food=${foodParam}` +
+      `&sid=${crypto.randomUUID()}`;
+
+    window.location.assign(href);
   } catch (err) {
     console.error(err);
     alert("Unexpected error. Please try again.");
   }
 };
 
-
   useEffect(() => {
-        document.body.id = 'coronation-ball-tickets-body-id';
-        document.body.className = 'coronation-ball-tickets-body';
-      }, []);
+    document.body.id = "coronation-ball-tickets-body-id";
+    document.body.className = "coronation-ball-tickets-body";
+  }, []);
+
+  // Keep auth session in sync
+  useEffect(() => {
+    let unsubscribe;
+    (async () => {
+      const { data } = await supabase.auth.getSession();
+      setSession(data?.session ?? null);
+
+      const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
+        setSession(newSession);
+        if (newSession) setAuthBanner("");
+      });
+      unsubscribe = () => listener?.subscription?.unsubscribe?.();
+    })();
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, []);
 
   return (
     <div className="ticket-container">
-      <h1>🎟️ Festa Italia Ticket Purchase</h1>
+      <h1 className="coronation-title">
+      🎟️ Coronation Ball Tickets 🎟️
+      </h1>
+
+      {!session && (
+        <div className="auth-banner" role="alert">
+          {authBanner || "Please sign in to purchase tickets"}
+        </div>
+      )}
 
       {step === "selection" && (
         <div className="ticket-section">
           <div className="ticket-type">
-            <label>{`Adult Ticket ($${prices.adult})`}</label>
+            <label>{`Adult Ticket: $${prices.adult}`}</label>
             <input
               type="number"
               min="0"
@@ -153,7 +187,7 @@ export default function TicketPurchase() {
           </div>
 
           <div className="ticket-type">
-            <label>{`Child Ticket ($${prices.child})`}</label>
+            <label>{`Child Ticket: $${prices.child}`}</label>
             <input
               type="number"
               min="0"
@@ -162,58 +196,68 @@ export default function TicketPurchase() {
             />
           </div>
 
-          <div className="ticket-type">
-            <label>{`Senior Ticket ($${prices.senior})`}</label>
-            <input
-              type="number"
-              min="0"
-              value={quantities.senior}
-              onChange={(e) => handleQuantityChange("senior", e.target.value)}
-            />
-          </div>
-
           <div className="total">{`Total: $${total}`}</div>
 
-          <button onClick={handleContinue}>Continue</button>
+          <button onClick={handleContinue} disabled={!session}>
+            Continue
+          </button>
         </div>
       )}
 
       {step === "names" && (
         <div className="ticket-section">
           <h3>Enter Ticket Holder Names</h3>
-          
+
           {names.map((name, i) => (
             <div className="name-block" key={i}>
-              
-              <div className="name-input" key={i}>
-                <label>Ticket {i + 1} Name:</label>
+              <div className="ticket-summary">
+                <strong>{ticketTypes[i] === "adult" ? "Adult " : "Child "}</strong>
+                <span className="ticket-price">
+                  ${ticketTypes[i] ? prices[ticketTypes[i]] : ""}
+                </span>
+              </div>
+
+              <div className="name-input">
+                <label>Name:</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => handleNameChange(i, e.target.value)}
                   placeholder="Enter name"
+                  className="ticket-name-input"
                   required
                 />
               </div>
 
               <div className="food-input">
-                  <label>What food would you like?</label>
-                  <select value={foodChoices[i]} onChange={(e) => handleFoodChange(i, e.target.value)}>
-                    <option value="meat">Meat</option>
-                    <option value="fish">Fish</option>
-                    <option value="vegetarian">Vegetarian</option>
-                  </select>
-                </div>
-
+                <label>Food Preference?</label>
+                <select value={foodChoices[i]} onChange={(e) => handleFoodChange(i, e.target.value)}>
+                  <option value="">Please select a dish</option>
+                  <option value="steak">Steak</option>
+                  <option value="fish">Fish</option>
+                  <option value="pasta">Pasta</option>
+                </select>
+                
+                {!foodChoices[i] && <div className="food-warning"></div>}
               </div>
+            </div>
           ))}
-
-          <h4>Other Table Names</h4>
+               {
+          /* <h4>Other Table Names</h4>
           {otherTables.map((val, idx) => (
-            <input key={idx} type="text" value={val} placeholder={`Table Name ${idx + 1}`} onChange={(e) => handleTableChange(idx, e.target.value)} className="table-input" />
-          ))}
+            <input
+              key={idx}
+              type="text"
+              value={val}
+              placeholder={`Table Name ${idx + 1}`}
+              onChange={(e) => handleTableChange(idx, e.target.value)}
+              className="table-input"
+            />
+          ))} */}
 
-          <button onClick={handleCheckout}>Checkout</button>
+          <button onClick={handleCheckout} disabled={!session}>
+            Checkout
+          </button>
         </div>
       )}
     </div>
