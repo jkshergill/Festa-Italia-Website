@@ -1,0 +1,488 @@
+.ticket-management-card {
+    grid-column: span 2;
+}
+
+.ticket-management-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.ticket-management-card .manage-button {
+    padding: 8px 16px;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.ticket-management-card .manage-button:hover {
+    background-color: #357ae8;
+}
+
+.ticket-summary {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.summary-label {
+    color: #666;
+    font-size: 14px;
+}
+
+.summary-value {
+    font-weight: 600;
+    font-size: 18px;
+    color: #2c3e50;
+}
+
+.recent-tickets {
+    margin-top: 15px;
+}
+
+.recent-tickets h4 {
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 16px;
+}
+
+.tickets-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.recent-ticket-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    border-left: 3px solid #4a90e2;
+}
+
+.ticket-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.ticket-id {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    font-size: 12px;
+    color: #2c3e50;
+}
+
+.ticket-event {
+    font-size: 12px;
+    color: #666;
+}
+
+.ticket-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.ticket-purchaser {
+    font-size: 12px;
+    font-weight: 500;
+    color: #333;
+}
+
+.ticket-status {
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-active {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-checked-in {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 1200px;
+    max-height: 90vh;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from { 
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: #2c3e50;
+    color: white;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.close-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.modal-body {
+    padding: 0;
+    overflow: auto;
+    max-height: calc(90vh - 80px);
+}
+
+/* Ticket Management Modal Content */
+.ticket-management-modal {
+    padding: 20px;
+}
+
+.modal-controls {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.search-form {
+    display: flex;
+    gap: 10px;
+    flex-grow: 1;
+}
+
+.search-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.search-btn {
+    padding: 8px 20px;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.filter-select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    font-size: 14px;
+    min-width: 150px;
+}
+
+.tickets-table {
+    border: 1px solid #eaeaea;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.table-header {
+    display: grid;
+    grid-template-columns: 150px 200px 250px 120px 1fr;
+    background-color: #f8f9fa;
+    padding: 12px 15px;
+    font-weight: 600;
+    color: #555;
+    border-bottom: 2px solid #eaeaea;
+}
+
+.header-cell {
+    padding: 0 5px;
+}
+
+.table-body {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.table-row {
+    display: grid;
+    grid-template-columns: 150px 200px 250px 120px 1fr;
+    padding: 12px 15px;
+    border-bottom: 1px solid #eaeaea;
+    align-items: center;
+}
+
+.table-row:hover {
+    background-color: #f9f9f9;
+}
+
+.cell {
+    padding: 0 5px;
+}
+
+.ticket-id {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.holder .email {
+    font-size: 12px;
+    color: #666;
+    margin-top: 2px;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.active {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.revoked {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.checked-in {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    padding: 4px 8px;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.checkin-btn {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.checkin-btn:hover {
+    background-color: #138496;
+}
+
+.revoke-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.revoke-btn:hover {
+    background-color: #c82333;
+}
+
+.view-btn {
+    background-color: #6c757d;
+    color: white;
+}
+
+.view-btn:hover {
+    background-color: #5a6268;
+}
+
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.pagination-btn {
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.page-info {
+    color: #666;
+    font-size: 14px;
+}
+
+.modal-footer {
+    text-align: right;
+    padding-top: 20px;
+    border-top: 1px solid #eaeaea;
+}
+
+.close-modal-btn {
+    padding: 8px 20px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.close-modal-btn:hover {
+    background-color: #5a6268;
+}
+
+.no-tickets {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px;
+    color: #666;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+}
+
+.access-denied {
+    text-align: center;
+    padding: 40px;
+    color: #dc3545;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .table-header,
+    .table-row {
+        grid-template-columns: 120px 180px 200px 100px 1fr;
+    }
+}
+
+@media (max-width: 992px) {
+    .ticket-summary {
+        grid-template-columns: 1fr;
+    }
+    
+    .table-header,
+    .table-row {
+        grid-template-columns: 100px 150px 1fr;
+    }
+    
+    .header-cell:nth-child(3),
+    .cell:nth-child(3) {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .modal-controls {
+        flex-direction: column;
+    }
+    
+    .search-form {
+        width: 100%;
+    }
+    
+    .table-header,
+    .table-row {
+        grid-template-columns: 100px 1fr 120px;
+    }
+    
+    .header-cell:nth-child(2),
+    .cell:nth-child(2) {
+        display: none;
+    }
+    
+    .actions {
+        flex-direction: column;
+    }
+}
