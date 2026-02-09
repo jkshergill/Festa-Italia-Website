@@ -13,6 +13,7 @@ import Scholarship from './Scholarship'
 import Signup from './Signup'
 import Shopping from './Shopping'
 import Volunteer from './Volunteer'
+import Donation from './Donation'
 
 import ForgotPass from './forgotpassword' // Not sure if this will be temporary. Used for Reset Password.
 
@@ -52,6 +53,7 @@ export default function App(){
       case 'scholarships': return <Scholarship />
       case 'shopping': return <Shopping />
       case 'volunteer': return <Volunteer />
+      case 'donation': return <Donation />
 
       case 'forgot-pass': return <ForgotPass /> // Not sure if this will be temporary. Used to reset password.
       default: return <Home />
@@ -108,7 +110,7 @@ export default function App(){
           <button role="menuitem" onClick={() => { setPage('donate'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Donate</button>
           <button role="menuitem" onClick={() => { setPage('login'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Log in</button>
           <button role="menuitem" onClick={() => { setPage('shopping'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Shopping</button>
-          
+          <button role="menuitem" onClick={() => { setPage('donation'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Previous Sponsors</button>
 
           {/* Temporary items you noted */}
           <button role="menuitem" onClick={() => { setPage('bocce-sign'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Bocce Sign up</button>
