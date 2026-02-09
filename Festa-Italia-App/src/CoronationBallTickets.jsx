@@ -111,7 +111,7 @@ export default function TicketPurchase() {
       alert("Could not read user. Please try again.");
       return;
     }
-
+    /*
     const buyerEmail = userRes?.user?.email ?? "";
 
     // Build ticketTypes array in the SAME order as names/foodChoices
@@ -122,7 +122,7 @@ export default function TicketPurchase() {
     const typesParam = encodeURIComponent((ticketTypes ?? []).join("|"));
     const foodParam = encodeURIComponent((foodChoices ?? []).join("|"));
 
-    /*const href =
+    const href =
       `/mock-checkout` +
       `?amount=${amountCents}` +
       `&email=${encodeURIComponent(buyerEmail)}` +
@@ -135,19 +135,24 @@ export default function TicketPurchase() {
 
     const res = await fetch(
       // Hardcoded to supabase project ID - needs to be updated if we deploy to production
-      "https://tlbikqgmitrvdtwzgriy.supabase.co/functions/v1/create-checkout",
+      "https://tlbikqgmitrvdtwzgriy.supabase.co/functions/v1/create-CoronationBallTicketsCheckout",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          amount: 5000, // $50.00
-          orderId: "order_123",
+          amount: amount_cents,
+          orderId: crypto.randomUUID(), // Unique order ID for idempotency
         }),
       }
     );
 
     const data = await res.json();
-    window.location.href = data.checkoutUrl;
+
+    if (data.checkoutUrl) {
+      window.location.href = data.checkoutUrl;
+    } else {
+      console.error("Checkout failed", data);
+    }
   } catch (err) {
     console.error(err);
     alert("Unexpected error. Please try again.");
@@ -271,7 +276,7 @@ export default function TicketPurchase() {
             />
           ))} */}
 
-          <button onClick={handleCheckout} disabled={!session}>
+          <button onClick={handleCheckout} /*disabled={!session}*/>
             Checkout
           </button>
         </div>
