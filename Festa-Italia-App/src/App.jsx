@@ -41,7 +41,6 @@ export default function App(){
     switch(page){
       case 'admin-dash': return <AdminDashboard />
       case "admin-foods": return <AdminFoods />;
-
       case 'bocce-dash': return <BocceDash />
       case 'bocce-sign': return <BocceSign />
       case 'coronation': return <CoronationBall />
