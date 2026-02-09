@@ -1,17 +1,75 @@
 //src/bocce-sign-up.css
 import './bocce-sign-up.css'; 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { supabase } from './supabaseClient';
 
 export default function BocceSignUp() {
+
+  // State to track if the form has been submitted.
+  const [submitted, setSubmitted] = useState(false);
+
+  // Information to be submitted to database.
+  const [teamName, setTeamName] = useState('');
+  const [players, setPlayers] = useState(['', '', '', '']);
+  const [sponsors, setSponsors] = useState('');
+
   // Prevent full page reload on submit; ***PLUG IN submit logic later***
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Get form data
+    const formData = new FormData(e.target);
+
+    // Extract team name, player names, and sponsor name from form data.
+    const teamName = formData.get('teamName');
+    const playerNames = [
+      formData.get('player1-name'),
+      formData.get('player2-name'),
+      formData.get('player3-name'),
+      formData.get('player4-name'),
+    ];
+    const sponsorName = formData.get('sponsorName') || null; // Set to null if sponsor name is empty
+
+    // Insert data into Supabase.
+    const { data, error } = await supabase
+      .from('bocce_teams')
+      .insert([
+        {
+          team_name: teamName,
+          player1: playerNames[0],
+          player2: playerNames[1],
+          player3: playerNames[2],
+          player4: playerNames[3],
+          sponsor_name: sponsorName
+        }
+      ]);
+
+    // Handle any errors that occur during insertion.
+    if (error) {
+      console.error(error);
+      alert('An error occurred while submitting your team. Please try again.');
+      return;
+    }
+
+    // If submission is successful, update state to show confirmation message.
+    setSubmitted(true);
+    e.target.reset(); // Clear form after submission
+
   };
 
-    useEffect(() => { // Set body ID for styling
-      document.body.id = 'bocce-body-id';
-      document.body.className = 'bocce-body';
-    }, []);
+  useEffect(() => { // Set body ID for styling
+  document.body.id = 'bocce-body-id';
+  document.body.className = 'bocce-body';
+  }, []);
+
+  if (submitted) {
+    return (
+      <div className="bocce-submitted-message">
+        <h2>Thank you for signing up your team!</h2>
+        <p>We look forward to seeing you at the tournament.</p>
+      </div>
+    );
+  }
 
   return (
     // Using a wrapper instead of <body>. "body" class for styling.
