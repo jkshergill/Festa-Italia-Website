@@ -1,17 +1,29 @@
 import { serve } from "https://deno.land/std/http/server.ts";
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
 serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
   try {
     if (req.method !== "POST") {
-      return new Response("Method Not Allowed", { status: 405 });
+      return new Response("Method Not Allowed", {
+        status: 405,
+        headers: corsHeaders,
+      });
     }
 
     const { amount, orderId } = await req.json();
 
-    if (!amount || !orderId) {
+    if (amount == null || !orderId) {
       return new Response(
         JSON.stringify({ error: "Missing amount or orderId" }),
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -24,18 +36,14 @@ serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          amount, // cents
+          amount,
           currency: "USD",
           merchant_id: Deno.env.get("CLOVER_MERCHANT_ID"),
           redirect_urls: {
-            // For local development, use localhost URL
-            // Need to replace localhost URL with actual URL when deployed
-            success: "/Festa-Italia-Website/Festa-Italia-App/src/PurchasedTickets.jsx", 
-            cancel: "https://http://127.0.0.1:5173/cancel", // Replace with your actual cancel URL when user cancels the transaction
+            success: "http://localhost:5173/success",
+            cancel: "http://localhost:5173/cancel",
           },
-          metadata: {
-            orderId,
-          },
+          metadata: { orderId },
         }),
       }
     );
@@ -45,20 +53,20 @@ serve(async (req) => {
     if (!cloverResponse.ok) {
       console.error("Clover error:", data);
       return new Response(
-        JSON.stringify({ error: "Clover checkout failed" }),
-        { status: 500 }
+        JSON.stringify({ error: "Clover checkout failed", details: data }),
+        { status: 500, headers: corsHeaders }
       );
     }
 
     return new Response(
       JSON.stringify({ checkoutUrl: data.checkout_url }),
-      { headers: { "Content-Type": "application/json" } }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
     console.error("Edge function error:", err);
     return new Response(
       JSON.stringify({ error: "Internal Server Error" }),
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 });
