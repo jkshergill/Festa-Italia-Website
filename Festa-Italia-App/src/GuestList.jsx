@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './GuestList.css';
+import { supabase } from './supabaseClient';
 
 const GuestList = ({ userRole, onClose }) => {
     const [guests, setGuests] = useState([]);
@@ -19,46 +20,26 @@ const GuestList = ({ userRole, onClose }) => {
 
         try {
             setLoading(true);
+
+            const { data: tickets, error } = await supabase
+                .from('tickets')
+                .select('*');
+            if (error) throw error;
             
-            // Mock API call
-            await new Promise(resolve => setTimeout(resolve, 300));
-            
-            // Mock guest data (grouped by email)
-            const mockTickets = Array.from({ length: 150 }, (_, i) => {
-                const guestNum = Math.floor(i / 3) + 1; // Group tickets by guest
-                const isCheckedIn = guestNum % 4 === 0;
-                const isRevoked = guestNum % 10 === 0;
-                
-                return {
-                    id: `TKT-${1000 + i}`,
-                    guest_id: `GUEST-${guestNum}`,
-                    guest_name: `Guest ${guestNum}`,
-                    guest_email: `guest${guestNum}@example.com`,
-                    holder_name: `Guest ${guestNum}`,
-                    holder_email: `guest${guestNum}@example.com`,
-                    event: i % 3 === 0 ? 'Coronation Ball' : i % 3 === 1 ? 'Bocce Tournament' : 'Fishermans Festival',
-                    issued_at: new Date(Date.now() - guestNum * 86400000).toISOString(),
-                    revoked_at: isRevoked && guestNum === Math.floor(i / 3) + 1 ? new Date().toISOString() : null,
-                    checked_in_at: isCheckedIn && guestNum === Math.floor(i / 3) + 1 ? new Date().toISOString() : null,
-                    profile_exists: guestNum % 2 === 0
-                };
-            });
-            
+            console.log('Fetched tickets:', tickets);
             // Group tickets by guest (email)
             const guestMap = new Map();
-            
-            mockTickets.forEach(ticket => {
+
+            tickets.forEach(ticket => {
                 if (ticket.revoked_at) return; // Skip revoked tickets
                 
-                const guestKey = ticket.guest_email.toLowerCase();
+                const guestKey = ticket.holder_profile_id;
                 
                 if (!guestMap.has(guestKey)) {
                     guestMap.set(guestKey, {
-                        id: ticket.guest_id,
-                        name: ticket.guest_name,
-                        email: ticket.guest_email,
-                        holder_name: ticket.holder_name,
-                        holder_email: ticket.holder_email,
+                        id: guestKey,
+                        name: ticket.holder_name,
+                        email: ticket.holder_email,
                         profile_exists: ticket.profile_exists,
                         ticket_count: 0,
                         checked_in: false,
@@ -93,27 +74,18 @@ const GuestList = ({ userRole, onClose }) => {
             }
             
             // Apply search
-            if (searchTerm.trim()) {
-                const term = searchTerm.toLowerCase();
-                guestList = guestList.filter(guest => 
-                    guest.name.toLowerCase().includes(term) ||
-                    guest.email.toLowerCase().includes(term) ||
-                    guest.holder_name.toLowerCase().includes(term) ||
-                    guest.holder_email.toLowerCase().includes(term)
-                );
-            }
-            
-            // Sort by name
-            guestList.sort((a, b) => a.name.localeCompare(b.name));
-            
-            // Update total count
+            //if (searchTerm.trim()) {
+            //    const term = searchTerm.toLowerCase();
+            //    guestList = guestList.filter(guest => 
+            //        guest.name.toLowerCase().includes(term) ||
+            //        guest.email.toLowerCase().includes(term) ||
+            //        guest.holder_name.toLowerCase().includes(term) ||
+            //        guest.holder_email.toLowerCase().includes(term)
+            //    );
+            //}
+
+            setGuests(guestList.slice(0, itemsPerPage));
             setTotalGuests(guestList.length);
-            
-            // Apply pagination
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const paginated = guestList.slice(startIndex, startIndex + itemsPerPage);
-            
-            setGuests(paginated);
             setLoading(false);
             
         } catch (error) {
@@ -142,17 +114,38 @@ const GuestList = ({ userRole, onClose }) => {
         setCurrentPage(1);
     };
 
-    const handleCheckIn = (guestEmail) => {
+    const handleCheckIn = async (guestEmail) => {
         // Update local state to reflect check-in
         setGuests(prevGuests => 
             prevGuests.map(guest => 
-                guest.email === guestEmail 
+                guest.id === guestEmail 
                     ? { ...guest, checked_in: true }
                     : guest
             )
         );
-        console.log(`Checked in guest: ${guestEmail}`);
-        alert(`Guest ${guestEmail} has been checked in!`);
+
+        try {
+            // Update the database to mark the guest as checked in.
+            const { data, error } = await supabase
+                .from('tickets')
+                .update({ checked_in_at: new Date().toISOString() })
+                .eq('holder_profile_id', guestEmail)
+                .is('checked_in_at', null);
+
+            if (error) throw error;
+            console.log('Checked in guest:', guestEmail, data);
+            alert(`Guest ${guestEmail} has been checked in!`);
+        } catch (error) {
+            console.error('Error checking in guest:', error);
+            alert('Failed to check in guest. Please try again.');
+
+            setGuests(prevGuests => 
+                prevGuests.map(guest => 
+                    guest.email === guestEmail ? { ...guest, checked_in: false } : guest
+                )
+            );
+        }
+
     };
 
     const handleViewDetails = (guest) => {
@@ -271,7 +264,7 @@ const GuestList = ({ userRole, onClose }) => {
                                                 {!guest.checked_in && (
                                                     <button 
                                                         className="action-btn checkin-btn"
-                                                        onClick={() => handleCheckIn(guest.email)}
+                                                        onClick={() => handleCheckIn(guest.id)}
                                                         title="Check in guest"
                                                     >
                                                         Check In
