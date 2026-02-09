@@ -6,22 +6,21 @@ import CoronationBall from './coronationball'
 import CoronationTix from './CoronationBallTickets'
 import Donate from './Donate'
 import FestivalInfo from './FestivalInfo'
-import ResetPass from './resetPassword'
 import Home from './HomePage'
 import Login from './Login'
+import ResetPass from './resetPassword'
 import Scholarship from './Scholarship'
-import Signup from './Signup'
 import Shopping from './Shopping'
+import Signup from './Signup'
 import Volunteer from './Volunteer'
-import Donation from './Donation'
 
-import ForgotPass from './forgotpassword' // Not sure if this will be temporary. Used for Reset Password.
 
 import { useEffect } from 'react'
-import AuthStatus from './AuthStatus';
-import MockCheckout from "./MockCheckout";
 import AdminDashboard from './AdminDashboard'
 import AdminFoods from './adminEditMenu'
+import AuthStatus from './AuthStatus'
+import MockCheckout from "./MockCheckout"
+import SignInWall from './SignInWall'
 
 export default function App(){
     const [page, setPage] = useState('home')
@@ -56,9 +55,7 @@ export default function App(){
       case 'scholarships': return <Scholarship />
       case 'shopping': return <Shopping />
       case 'volunteer': return <Volunteer />
-      case 'donation': return <Donation />
-
-      case 'forgot-pass': return <ForgotPass /> // Not sure if this will be temporary. Used to reset password.
+      case 'sign-in-wall': return <SignInWall />
       default: return <Home />
     }
   }
@@ -120,10 +117,7 @@ export default function App(){
           <button role="menuitem" onClick={() => { setPage('coronation-tix'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Coronation Ball Tickets</button>
           <button role="menuitem" onClick={() => { setPage('reset-pass'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Reset Password</button>
           <button role="menuitem" onClick={() => { setPage('signup'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Create Account</button>
-
-          <button role="menuitem" onClick={() => { setPage('forgot-pass'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Forgot Password</button>
-          <button role="menuitem" onClick={() => { setPage("admin-foods"); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Admin Menu Editor</button>
-
+          <button role="menuitem" onClick={() => { setPage('sign-in-wall'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>SIGN IN WALL</button>
         </div>
       )
     )

@@ -1,7 +1,73 @@
 .admin-dashboard {
-    min-height: 80vh;
-    padding: 2rem;
+    display: flex;
+    min-height: 100vh;
     background-color: #f8f9fa;
+}
+
+/* Left Sidebar */
+.admin-sidebar {
+    position: fixed;
+    left: 0;
+    top: 84px;
+    bottom: 0;
+    width: 220px;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    padding: 1.5rem 0;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    z-index: 100;
+    overflow-y: auto;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0 0.75rem;
+}
+
+.sidebar-btn {
+    appearance: none;
+    border: none;
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    padding: 0.85rem 1rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+.sidebar-btn:hover {
+    background: rgba(255,255,255,0.25);
+    transform: translateX(4px);
+}
+
+.sidebar-btn:active {
+    background: rgba(255,255,255,0.35);
+    transform: translateX(2px);
+}
+
+.sidebar-btn:focus {
+    outline: 2px solid rgba(255,255,255,0.4);
+    outline-offset: 2px;
+}
+
+.sidebar-btn.active {
+    background: rgba(255,255,255,0.35);
+    border-left: 4px solid #fff;
+    padding-left: calc(1rem - 4px);
+}
+
+/* Main Content Area - offset for sidebar */
+.admin-main {
+    margin-left: 220px;
+    flex: 1;
+    min-height: 100vh;
+    padding: 2rem;
 }
 
 .dashboard-header {
@@ -66,6 +132,7 @@
     border: none;
     background: none;
     text-align: left;
+    color: #111; /* ensure dropdown text is dark/black */
     cursor: pointer;
     border-bottom: 1px solid #f0f0f0;
     transition: background-color 0.2s ease;
@@ -94,6 +161,26 @@
     max-width: 1200px;
     margin: 0 auto;
 }
+
+.section-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    min-height: 400px;
+}
+
+/* Add Admin: lists and buttons */
+.list { padding: 0.25rem 0; }
+.list h4 { margin: 0 0 0.5rem 0; font-size: 1.05rem; color: #222 }
+.admin-item { display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid #f1f1f1 }
+.admin-item .name { color:#111 }
+.admin-item .actions { margin-left:1rem }
+.remove-btn { background:transparent;border:none;color:#c23;font-size:1.05rem;cursor:pointer;padding:0 0.5rem }
+.remove-btn:hover { color:#fff }
+.add-btn { appearance:none;border:none;background:var(--flag-green,#009246);color:#fff;padding:0.4rem 0.65rem;border-radius:6px;font-size:0.95rem;cursor:pointer }
+.add-btn:hover { filter:brightness(0.95); background-color:#fff; color:#009246}
+.muted { color:#666;font-style:italic;padding:0.5rem 0 }
 
 .admin-cards {
     display: grid;
@@ -140,7 +227,12 @@
 
 /* Responsive design */
 @media (max-width: 768px) {
-    .admin-dashboard {
+    .admin-sidebar {
+        width: 200px;
+    }
+    
+    .admin-main {
+        margin-left: 200px;
         padding: 1rem;
     }
     
@@ -151,158 +243,21 @@
     .admin-cards {
         grid-template-columns: 1fr;
     }
-}.admin-dashboard {
-    min-height: 80vh;
-    padding: 2rem;
-    background-color: #f8f9fa;
 }
 
-.dashboard-header {
-    text-align: center;
-    margin-bottom: 3rem;
-    padding-top: 1rem;
-}
-
-.dashboard-title {
-    font-size: 2.5rem;
-    color: #333;
-    margin: 0;
-    font-weight: 300;
-}
-
-.search-section {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 3rem;
-}
-
-.search-container {
-    position: relative;
-    width: 100%;
-    max-width: 500px;
-}
-
-.search-input {
-    width: 100%;
-    padding: 12px 20px;
-    font-size: 1rem;
-    border: 2px solid #ddd;
-    border-radius: 25px;
-    outline: none;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.search-input:focus {
-    border-color: #007bff;
-    box-shadow: 0 2px 15px rgba(0,123,255,0.2);
-}
-
-.dropdown-menu {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-    max-height: 300px;
-    overflow-y: auto;
-    z-index: 1000;
-    margin-top: 5px;
-}
-
-.dropdown-item {
-    width: 100%;
-    padding: 12px 20px;
-    border: none;
-    background: none;
-    text-align: left;
-    cursor: pointer;
-    border-bottom: 1px solid #f0f0f0;
-    transition: background-color 0.2s ease;
-    font-size: 0.95rem;
-}
-
-.dropdown-item:hover {
-    background-color: #f8f9fa;
-}
-
-.dropdown-item:last-child {
-    border-bottom: none;
-}
-
-.no-results {
-    color: #6c757d;
-    font-style: italic;
-    cursor: default;
-}
-
-.no-results:hover {
-    background-color: white;
-}
-
-.dashboard-content {
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.admin-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    margin-top: 2rem;
-}
-
-.admin-card {
-    background: white;
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    border-left: 4px solid #007bff;
-}
-
-.admin-card h3 {
-    margin-top: 0;
-    margin-bottom: 1rem;
-    color: #333;
-    font-size: 1.25rem;
-}
-
-.admin-card p {
-    margin: 0.5rem 0;
-    color: #666;
-}
-
-/* Close dropdown when clicking outside */
-.search-container::after {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 999;
-    display: none;
-}
-
-.search-container:focus-within::after {
-    display: block;
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-    .admin-dashboard {
-        padding: 1rem;
+@media (max-width: 480px) {
+    .admin-sidebar {
+        width: 160px;
     }
     
-    .dashboard-title {
-        font-size: 2rem;
+    .admin-main {
+        margin-left: 160px;
+        padding: 0.75rem;
     }
     
-    .admin-cards {
-        grid-template-columns: 1fr;
+    .sidebar-btn {
+        padding: 0.7rem 0.75rem;
+        font-size: 0.85rem;
     }
 }
 /* Guest List Card Styles */
