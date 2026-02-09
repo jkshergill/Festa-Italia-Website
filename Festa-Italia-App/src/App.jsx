@@ -20,6 +20,7 @@ import { useEffect } from 'react'
 import AuthStatus from './AuthStatus';
 import MockCheckout from "./MockCheckout";
 import AdminDashboard from './AdminDashboard'
+import AdminFoods from './adminEditMenu'
 
 export default function App(){
     const [page, setPage] = useState('home')
@@ -39,6 +40,8 @@ export default function App(){
   function renderPage(){
     switch(page){
       case 'admin-dash': return <AdminDashboard />
+      case "admin-foods": return <AdminFoods />;
+
       case 'bocce-dash': return <BocceDash />
       case 'bocce-sign': return <BocceSign />
       case 'coronation': return <CoronationBall />
@@ -52,7 +55,7 @@ export default function App(){
       case 'scholarships': return <Scholarship />
       case 'shopping': return <Shopping />
       case 'volunteer': return <Volunteer />
-
+      
       case 'forgot-pass': return <ForgotPass /> // Not sure if this will be temporary. Used to reset password.
       default: return <Home />
     }
@@ -117,6 +120,8 @@ export default function App(){
           <button role="menuitem" onClick={() => { setPage('signup'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Create Account</button>
 
           <button role="menuitem" onClick={() => { setPage('forgot-pass'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Forgot Password</button>
+          <button role="menuitem" onClick={() => { setPage("admin-foods"); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Admin Menu Editor</button>
+
         </div>
       )
     )
