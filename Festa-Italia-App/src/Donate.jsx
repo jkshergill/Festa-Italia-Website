@@ -7,6 +7,11 @@ function Donate() {
   const maxLength = 500; {/*` Maximum length for the note input */}
   const [inputValue, setInputValue] = useState('');
 
+  // Controlled form fields so we can build the mock-checkout URL
+  const [name, setName] = useState('');
+  const [donationType, setDonationType] = useState('Basic');
+  const [amount, setAmount] = useState('');
+
   const handleInputChange = (event) => { /* Handler to limit input length */
     setInputValue(event.target.value.slice(0, maxLength));
   };
@@ -16,6 +21,37 @@ function Donate() {
     document.body.className = 'donate-body';
   }, []);
 
+  /* For now, the submit handler just validates input and redirects 
+  to a mock checkout page with query params. In a real implementation, 
+  this would integrate with the Clover API to create a checkout session.
+  */
+  const handleSubmit = (e) => {
+    e?.preventDefault();
+
+    const amt = Number(amount);
+    if (!amt || amt <= 0) {
+      alert('Please enter a valid donation amount.');
+      return;
+    }
+
+    const amountCents = Math.round(amt * 100);
+
+    // Use donor name as the single attendee name so MockCheckout won't reject
+    const safeName = (name || 'Donor').replace(/\|/g, ' ');
+    const namesParam = encodeURIComponent(safeName);
+    const typesParam = encodeURIComponent(donationType || 'donation');
+
+    const href = `/mock-checkout` +
+      `?amount=${amountCents}` +
+      `&email=` +
+      `&names=${namesParam}` +
+      `&types=${typesParam}` +
+      `&food=` +
+      `&sid=${crypto.randomUUID()}`;
+
+    window.location.assign(href);
+  };
+
   return (
     <>
 
@@ -23,7 +59,7 @@ function Donate() {
         Thank you for supporting your community!
       </h1>
 
-      <form className='donate-form'> 
+      <form className='donate-form' onSubmit={handleSubmit}>
 
         <div className='donate-name-section-div'>
           <label className='donate-name-section'>
@@ -31,7 +67,14 @@ function Donate() {
           </label>
 
           <div>
-            <input className='donate-enter-name' type="text" placeholder='Enter name' required/>
+            <input
+              className='donate-enter-name'
+              type="text"
+              placeholder='Enter name'
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
           </div>
         </div>
 
@@ -40,7 +83,7 @@ function Donate() {
             What kind of donation is this?
           </label>
 
-          <select className='donate-donation-type'>
+          <select className='donate-donation-type' value={donationType} onChange={(e) => setDonationType(e.target.value)}>
             <option value='Basic'>
               Basic Donation
             </option>
@@ -69,7 +112,16 @@ function Donate() {
           </label>
 
           <div className='donate-enter-amount-div'>
-            <input className='donate-enter-amount' type="number" placeholder="Enter amount" min={1} max={100} required/>
+            <input
+              className='donate-enter-amount'
+              type="number"
+              placeholder="Enter amount"
+              min={1}
+              max={10000}
+              required
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+            />
           </div>
         </div>
 
@@ -97,7 +149,7 @@ function Donate() {
           <input className='donate-upload-logo' type='file' accept='.pdf, .png, .jpg, .jpeg'/>
 
           <div className='donate-clover-button-div'>
-            <button className='donate-clover-button'>
+            <button className='donate-clover-button' type="submit">
               Submit with Clover
             </button>
           </div>

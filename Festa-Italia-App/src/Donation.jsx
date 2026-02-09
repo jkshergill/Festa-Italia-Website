@@ -150,6 +150,8 @@ export default function Donation() {
 									{ s.note && <p className="sponsor-note">{s.note}</p> }
 								</div>
 							))}
+
+							
 						</div>
 					</section>
 				</section>
