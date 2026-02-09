@@ -44,7 +44,7 @@
 .page-root .sponsors{margin-top:2rem}
 .page-root .sponsors h2{margin-bottom:0.5rem;text-align:left}
 .page-root .sponsors-desc{margin:0 0 1rem;color:#444}
-.page-root .sponsor-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem}
+.page-root .sponsor-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;background-color:#e6f9ec;padding:1rem;border-radius:8px}
 .page-root .sponsor-card{background:#fff;border:1px solid rgba(0,0,0,0.06);border-radius:8px;padding:1rem;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:140px}
 .page-root .sponsor-logo-wrap{display:flex;align-items:center;justify-content:center;height:80px;width:100%}
 .page-root .sponsor-logo-wrap img{max-height:64px;max-width:100%;object-fit:contain}
