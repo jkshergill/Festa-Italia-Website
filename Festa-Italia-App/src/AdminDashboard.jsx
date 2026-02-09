@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { supabase } from './supabaseClient';
+import React, { useState } from 'react';
 import './AdminDashboard.css';
-
+import TicketManagement from './TicketManagement';
+import './TicketManagement.css';
+import GuestList from './GuestList';
+import './GuestList.css';
 function AdminDashboard() {
     const [searchQuery, setSearchQuery] = useState('');
     const [showDropdown, setShowDropdown] = useState(false);
+    const [showTicketModal, setShowTicketModal] = useState(false);
+    const [showGuestListModal, setShowGuestListModal] = useState(false);
+    const [userRole, setUserRole] = useState(null);
 
-    const [session, setSession] = useState(null);
-    // State for ticket sales data.
-    const [ticketSales, setTicketSales] = useState([]);
-    // State for loading status of ticket sales data.
-    const [loading, setLoading] = useState(true);
 
     // List of available pages for the dropdown
     const pageOptions = [
@@ -30,33 +30,6 @@ function AdminDashboard() {
     const filteredPages = pageOptions.filter(page =>
         page.label.toLowerCase().includes(searchQuery.toLowerCase())
     );
-
-    useEffect(() => {
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setSession(session);
-        });
-        fetchTicketSales();
-    }, []);
-
-    const fetchTicketSales = async () => {
-        const { data, error } = await supabase
-            .from('tickets')
-            .select('id, holder_name, holder_email, checked_in_at')
-            .order('holder_name', { ascending: true });
-
-        if (error) {
-            console.error('Error fetching ticket sales:', error);
-        } else {
-            setTicketSales(data);
-        }
-
-        setLoading(false);
-
-    };
-
-    if (loading) {
-        return <div className="admin-dashboard">Loading ticket sales data...</div>;
-    }
 
     return (
         <div className="admin-dashboard">
@@ -123,60 +96,158 @@ function AdminDashboard() {
                         <p>All systems operational</p>
                         <p>Last updated: Today</p>
                     </div>
+                    <div className="admin-card ticket-management-card">
+                        <div className="card-header"></div>
+                            <h3>Ticket Management</h3>
+                            <button
+                                className="manage-button"
+                                onClick={() => setShowTicketModal(true)}
+                            >
+                                Manage Tickets
+                            </button>
+                    </div>
+                    <div className="ticket-summary">
+                        <div className="summary-item">
+                            <span className="summary-label">Active Tickets:</span>
+                            <span className="summary-value">245</span>
+                        </div>
+                        <div className="summary-item">
+                            <span className="summary-label">Checked In:</span>
+                            <span className="summary-value">89</span>
+                        </div>
+                        <div className="summary-item">
+                            <span className="summary-label">Revoked:</span>
+                            <span className="summary-value">12</span>
+                        </div>
+                        <div className="summary-item">
+                            <span className="summary-label">Today's Sales:</span>
+                            <span className="summary-value">$1,250</span>
+                        </div>
+                        <div className="recent-tickets">
+                            <h4>Recent Ticket Activity</h4>
+                            <div className="tickets-list"></div>
+                            {[
+                                { id: 'TKT-1001', event: 'Coronation Ball', purchaser: 'John Doe', status: 'active' },
+                                { id: 'TKT-1002', event: 'Bocce Tournament', purchaser: 'Jane Smith', status: 'checked-in' },
+                                { id: 'TKT-1003', event: 'Fishermans Festival', purchaser: 'Bob Wilson', status: 'active' },
+                             ].map(ticket => (   
+                                <div key={ticket.id} className="recent-ticket-item">
+                                    <div className="ticket-info">
+                                        <span className="ticket-id">{ticket.id}</span>
+                                        <span className="ticket-event">{ticket.event}</span>
+                                    </div>
+                                    <div className="ticket-details">
+                                       <span className="ticket-purchaser">{ticket.purchaser}</span> 
+                                       <span className={`ticket-status status-${ticket.status}`}>{ticket.status === 'checked-in' ? 'Checked In' : 'Active'}
+                                       </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div> 
+                    </div>
                 </div>
-                <div className="ticket-sales-section">
-                    <h2>Ticket Sales</h2>
-                    {ticketSales.length > 0 ? (
-                        <table className="ticket-table">
-                            <thead>
-                                <tr>
-                                    <th>Ticket ID</th>  
-                                    <th>Holder Name</th>
-                                    <th>Holder Email</th>
-                                    <th>Checked In At</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {ticketSales.map((ticket) => (
-                                    <tr key={ticket.id}>
-                                        <td>{ticket.id}</td>
-                                        <td>{ticket.holder_name}</td>
-                                        <td>{ticket.holder_email}</td>
-                                        <td>
-                                            {ticket.checked_in_at ? ( <span className="checkmark">✓ Checked In</span>
-                                            ) : (
-                                                <button className="check-in-button" onClick={async() => {
-
-                                                    const { data, error } = await supabase
-                                                        .from('tickets')
-                                                        .update({ checked_in_at: new Date().toISOString() })
-                                                        .eq('id', ticket.id)
-                                                        .select('checked_in_at')
-                                                        .single();
-
-                                                    if (error) {
-                                                        console.error('Error checking in ticket:', error);
-                                                        alert('Failed to check in ticket. Please try again.');
-                                                    } else {
-                                                        // Update the local state to reflect the change
-                                                        setTicketSales((prevSales) =>
-                                                            prevSales.map((t) =>
-                                                                t.id === ticket.id ? { ...t, checked_in_at: data.checked_in_at } : t
-                                                            )
-                                                        );
-                                                    }
-                                                }}>Check In</button>
-                                            )}
-                                        </td>
-                                    </tr>
+                <div className="admin-card guest-list-card">
+                        <div className="card-header">
+                            <h3>Guest List</h3>
+                            <button 
+                                className="manage-button guest-list-button"
+                                onClick={() => {
+                                    console.log("Manage Guest List button clicked");
+                                    setShowGuestListModal(true);
+                                }}
+                            >
+                                Manage Guest List
+                            </button>
+                        </div>
+                        
+                        <div className="guest-summary">
+                            <div className="summary-item">
+                                <span className="summary-label">Total Guests:</span>
+                                <span className="summary-value">85</span>
+                            </div>
+                            <div className="summary-item">
+                                <span className="summary-label">Checked In:</span>
+                                <span className="summary-value">42</span>
+                            </div>
+                            <div className="summary-item">
+                                <span className="summary-label">With Profile:</span>
+                                <span className="summary-value">63</span>
+                            </div>
+                            <div className="summary-item">
+                                <span className="summary-label">Avg Tickets:</span>
+                                <span className="summary-value">2.8</span>
+                            </div>
+                        </div>
+                        
+                        <div className="recent-guests">
+                            <h4>Recent Guest Activity</h4>
+                            <div className="guests-list">
+                                {[
+                                    { id: 'GUEST-001', name: 'Alice Johnson', email: 'alice@example.com', tickets: 3, status: 'checked-in' },
+                                    { id: 'GUEST-002', name: 'Bob Wilson', email: 'bob@example.com', tickets: 2, status: 'not-checked-in' },
+                                    { id: 'GUEST-003', name: 'Carol Davis', email: 'carol@example.com', tickets: 1, status: 'checked-in' },
+                                ].map(guest => (   
+                                    <div key={guest.id} className="recent-guest-item">
+                                        <div className="guest-info">
+                                            <span className="guest-name">{guest.name}</span>
+                                            <span className="guest-email">{guest.email}</span>
+                                        </div>
+                                        <div className="guest-details">
+                                            <span className="guest-tickets">{guest.tickets} ticket{guest.tickets !== 1 ? 's' : ''}</span> 
+                                            <span className={`guest-status status-${guest.status}`}>
+                                                {guest.status === 'checked-in' ? 'Checked In' : 'Not Checked In'}
+                                            </span>
+                                        </div>
+                                    </div>
                                 ))}
-                            </tbody>
-                        </table>
-                    ) : (
-                        <p>No ticket sales data available.</p>
-                    )}
-                </div>  
+                            </div>
+                        </div> 
+                    </div>
             </div>
+            {showTicketModal && (
+                <div className="modal-overlay" onClick={() => setShowTicketModal(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2>Ticket Management</h2>
+                            <button 
+                                className="close-button"
+                                onClick={() => setShowTicketModal(false)}
+                            >
+                                &times;
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                            
+                            
+                            <TicketManagement 
+                            userRole="admin" 
+                            onClose={() => setShowTicketModal(false)}
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
+            {showGuestListModal && (
+                <div className="modal-overlay" onClick={() => setShowGuestListModal(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2>Guest List Management</h2>
+                            <button 
+                                className="close-button"
+                                onClick={() => setShowGuestListModal(false)}
+                            >
+                                &times;
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                            <GuestList 
+                                userRole={userRole} 
+                                onClose={() => setShowGuestListModal(false)} 
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

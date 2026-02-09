@@ -305,26 +305,133 @@
         grid-template-columns: 1fr;
     }
 }
-
-.ticket-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 2rem;
+/* Guest List Card Styles */
+.guest-list-card {
+    grid-column: span 1;
+    position: relative;
+    border-left: 4px solid #9c27b0 !important; /* Purple color for guest list */
 }
 
-.ticket-table th, .ticket-table td {
+.guest-list-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.guest-list-card .manage-button {
+    padding: 8px 16px;
+    background-color: #9c27b0;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.guest-list-card .manage-button:hover {
+    background-color: #7b1fa2;
+}
+
+.guest-summary {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.recent-guests {
+    margin-top: 15px;
+}
+
+.recent-guests h4 {
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 16px;
+}
+
+.guests-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.recent-guest-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding: 10px;
-    border-bottom: 1px solid #ddd;
+    background: #f8f9fa;
+    border-radius: 4px;
+    border-left: 3px solid #9c27b0;
 }
 
-.checkmark {
-    color: green;
-    font-weight: bold;
-    font-size: 18px;
+.guest-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
-.not-checked {
-    color: red;
-    font-weight: bold;
-    font-size: 18px;
+.guest-name {
+    font-weight: 600;
+    font-size: 12px;
+    color: #2c3e50;
+}
+
+.guest-email {
+    font-size: 11px;
+    color: #666;
+}
+
+.guest-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.guest-tickets {
+    font-size: 11px;
+    font-weight: 500;
+    color: #ff9800;
+}
+
+.guest-status {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-checked-in {
+    background-color: #4caf50;
+    color: white;
+}
+
+.status-not-checked-in {
+    background-color: #ff9800;
+    color: white;
+}
+
+@media (min-width: 1200px) {
+    .guest-list-card {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 768px) {
+    .guest-list-card .card-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+    
+    .guest-summary {
+        grid-template-columns: 1fr;
+    }
 }
