@@ -41,15 +41,15 @@ export default function App(){
     switch(page){
       case 'admin-dash': return <AdminDashboard />
       case "admin-foods": return <AdminFoods />;
-      case 'bocce-dash': return <BocceDash />
+      case 'bocce-dash': return <BocceDash setPage={setPage}/>
       case 'bocce-sign': return <BocceSign />
-      case 'coronation': return <CoronationBall />
+      case 'coronation': return <CoronationBall setPage={setPage}/>
       case 'coronation-tix': return <CoronationTix />
       case 'donate': return <Donate />
       case 'festival': return <FestivalInfo />
       case 'reset-pass': return <ResetPass />
-      case 'home': return <Home />
-      case 'login': return <Login />;
+      case 'home': return <Home setPage={setPage}/>
+      case 'login': return <Login setPage={setPage}/>;
       case 'signup': return <Signup />
       case 'scholarships': return <Scholarship />
       case 'shopping': return <Shopping />
@@ -115,8 +115,8 @@ export default function App(){
           {/* Temporary items you noted */}
           <button role="menuitem" onClick={() => { setPage('bocce-sign'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Bocce Sign up</button>
           <button role="menuitem" onClick={() => { setPage('coronation-tix'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Coronation Ball Tickets</button>
-          <button role="menuitem" onClick={() => { setPage('reset-pass'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Reset Password</button>
-          <button role="menuitem" onClick={() => { setPage('signup'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Create Account</button>
+          {/* <button role="menuitem" onClick={() => { setPage('reset-pass'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Reset Password</button>
+          <button role="menuitem" onClick={() => { setPage('signup'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Create Account</button> */}
           <button role="menuitem" onClick={() => { setPage('sign-in-wall'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>SIGN IN WALL</button>
         </div>
       )
