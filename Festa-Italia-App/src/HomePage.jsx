@@ -1,7 +1,7 @@
 import './HomePage.css';
 import { useEffect } from 'react';
 
-export default function HomePage() {
+export default function HomePage({setPage}) {
 
   useEffect(() => { // Set body ID for styling
     document.body.id = 'homepage-body-id';
@@ -13,6 +13,10 @@ export default function HomePage() {
     <div className="page-root">
 
       <main>
+        <div>
+          <button onClick = {() => setPage("admin-dash")} style = {{backgroundColor: 'black', color: 'white'}}> Admin Dashboard</button>
+          
+        </div>
         <section id="gallery" className="container section gallery">
           <h2>Gallery</h2>
           <div className="gallery-row" role="list">
