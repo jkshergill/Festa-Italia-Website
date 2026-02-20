@@ -12,7 +12,7 @@ export default function BocceDashboard({ setPage }) {
   const previousWinners = [
     { year: currentYear - 1, team: "Il Tricolore" },
     { year: currentYear - 2, team: "Palermo Aces" },
-    { year: currentYear - 3, team: "Monterey Rollers" },
+    { year: currentYear - 3, team: "Monterey Rollers" }, 
     { year: currentYear - 4, team: "Marin Mafiosi" },
   ];
 
@@ -41,10 +41,10 @@ export default function BocceDashboard({ setPage }) {
               <button
                 type="button"
                 className="signup-info-btn"
-                aria-label="Sign Up Information"
+                aria-label="Sign Up"
                 onClick={() => setPage('bocce-sign')}
               >
-                Sign Up Information
+                Sign Up
               </button>
             </div>
 

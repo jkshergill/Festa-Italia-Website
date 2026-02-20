@@ -65,6 +65,7 @@ export default function AuthStatus({ onLogin }) {
               border: '1px solid rgba(0,0,0,0.25)',
               borderRadius: '6px',
               background: '#000000ff',
+              color: '#fff',
               padding: '2px 6px',
               fontSize: '0.8rem',
             }}
