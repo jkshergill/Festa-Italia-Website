@@ -39,7 +39,7 @@ function App() {
       if (error) {
         setMessage(error.message);
       } else {
-        setMessage('Password updated successfully! You can now log out and log back in with your new password.');
+        setMessage('Password updated successfully! You can now log out and log back in with your new password. If you entered this page through the "Reset Password" email, please close this tab.');
       }
     } catch (error) {
       setMessage(error.message);
@@ -67,7 +67,7 @@ function App() {
     
     <p>
       <strong>
-        If you have forgotten your password, please use the "Forgot Password" link from the top-right menu to receive a password reset email link and then return to this page.
+        If you have forgotten your password, please use the "Request Reset Password Email" link from the top-right menu to receive a password reset email link and then return to this page.
       </strong>
     </p>
 
