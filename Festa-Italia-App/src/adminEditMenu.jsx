@@ -37,11 +37,11 @@ export default function AdminFoods() {
   const [editForm, setEditForm] = useState({
     name: "",
     description: "",
-    token_price: "",
     price: "",
     calories: "",
     is_active: false,
     image_path: "",
+    food_type: "Food",
   });
   const [editFile, setEditFile] = useState(null);
 
@@ -50,11 +50,11 @@ export default function AdminFoods() {
   const [addForm, setAddForm] = useState({
     name: "",
     description: "",
-    token_price: "",
     price: "",
     calories: "",
     is_active: false, // always start inactive
     image_path: "",
+    food_type: "Food",
   });
   const [addFile, setAddFile] = useState(null);
 
@@ -66,7 +66,7 @@ export default function AdminFoods() {
     const { data, error } = await supabase
       .from("foods")
       .select(
-        "id,name,description,token_price,price,calories,is_active,image_path,created_at,updated_at"
+        "id,name,description,price,calories,is_active,image_path,food_type,created_at,updated_at"
       )
       .order("created_at", { ascending: false });
 
@@ -96,7 +96,7 @@ export default function AdminFoods() {
       .from("profiles")
       .select("is_admin")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error("Admin check failed:", error);
@@ -105,9 +105,9 @@ export default function AdminFoods() {
       return false;
     }
 
-    setIsAdmin(!!profile.is_admin);
+    setIsAdmin(!!profile?.is_admin);
     setAuthChecked(true);
-    return !!profile.is_admin;
+    return !!profile?.is_admin;
   };
 
   useEffect(() => {
@@ -129,11 +129,11 @@ export default function AdminFoods() {
     setEditForm({
       name: food.name ?? "",
       description: food.description ?? "",
-      token_price: formatPrice(food.token_price),
       price: formatPrice(food.price),
       calories: food.calories ?? "",
       is_active: !!food.is_active,
       image_path: food.image_path ?? "",
+      food_type: food.food_type ?? "Food",
     });
   };
 
@@ -143,11 +143,11 @@ export default function AdminFoods() {
     setEditForm({
       name: "",
       description: "",
-      token_price: "",
       price: "",
       calories: "",
       is_active: false,
       image_path: "",
+      food_type: "Food",
     });
   };
 
@@ -210,13 +210,12 @@ export default function AdminFoods() {
 
       const payload = {
         name: editForm.name.trim(),
-        description: editForm.description?.trim() || null,
-        token_price: asNumberOrNull(editForm.token_price),
-        price: asNumberOrNull(editForm.price),
+        description: editForm.description?.trim() || null,        price: asNumberOrNull(editForm.price),
         calories: asNumberOrNull(editForm.calories),
         is_active: !!editForm.is_active,
         image_path: image_path || null,
-        updated_at: new Date().toISOString(),
+        food_type: editForm.food_type || null,
+                updated_at: new Date().toISOString(),
       };
 
       const { data, error } = await supabase
@@ -247,11 +246,11 @@ export default function AdminFoods() {
     setAddForm({
       name: "",
       description: "",
-      token_price: "",
       price: "",
       calories: "",
       is_active: false, // always inactive on create
       image_path: "",
+      food_type: "food",
     });
   };
 
@@ -274,13 +273,12 @@ export default function AdminFoods() {
 
       const payload = {
         name: addForm.name.trim(),
-        description: addForm.description?.trim() || null,
-        token_price: asNumberOrNull(addForm.token_price),
-        price: asNumberOrNull(addForm.price),
+        description: addForm.description?.trim() || null,        price: asNumberOrNull(addForm.price),
         calories: asNumberOrNull(addForm.calories),
         is_active: false, // force inactive on create
         image_path: image_path || null,
-      };
+        food_type: addForm.food_type || null,
+            };
 
       const { data, error } = await supabase.from("foods").insert(payload).select().single();
 
@@ -327,11 +325,21 @@ export default function AdminFoods() {
         }
       }
 
-      const { error: delErr } = await supabase.from("foods").delete().eq("id", food.id);
-      if (delErr) throw delErr;
+      console.log("Attempting delete", { id: food.id, is_active: food.is_active });
+      const { data: deletedRows, error: delErr } = await supabase
+      .from("foods")
+      .delete()
+      .eq("id", food.id)
+      .select(); // <— important: confirms what was deleted
 
-      setFoods((prev) => prev.filter((f) => f.id !== food.id));
-      setConfirmDelete(null);
+    if (delErr) throw delErr;
+
+    if (!deletedRows || deletedRows.length === 0) {
+      throw new Error("Delete matched 0 rows. Check RLS policy or that the id is correct.");
+    }
+
+    setFoods((prev) => prev.filter((f) => f.id !== food.id));
+    setConfirmDelete(null);
     } catch (err) {
       console.error(err);
       setErrorMsg(err?.message || "Failed to delete item.");
@@ -420,22 +428,24 @@ export default function AdminFoods() {
                 </Field>
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                  <Field label="Price (token_price)">
-                    <input
-                      value={addForm.token_price}
-                      onChange={(e) => setAddForm((p) => ({ ...p, token_price: e.target.value }))}
-                      placeholder="e.g. 12"
-                    />
-                  </Field>
+  <Field label="Price">
+    <input
+      value={addForm.price}
+      onChange={(e) => setAddForm((p) => ({ ...p, price: e.target.value }))}
+      placeholder="e.g. 9.99"
+    />
+  </Field>
 
-                  <Field label="Price (USD)">
-                    <input
-                      value={addForm.price}
-                      onChange={(e) => setAddForm((p) => ({ ...p, price: e.target.value }))}
-                      placeholder="e.g. 9.99"
-                    />
-                  </Field>
-                </div>
+  <Field label="Food Type">
+    <select
+      value={addForm.food_type}
+      onChange={(e) => setAddForm((p) => ({ ...p, food_type: e.target.value }))}
+    >
+      <option value="food">Food</option>
+      <option value="drink">Drink</option>
+    </select>
+  </Field>
+</div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                   <Field label="Calories">
@@ -500,20 +510,23 @@ export default function AdminFoods() {
                       </Field>
 
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                        <Field label="Price (token_price)">
-                          <input
-                            value={editForm.token_price}
-                            onChange={(e) => setEditForm((p) => ({ ...p, token_price: e.target.value }))}
-                          />
-                        </Field>
+  <Field label="Price">
+    <input
+      value={editForm.price}
+      onChange={(e) => setEditForm((p) => ({ ...p, price: e.target.value }))}
+    />
+  </Field>
 
-                        <Field label="Price (USD)">
-                          <input
-                            value={editForm.price}
-                            onChange={(e) => setEditForm((p) => ({ ...p, price: e.target.value }))}
-                          />
-                        </Field>
-                      </div>
+  <Field label="Food Type">
+    <select
+      value={editForm.food_type}
+      onChange={(e) => setEditForm((p) => ({ ...p, food_type: e.target.value }))}
+    >
+      <option value="food">Food</option>
+      <option value="drink">Drink</option>
+    </select>
+  </Field>
+</div>
 
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                         <Field label="Calories">
@@ -631,8 +644,7 @@ export default function AdminFoods() {
                         )}
 
                         <div style={{ opacity: 0.85, marginTop: 8 }}>
-                          Token Price: {f.token_price ?? "—"} • USD Price:{" "}
-                          {f.price ?? "—"} • Calories: {f.calories ?? "—"}
+                          Price: {f.price ?? "—"} • Type: {f.food_type ?? "—"} • Calories: {f.calories ?? "—"}
                         </div>
                       </div>
 
@@ -729,7 +741,7 @@ function Field({ label, children }) {
       <div style={{ fontWeight: 700, marginBottom: 6 }}>{label}</div>
       <div>{children}</div>
       <style>{`
-        input, textarea {
+        input, textarea, select {
           width: 100%;
           padding: 10px 12px;
           border-radius: 10px;
@@ -784,17 +796,18 @@ function ConfirmModal({
         if (e.target === e.currentTarget && !disableActions) onCancel?.();
       }}
     >
-      <div
-        style={{
-          width: "100%",
-          maxWidth: 420,
-          borderRadius: 14,
-          border: "1px solid rgba(255,255,255,0.18)",
-          background: "rgba(20,20,20,0.95)",
-          padding: 14,
-        }}
-        onMouseDown={(e) => e.stopPropagation()}
-      >
+        <div
+          style={{
+            width: "100%",
+            maxWidth: 420,
+            borderRadius: 14,
+            border: "1px solid rgba(255,255,255,0.18)",
+            background: "rgba(20,20,20,0.95)",
+            color: "#fff",
+            padding: 14,
+          }}
+          onMouseDown={(e) => e.stopPropagation()}
+        >
         <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 8 }}>{title}</div>
         <div style={{ opacity: 0.9, marginBottom: 14, lineHeight: 1.4 }}>{message}</div>
 
