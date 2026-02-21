@@ -1,0 +1,76 @@
+.user-profile {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+    padding: 2rem;
+}
+
+.user-profile h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #333;
+    font-weight: 300;
+}
+
+.tabs {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.tabs button {
+    appearance: none;
+    border: none;
+    background: #1e3c72;
+    color: #fff;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tabs button:hover {
+    background: #2a5298;
+}
+
+.tabs button.active {
+    background: #2a5298;
+    border-left: 4px solid #fff;
+    padding-left: calc(1.25rem - 4px);
+}
+
+.tab-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    min-height: 400px;
+}
+
+/* bocce teams styles */
+.bocce-teams-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.bocce-team-card {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.bocce-team-card h3 {
+    margin-top: 0;
+}
+
+.bocce-team-card ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+}

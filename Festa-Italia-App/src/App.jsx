@@ -23,6 +23,8 @@ import MockCheckout from "./MockCheckout"
 import SignInWall from './SignInWall'
 import ForgotPass from './forgotpassword'
 
+import UserProfile from './UserProfile' // Added by JK
+
 export default function App(){
     const [page, setPage] = useState('home')
     const [menuOpen, setMenuOpen] = useState(false)
@@ -70,6 +72,8 @@ export default function App(){
       case 'volunteer': return <Volunteer />
       case 'sign-in-wall': return <SignInWall />
       case 'forgot-pass': return <ForgotPass />
+      case 'user-profile': return <UserProfile setPage={setPage} /> // Added by JK
+      
       default: return <Home />
     }
   }
@@ -126,6 +130,8 @@ export default function App(){
           <button role="menuitem" onClick={() => { setPage('login'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Log in</button>
           <button role="menuitem" onClick={() => { setPage('shopping'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Shopping</button>
           <button role="menuitem" onClick={() => { setPage('donation'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Previous Sponsors</button>
+          <button role="menuitem" onClick={() => { setPage('user-profile'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>User Profile</button> 
+
 
           {/* Temporary items you noted */}
           <button role="menuitem" onClick={() => { setPage('bocce-sign'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Bocce Sign up</button>

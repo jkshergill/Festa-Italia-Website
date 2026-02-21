@@ -53,13 +53,28 @@ export default function PurchasedTickets({ eventId }) {
   if (error) return <p className="error">{error}</p>;
   if (!orders.length) return <p>No tickets found for this event.</p>;
 
+  // calculate ticket counts
+  const totalTickets = orders.reduce(
+    (sum, order) => sum + (order.tickets ? order.tickets.length : 0),
+    0
+  );
+
   return (
     <div className="tickets-container">
+      {/* overall summary */}
+      <div className="tickets-summary">
+        <p>
+          You have purchased <strong>{totalTickets}</strong> ticket{totalTickets !== 1 ? 's' : ''} for this event.
+        </p>
+      </div>
+
       {orders.map(order => (
         <div key={order.id} className="order-card">
-          <h3>Order #{order.id.slice(0, 8)}</h3>
+          <h3>
+            Order #{order.id.slice(0, 8)} ({order.tickets.length} ticket{order.tickets.length !== 1 ? 's' : ''})
+          </h3>
           <p>
-            Purchased on{" "}
+            Purchased on{' '}
             {new Date(order.created_at).toLocaleDateString()}
           </p>
 
