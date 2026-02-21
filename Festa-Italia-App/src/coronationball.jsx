@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./index.css";
 import { useEffect } from "react";
 
-function Coronationball() {
+function Coronationball({setPage}) {
 
   useEffect(() => { {/* Set body ID for styling */}
     document.body.id = 'coronationball-body-id';
@@ -56,21 +56,21 @@ function Coronationball() {
             {/* Right Column: Buy Tickets */}
             <div className= "w-full md:w-1/3 bg-white rounded-1g shadow p-4 h-fit">
             <h2 className = "text-1g font-semibold text-gray-700 mb-2"> Buy Tickets </h2>
-
+             <button onClick={()=> setPage("coronation-tix")}> Buy </button>
               
-             <p className= "text-gray-700 mb-3">
+             {/* <p className= "text-gray-700 mb-3">
 
               <span className ="font-medium"> Coronation Ball Tickets</span> <br /> 
                  Price per ticket :  <span className = "font-semibold">$25.00</span>
-             </p>
-             <input type ="number" placeholder = "Enter no of Tickets" min ="0" step ="1" 
+             </p> */}
+             {/* <input type ="number" placeholder = "Enter no of Tickets" min ="0" step ="1" 
                     className = "w-full border rounded-md p-2 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
                <a href="https://example.com/Checkout"
                   target = "_blank"
                   rel = "noopener noreferrer"
                   className = "block w-full bg-yellow-500 hover:bg-yellow-600 text-white text-center py-2 rounded-md">
-                  Checkout </a>
+                  Checkout </a> */}
                </div>      
              </div>
 
@@ -96,4 +96,4 @@ function Coronationball() {
     
 }
 export default Coronationball;
-    
+     

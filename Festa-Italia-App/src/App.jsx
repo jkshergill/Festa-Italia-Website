@@ -55,15 +55,15 @@ export default function App(){
     switch(page){
       case 'admin-dash': return <AdminDashboard />
       case "admin-foods": return <AdminFoods />;
-      case 'bocce-dash': return <BocceDash />
+      case 'bocce-dash': return <BocceDash setPage={setPage}/>
       case 'bocce-sign': return <BocceSign />
-      case 'coronation': return <CoronationBall />
+      case 'coronation': return <CoronationBall setPage={setPage}/>
       case 'coronation-tix': return <CoronationTix />
       case 'donate': return <Donate />
       case 'festival': return <FestivalInfo />
       case 'reset-pass': return <ResetPass />
-      case 'home': return <Home />
-      case 'login': return <Login />;
+      case 'home': return <Home setPage={setPage}/>
+      case 'login': return <Login setPage={setPage}/>;
       case 'signup': return <Signup />
       case 'scholarships': return <Scholarship />
       case 'shopping': return <Shopping />
@@ -115,7 +115,7 @@ export default function App(){
           }}
         >
           <button role="menuitem" onClick={() => { setPage('admin-dash'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Admin Dashboard</button>
-           <button role="menuitem" onClick={() => { setPage('admin-foods'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Admin Tool - Food Menu Editor</button>
+          <button role="menuitem" onClick={() => { setPage('admin-foods'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Admin Tool - Food Menu Editor</button>
           <button role="menuitem" onClick={() => { setPage('home'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Home</button>
           <button role="menuitem" onClick={() => { setPage('festival'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Fishermans Festival</button>
           <button role="menuitem" onClick={() => { setPage('volunteer'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Festival Volunteering</button>
