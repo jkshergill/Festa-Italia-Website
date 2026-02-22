@@ -1,22 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from "./supabaseClient";
 import './Volunteer.css';
 
 export default function Volunteer() {
     const [selectedBooth, setSelectedBooth] = useState('');
-    const [selectedSlots, setSelectedSlots] = useState([])
+    const [selectedSlots, setSelectedSlots] = useState([]);
 
-    const booths = [
-        'Pasta/Arancini',
-        'Steak/Sausage Sandwiches',
-        'Coffee',
-        'Beer and Wine',
-        'Merchandice',
-        'Pizza',
-        'Ice Cream',
-        'Canoli',
-        'Calamri',
-        'Tokens',
-    ];
+    const [booths, setBooths] = useState([]);
+
+    useEffect(() => {
+        async function loadBooths() {
+            const { data, error } = await supabase
+                .from('booths')
+                .select('id, name')
+                .order('name');
+            
+            if (!error) setBooths(data);
+        }
+
+        loadBooths();
+    }, []);
 
     // Generate hourly slots starting from 9:00 AM (1-hour increments)
     const startHour = 9
@@ -45,18 +48,48 @@ export default function Volunteer() {
         })
     }
 
-    function signUpForSelected() {
-        if (selectedBooth === ''){
-            alert('Please select a booth')
-            return
-        }
-        if (selectedSlots.length === 0) {
-            alert('Please select at least one time slot to sign up.')
-            return
-        }
-        // Placeholder behavior: show chosen slots
-        alert('Signing up for:\n' + selectedSlots.join('\n'))
+    async function signUpForSelected() {
+    if (!selectedBooth) {
+        alert('Please select a booth')
+        return
     }
+    if (selectedSlots.length === 0) {
+        alert('Please select at least one time slot')
+        return
+    }
+
+    // 1. Get logged-in user
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+        alert('You must be signed in')
+        return
+    }
+
+    // 2. Build signup rows (multi-slot)
+    const rows = selectedSlots.map(slot => {
+        const [day, hour] = slot.split('-')
+        return {
+            user_id: user.id,
+            booth_id: selectedBooth,
+            day,
+            hour: parseInt(hour, 10),
+            confirm: false
+        }
+    })
+
+    // 3. Insert all at once
+    const { error } = await supabase
+        .from('volunteer_signups')
+        .insert(rows)
+
+    if (error) {
+        alert(error.message)
+        return
+    }
+
+    alert('Signed up successfully')
+    setSelectedSlots([])
+}
 
     return (
         <div className="volunteer-container">
@@ -70,9 +103,9 @@ export default function Volunteer() {
                     onChange={(e) => setSelectedBooth(e.target.value)}
                 >
                     <option value="">-- Select a booth --</option>
-                    {booths.map((booth, index) => (
-                        <option key={index} value={booth}>
-                            {booth}
+                    {booths.map((b) => (
+                        <option key={b.id} value={b.id}>
+                            {b.name}
                         </option>
                     ))}
                 </select>
