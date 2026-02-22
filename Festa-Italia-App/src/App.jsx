@@ -21,6 +21,7 @@ import AdminFoods from './adminEditMenu'
 import AuthStatus from './AuthStatus'
 import MockCheckout from "./MockCheckout"
 import SignInWall from './SignInWall'
+import ForgotPass from './forgotpassword'
 
 export default function App(){
     const [page, setPage] = useState('home')
@@ -34,8 +35,21 @@ export default function App(){
   
   //MOCK CHECKOUT ROUTE - REMOVE AFTER ADDING CLOVER
   if (window.location.pathname === "/mock-checkout") {
-  return <MockCheckout />;
-}
+    return <MockCheckout />;
+  }
+
+  
+  if (window.location.pathname === "/resetPassword") {
+
+    return (
+      <>
+        <header className='site-header'>
+          
+        </header>
+        <ResetPass />  
+      </>
+    );
+  }
 
   function renderPage(){
     switch(page){
@@ -55,6 +69,7 @@ export default function App(){
       case 'shopping': return <Shopping />
       case 'volunteer': return <Volunteer />
       case 'sign-in-wall': return <SignInWall />
+      case 'forgot-pass': return <ForgotPass />
       default: return <Home />
     }
   }
@@ -115,8 +130,9 @@ export default function App(){
           {/* Temporary items you noted */}
           <button role="menuitem" onClick={() => { setPage('bocce-sign'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Bocce Sign up</button>
           <button role="menuitem" onClick={() => { setPage('coronation-tix'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Coronation Ball Tickets</button>
-          {/* <button role="menuitem" onClick={() => { setPage('reset-pass'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Reset Password</button>
-          <button role="menuitem" onClick={() => { setPage('signup'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Create Account</button> */}
+          <button role="menuitem" onClick={() => { setPage('reset-pass'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Reset Password</button>
+          <button role="menuitem" onClick={() => { setPage('forgot-pass'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Request Reset Password Email</button>
+          <button role="menuitem" onClick={() => { setPage('signup'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Create Account</button>
           <button role="menuitem" onClick={() => { setPage('sign-in-wall'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>SIGN IN WALL</button>
         </div>
       )
