@@ -11,6 +11,20 @@ export default function TicketPurchase() {
     adult: 0,
     child: 0,
   });
+  // Food options by ticket type
+  const FOOD_OPTIONS = {
+    adult: [
+      { value: "steak", label: "Steak" },
+      { value: "fish", label: "Fish" },
+      { value: "pasta", label: "Pasta" },
+      { value: "veg_gf", label: "Veg/GF" }, // new option
+    ],
+    child: [
+      { value: "hamburger", label: "Hamburger" },
+      { value: "cheeseburger", label: "Cheeseburger" },
+      { value: "veg_gf", label: "Veg/GF" }, // new option
+    ],
+  };
 
   const [step, setStep] = useState("selection"); // "selection" or "names"
   const [ticketTypes, setTicketTypes] = useState([]); // parallel array: "adult" | "child"
@@ -111,7 +125,7 @@ export default function TicketPurchase() {
       alert("Could not read user. Please try again.");
       return;
     }
-
+    /*
     const buyerEmail = userRes?.user?.email ?? "";
 
     // Build ticketTypes array in the SAME order as names/foodChoices
@@ -131,7 +145,28 @@ export default function TicketPurchase() {
       `&food=${foodParam}` +
       `&sid=${crypto.randomUUID()}`;
 
-    window.location.assign(href);
+    window.location.assign(href);*/
+
+    const res = await fetch(
+      // Hardcoded to supabase project ID - needs to be updated if we deploy to production
+      "https://tlbikqgmitrvdtwzgriy.supabase.co/functions/v1/create-CoronationBallTicketsCheckout",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: amount_cents,
+          orderId: crypto.randomUUID(), // Unique order ID for idempotency
+        }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (data.checkoutUrl) {
+      window.location.href = data.checkoutUrl;
+    } else {
+      console.error("Checkout failed", data);
+    }
   } catch (err) {
     console.error(err);
     alert("Unexpected error. Please try again.");
@@ -231,13 +266,19 @@ export default function TicketPurchase() {
 
               <div className="food-input">
                 <label>Food Preference?</label>
-                <select value={foodChoices[i]} onChange={(e) => handleFoodChange(i, e.target.value)}>
+                <select
+                  value={foodChoices[i]}
+                  onChange={(e) => handleFoodChange(i, e.target.value)}
+                >
                   <option value="">Please select a dish</option>
-                  <option value="steak">Steak</option>
-                  <option value="fish">Fish</option>
-                  <option value="pasta">Pasta</option>
+
+                  {(FOOD_OPTIONS[ticketTypes[i]] ?? []).map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
                 </select>
-                
+
                 {!foodChoices[i] && <div className="food-warning"></div>}
               </div>
             </div>
@@ -255,7 +296,7 @@ export default function TicketPurchase() {
             />
           ))} */}
 
-          <button onClick={handleCheckout} disabled={!session}>
+          <button onClick={handleCheckout} /*disabled={!session}*/>
             Checkout
           </button>
         </div>
