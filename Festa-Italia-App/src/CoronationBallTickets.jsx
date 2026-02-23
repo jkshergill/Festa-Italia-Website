@@ -147,25 +147,51 @@ export default function TicketPurchase() {
 
     window.location.assign(href);*/
 
-    const res = await fetch(
-      // Hardcoded to supabase project ID - needs to be updated if we deploy to production
-      "https://tlbikqgmitrvdtwzgriy.supabase.co/functions/v1/create-CoronationBallTicketsCheckout",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount: amount_cents,
-          orderId: crypto.randomUUID(), // Unique order ID for idempotency
-        }),
+    // Call server-side Edge Function to create order + tickets atomically and send email
+    try {
+      const amount_cents = (quantities.adult * prices.adult + quantities.child * prices.child) * 100;
+      const orderId = crypto.randomUUID();
+
+      const ticketsPayload = (names || []).map((name, i) => {
+        const ttype = ticketTypes[i] || 'adult';
+        const price_cents = ttype === 'child' ? prices.child * 100 : prices.adult * 100;
+        return {
+          event: 'Festa Italia Coronation Ball 2026',
+          holder_name: name,
+          holder_email: userRes?.user?.email ?? null,
+          ticket_type: ttype,
+          price_cents,
+          qr_token: crypto.randomUUID(),
+          dinner_choice: foodChoices[i] || (ttype === 'adult' ? 'steak' : 'hamburger'),
+        };
+      });
+
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
+
+      const functionsBase = import.meta.env.VITE_SUPABASE_URL || window.location.origin;
+      const resp = await fetch(`${functionsBase}/functions/v1/create-order-tickets`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ purchaserEmail: userRes?.user?.email, purchaserName: userRes?.user?.user_metadata?.full_name ?? userRes?.user?.email, amount_cents, orderId, tickets: ticketsPayload }),
+      });
+
+      const result = await resp.json();
+      if (!resp.ok) {
+        console.error('Server function error:', result);
+        alert(`Purchase failed: ${result.error || 'server error'}`);
+        return;
       }
-    );
 
-    const data = await res.json();
-
-    if (data.checkoutUrl) {
-      window.location.href = data.checkoutUrl;
-    } else {
-      console.error("Checkout failed", data);
+      alert(`Purchase successful — ${result.tickets.length} ticket(s) created. A confirmation email was sent if available.`);
+      window.location.assign('/?page=coronation-tix');
+    } catch (err) {
+      console.error('Checkout error:', err);
+      alert('Failed to complete purchase. Please try again.');
+      return;
     }
   } catch (err) {
     console.error(err);
