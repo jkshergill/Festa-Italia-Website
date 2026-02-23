@@ -24,8 +24,9 @@ import ForgotPass from './forgotpassword'
 import MockCheckout from "./MockCheckout"
 import PageOff from './PageOff'
 import SignInWall from './SignInWall'
+import UserProfile from './UserProfile' 
 
-import UserProfile from './UserProfile' // Added by JK
+ 
 
 export default function App(){
     const [page, setPage] = useState('home')
@@ -180,13 +181,12 @@ export default function App(){
         if (pageVisibility["Volunteer Sign-Up"] === undefined) return null;
         return !pageVisibility["Volunteer Sign-Up"] ? <PageOff/>: !user ? <SignInWall /> : <Volunteer user={user}/>;
       case 'forgot-pass': return <ForgotPass />
-<<<<<<< HEAD
       case 'user-profile': return <UserProfile setPage={setPage} /> // Added by JK
       
-=======
+
       case 'sign-in-wall': return <SignInWall setPage={setPage} />
       case 'page-off': return <PageOff setPage={setPage} />
->>>>>>> bc5431d0fdc8e2aa820bb96c8d61cc91aecfa65b
+ 
       default: return <Home />
     }
   }
@@ -243,9 +243,7 @@ export default function App(){
           <button role="menuitem" onClick={() => { setPage('login'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Log in</button>
           <button role="menuitem" onClick={() => { setPage('shopping'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Shopping</button>
           <button role="menuitem" onClick={() => { setPage('donation'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Previous Sponsors</button>
-          <button role="menuitem" onClick={() => { setPage('user-profile'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>User Profile</button> 
-
-
+          <button role="menuitem" onClick={() => { setPage('user-profile'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>User Profile</button>  
           {/* Temporary items */}
           <button role="menuitem" onClick={() => { setPage('bocce-sign'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Bocce Sign up</button>
           <button role="menuitem" onClick={() => { setPage('coronation-tix'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Coronation Ball Tickets</button>
