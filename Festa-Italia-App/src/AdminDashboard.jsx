@@ -1,5 +1,8 @@
-import { useState } from 'react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { useEffect, useState } from 'react';
 import './AdminDashboard.css';
+import { supabase } from "./supabaseClient";
 
 // Reusable PageDropdown component
 function PageDropdown({ pageOptions = [], onSelect }) {
@@ -232,134 +235,281 @@ function MainDashboard() {
 
 // Confirm Volunteers Section
 function ConfirmVolunteers() {
+  const [query, setQuery] = useState('');
+  const [signups, setSignups] = useState([]);
+  const [booths, setBooths] = useState([]);
+  const [profiles, setProfiles] = useState([]);
+
+  useEffect(() => {
+    async function loadData() {
+      // 1. Fetch booths
+      const { data: boothData } = await supabase.from('booths').select('id, name');
+      setBooths(boothData || []);
+
+      // 2. Fetch profiles
+      const { data: profileData } = await supabase.from('profiles').select('id, first_name, last_name');
+      setProfiles(profileData || []);
+
+      // 3. Fetch signups
+      const { data: signupData } = await supabase.from('volunteer_signups').select('id, confirm, booth_id, user_id');
+      if (signupData) {
+        // Merge booth & profile info
+        const merged = signupData.map(s => ({
+          ...s,
+          booth: boothData.find(b => b.id === s.booth_id) || null,
+          profile: profileData.find(p => p.id === s.user_id) || null
+        }));
+        setSignups(merged);
+      }
+    }
+
+    loadData();
+  }, []);
+
+  // Search logic
+  const searchLower = query.toLowerCase();
+
+  const activeBooths = booths.filter(b =>
+    b.name.toLowerCase().includes(searchLower) ||
+    signups.some(s => s.booth?.id === b.id && s.profile && `${s.profile.first_name} ${s.profile.last_name}`.toLowerCase().includes(searchLower))
+  );
+
+  const requestingVolunteers = signups.filter(s => !s.booth && s.profile)
+    .filter(s => `${s.profile.first_name} ${s.profile.last_name}`.toLowerCase().includes(searchLower));
+
+  const getVolunteersForBooth = (boothId) =>
+    signups.filter(s => s.booth?.id === boothId);
+
+  const assignToBooth = async (signupId, boothId) => {
+    const { error } = await supabase.from('volunteer_signups')
+      .update({ booth_id: boothId }).eq('id', signupId);
+    if (!error) {
+      setSignups(prev =>
+        prev.map(s => s.id === signupId ? { ...s, booth: booths.find(b => b.id === boothId) } : s)
+      );
+    }
+  };
+
+  const toggleConfirm = async (signupId, current) => {
+    const { error } = await supabase.from('volunteer_signups')
+      .update({ confirm: !current }).eq('id', signupId);
+    if (!error) {
+      setSignups(prev =>
+        prev.map(s => s.id === signupId ? { ...s, confirm: !current } : s)
+      );
+    }
+  };
+
+  const unassign = async (signupId) => {
+    const { error } = await supabase.from('volunteer_signups')
+      .update({ booth_id: null }).eq('id', signupId);
+    if (!error) {
+      setSignups(prev =>
+        prev.map(s => s.id === signupId ? { ...s, booth: null } : s)
+      );
+    }
+  };
+
+  return (
+    <div className="section-content">
+      <div style={{ marginBottom: '1.5rem' }}>
+        <input
+          className="search-input"
+          type="text"
+          placeholder="Search booth name or volunteer name..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+      </div>
+
+      {/* Requesting Volunteers */}
+      <div className="admin-list">
+        <h4>Requesting Volunteers</h4>
+        {requestingVolunteers.length === 0 && <div className="muted">No volunteers requesting assignment.</div>}
+        {requestingVolunteers.map(s => (
+          <div key={s.id} className="admin-item">
+            <div className="name">{s.profile.first_name} {s.profile.last_name}</div>
+            <div className="actions">
+              <select
+                style={{ padding: '0.4rem 0.5rem', borderRadius: '4px', border: '1px solid #ddd', fontSize: '0.9rem' }}
+                onChange={(e) => {
+                  if (e.target.value) {
+                    assignToBooth(s.id, e.target.value);
+                    e.target.value = '';
+                  }
+                }}
+                defaultValue=""
+              >
+                <option value="">Assign to booth...</option>
+                {booths.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+              </select>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Booths with Volunteers */}
+      {activeBooths.map((b, idx) => {
+        const volunteersForBooth = getVolunteersForBooth(b.id);
+        return (
+          <div key={idx} className="list" style={{ marginTop: idx === 0 ? '1.5rem' : '1rem' }}>
+            <h4>{b.name}</h4>
+            {volunteersForBooth.length === 0 && <div className="muted">No volunteers.</div>}
+            {volunteersForBooth.map(s => (
+              <div key={s.id} className="admin-item">
+                <div className="name">
+                  {s.profile.first_name} {s.profile.last_name} {s.confirm && <span style={{ color: '#007bff', marginLeft: '0.5rem', fontSize: '0.9rem' }}>Confirmed</span>}
+                </div>
+                <div className="actions">
+                  <button className="remove-btn" onClick={() => unassign(s.id)}>✕</button>
+                  <button style={{ marginLeft: '0.5rem' }} onClick={() => toggleConfirm(s.id, s.confirm)}>
+                    {s.confirm ? 'Unconfirm' : 'Confirm'}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )
+      })}
+    </div>
+  );
+}
+
+function ConfirmBocceTeams() {
+    const [teams, setTeams] = useState([]);
     const [query, setQuery] = useState('');
+    const [loading, setLoading] = useState(true);
 
-    // Booths list from volunteer.jsx
-    const booths = [
-        'Pasta/Arancini',
-        'Steak/Sausage Sandwiches',
-        'Coffee',
-        'Beer and Wine',
-        'Merchandice',
-        'Pizza',
-        'Ice Cream',
-        'Canoli',
-        'Calamri',
-        'Tokens'
-    ];
+    // Fetch teams from Supabase
+    useEffect(() => {
+        const fetchTeams = async () => {
+            const { data, error } = await supabase
+                .from('bocce_teams')
+                .select('id, team_name, player1, player2, player3, player4, sponsor_name, confirm');
+            if (error) console.error('Error fetching teams:', error);
+            else setTeams(data);
+            setLoading(false);
+        };
+        fetchTeams();
+    }, []);
 
-    // Placeholder volunteer data
-    const [volunteers, setVolunteers] = useState([
-        { id: 1, name: 'Giulia Rossi', booth: 'Pasta/Arancini', confirmed: false },
-        { id: 2, name: 'Luca Verdi', booth: 'Coffee', confirmed: true },
-        { id: 3, name: 'Carla Moretti', booth: null, confirmed: false },
-        { id: 4, name: 'Marco Bianchi', booth: 'Pizza', confirmed: false },
-        { id: 5, name: 'Anna Ferri', booth: 'Pasta/Arancini', confirmed: false },
-        { id: 6, name: 'Sofia Gallo', booth: 'Beer and Wine', confirmed: true }
-    ]);
+    // Toggle confirmation for a team
+    const toggleConfirm = async (teamId) => {
+        setTeams(prev =>
+            prev.map(team =>
+                team.id === teamId ? { ...team, confirm: !team.confirm } : team
+            )
+        );
 
-    // Filter volunteers and booths by search query (search both booth name and person name)
+        // Optional: persist to Supabase
+        await supabase
+            .from('bocce_teams')
+            .update({ confirm: !teams.find(t => t.id === teamId)?.confirm })
+            .eq('id', teamId);
+    };
+
+    // Search/filter logic like volunteers
     const searchLower = query.toLowerCase();
-    const activeBooths = booths.filter(booth =>
-        booth.toLowerCase().includes(searchLower) ||
-        volunteers.some(v => v.booth === booth && v.name.toLowerCase().includes(searchLower))
+    const filteredTeams = teams.filter(team =>
+        team.team_name.toLowerCase().includes(searchLower) ||
+        (team.sponsor_name && team.sponsor_name.toLowerCase().includes(searchLower)) ||
+        [team.player1, team.player2, team.player3, team.player4]
+            .some(p => p && p.toLowerCase().includes(searchLower))
     );
 
-    const requestingVolunteers = volunteers
-        .filter(v => v.booth === null)
-        .filter(v => v.name.toLowerCase().includes(searchLower));
+    // Generate PDF of confirmed teams
+    const generatePDF = () => {
+        const doc = new jsPDF();
 
-    const getVolunteersForBooth = (booth) => {
-        return volunteers
-            .filter(v => v.booth === booth)
-            .filter(v => v.name.toLowerCase().includes(searchLower));
+        const headers = [['Team Name', 'Sponsor', 'Player 1', 'Player 2', 'Player 3', 'Player 4']];
+        const rows = teams
+            .filter(team => team.confirm)
+                .map(team => [
+                    team.team_name,
+                    team.sponsor_name || '',
+                    team.player1 || '',
+                    team.player2 || '',
+                    team.player3 || '',
+                    team.player4 || ''
+                ]);
+
+        if (!rows.length) {
+            alert('No confirmed teams to export!');
+            return;
+        }
+
+        doc.text('Confirmed Bocce Teams', 14, 15);
+
+        autoTable(doc, {
+            startY: 20,
+            head: headers,
+            body: rows,
+            styles: { fontSize: 10 },
+            headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+        });
+
+        doc.save('confirmed_bocce_teams.pdf');
+
     };
 
-    const assignToBooth = (id, booth) => {
-        setVolunteers(prev => prev.map(v => v.id === id ? { ...v, booth } : v));
-    };
-
-    const unassign = (id) => {
-        setVolunteers(prev => prev.map(v => v.id === id ? { ...v, booth: null } : v));
-    };
-
-    const toggleConfirm = (id) => {
-        setVolunteers(prev => prev.map(v => v.id === id ? { ...v, confirmed: !v.confirmed } : v));
-    };
+    if (loading) return <div>Loading teams...</div>;
+    if (!filteredTeams.length)
+        return <div style={{ textAlign: 'center', marginTop: '2rem' }}>No teams found.</div>;
 
     return (
         <div className="section-content">
-            <div style={{ marginBottom: '1.5rem' }}>
-                <input
-                    className="search-input"
-                    type="text"
-                    placeholder="Search booth name or volunteer name..."
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                />
-            </div>
+            <input
+                className="search-input"
+                type="text"
+                placeholder="Search team, sponsor, or player..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                style={{ width: '100%', marginBottom: '1.5rem', padding: '0.5rem', fontSize: '1rem', borderRadius: '4px', border: '1px solid #ccc' }}
+            />
 
-            {/* Requesting Volunteers Section */}
-            <div className="admin-list">
-                <h4>Requesting Volunteers</h4>
-                {requestingVolunteers.length === 0 && <div className="muted">No volunteers requesting assignment.</div>}
-                {requestingVolunteers.map(v => (
-                    <div key={v.id} className="admin-item">
-                        <div className="name">{v.name}</div>
-                        <div className="actions">
-                            <select
-                                style={{
-                                    padding: '0.4rem 0.5rem',
-                                    borderRadius: '4px',
-                                    border: '1px solid #ddd',
-                                    fontSize: '0.9rem'
-                                }}
-                                onChange={(e) => {
-                                    if (e.target.value) {
-                                        assignToBooth(v.id, e.target.value);
-                                        e.target.value = '';
-                                    }
-                                }}
-                                defaultValue=""
-                            >
-                                <option value="">Assign to booth...</option>
-                                {booths.map((b, i) => (
-                                    <option key={i} value={b}>{b}</option>
-                                ))}
-                            </select>
+            {filteredTeams.map(team => (
+                <div key={team.id} style={{ marginBottom: '1rem', padding: '0.5rem', border: '1px solid #ddd', borderRadius: '4px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                            <strong>{team.team_name}</strong> 
+                            {team.sponsor_name && <span style={{ marginLeft: '0.5rem', fontSize: '0.9rem' }}>Sponsor: {team.sponsor_name}</span>}
                         </div>
+                        <button
+                            onClick={() => toggleConfirm(team.id)}
+                            style={{
+                                backgroundColor: team.confirm ? 'green' : '#007bff',
+                                color: '#fff',
+                                border: 'none',
+                                padding: '0.4rem 0.8rem',
+                                borderRadius: '4px',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            {team.confirm ? 'Confirmed' : 'Confirm'}
+                        </button>
                     </div>
-                ))}
-            </div>
-
-            {/* Booths with Volunteers */}
-            {activeBooths.length === 0 && !requestingVolunteers.length && (
-                <div className="muted" style={{ marginTop: '2rem', textAlign: 'center' }}>
-                    No results found for your search.
+                    <div style={{ marginTop: '0.5rem' }}>
+                        Players: {[team.player1, team.player2, team.player3, team.player4].filter(p => p).join(', ')}
+                    </div>
                 </div>
-            )}
-            {activeBooths.map((booth, idx) => {
-                const volunteersForBooth = getVolunteersForBooth(booth);
-                return (
-                    <div key={idx} className="list" style={{ marginTop: idx === 0 ? '1.5rem' : '1rem' }}>
-                        <h4>{booth}</h4>
-                        {volunteersForBooth.length === 0 && <div className="muted">No volunteers.</div>}
-                        {volunteersForBooth.map(v => (
-                            <div key={v.id} className="admin-item">
-                                <div className="name">
-                                    {v.name} {v.confirmed && <span style={{color:'#007bff', marginLeft:'0.5rem', fontSize:'0.9rem'}}>Confirmed</span>}
-                                </div>
-                                <div className="actions">
-                                    <button className="remove-btn" onClick={() => unassign(v.id)} aria-label={`Unassign ${v.name}`}>✕</button>
-                                    <button style={{marginLeft:'0.5rem'}} className="add-btn" onClick={() => toggleConfirm(v.id)}>
-                                        {v.confirmed ? 'Unconfirm' : 'Confirm'}
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                );
-            })}
+            ))}
+
+            {/* PDF Export Button */}
+            <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+                <button
+                    onClick={generatePDF}
+                    style={{
+                        backgroundColor: '#28a745',
+                        color: '#fff',
+                        border: 'none',
+                        padding: '0.6rem 1.2rem',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                    }}
+                >
+                    Export Confirmed Teams to PDF
+                </button>
+            </div>
         </div>
     );
 }
@@ -476,6 +626,94 @@ function AddAdmin() {
     );
 }
 
+// Toggle Page Visability Section
+function TogglePage({ pageOptions = [] }){
+    const [allPages, setAllPages] = useState([]); // all page rows from DB
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchPages = async () => {
+        try {
+            const { data, error } = await supabase
+            .from("page_status")
+            .select("name, visible"); // fetch all pages
+
+            if (error) throw error;
+
+            // Convert DB rows into an object mapping for easy toggle
+            const pageStates = data.reduce((acc, page) => {
+            acc[page.name] = page.visible; // true = visible, false = hidden
+            return acc;
+            }, {});
+
+            setAllPages(pageStates);
+        } catch (err) {
+            console.error("Error fetching page visibility:", err);
+            setAllPages({});
+        } finally {
+            setLoading(false);
+        }
+        };
+
+        fetchPages();
+    }, []);
+
+    const togglePage = (pageName) => {
+        setAllPages((prev) => ({
+        ...prev,
+        [pageName]: !prev[pageName],
+        }));
+    };
+
+    const saveChanges = async () => {
+        try {
+        const updates = Object.entries(allPages).map(([name, isVisible]) => ({
+            name,
+            visible: isVisible, // DB stores visible
+        }));
+
+        for (const update of updates) {
+            await supabase
+                .from("page_status")
+                .update({ visible: update.visible })
+                .eq("name", update.name);
+        }
+
+        alert("Page visibility settings saved!");
+        } catch (err) {
+        console.error("Error saving changes:", err);
+        alert("Failed to save page visibility");
+        }
+    };
+
+    if (loading) return <div>Loading Pages...</div>;
+
+    return (
+        <div className="section-content">
+        <div className="admin-list">
+            <h4>Page Visibility</h4>
+            {Object.entries(allPages).map(([name, isVisible]) => (
+            <div key={name} className="admin-item">
+                <div className="name">{name}</div>
+                <div className="actions">
+                <button
+                    className={isVisible ? "toggle-on-btn" : "toggle-off-btn"}
+                    onClick={() => togglePage(name)}
+                >
+                    {isVisible ? "Visible" : "Hidden"}
+                </button>
+                </div>
+            </div>
+            ))}
+            <button className="save-btn" onClick={saveChanges}>
+            Save Changes
+            </button>
+        </div>
+        </div>
+    );
+}
+
+
 function AdminDashboard() {
     // sidebar active section state
     const [activeSection, setActiveSection] = useState('main');
@@ -511,7 +749,7 @@ function AdminDashboard() {
                         onClick={() => handleSidebarClick('main')}
                         title="Main dashboard"
                     >
-                    Main
+                        Main
                     </button>
                     <button
                         className={`sidebar-btn ${activeSection === 'confirm-volunteers' ? 'active' : ''}`}
@@ -519,6 +757,13 @@ function AdminDashboard() {
                         title="Review and confirm volunteer registrations"
                     >
                         Confirm Volunteers
+                    </button>
+                    <button
+                        className={`sidebar-btn ${activeSection === 'confirm-bocce-teams' ? 'active' : ''}`}
+                        onClick={() => handleSidebarClick('confirm-bocce-teams')}
+                        title="Review and confirm bocce team registrations"
+                    >
+                        Confirm Bocce
                     </button>
                     <button
                         className={`sidebar-btn ${activeSection === 'confirm-coronation-tickets' ? 'active' : ''}`}
@@ -541,6 +786,13 @@ function AdminDashboard() {
                     >
                         Add Admin
                     </button>
+                    <button
+                        className={`sidebar-btn ${activeSection === 'toggle-page' ? 'active' : ''}`}
+                        onClick={() => handleSidebarClick('toggle-page')}
+                        title="Turn on/off pages"
+                    >
+                        Toggle Page
+                    </button>
                 </nav>
             </aside>
 
@@ -551,9 +803,11 @@ function AdminDashboard() {
                     <h1 className="dashboard-title">
                         {activeSection === 'main' && 'Main Dashboard'}
                         {activeSection === 'confirm-volunteers' && 'Confirm Volunteers'}
+                        {activeSection === 'confirm-bocce-teams' && 'Confirm Bocce Teams'}
                         {activeSection === 'confirm-coronation-tickets' && 'Confirm Coronation Tickets'}
                         {activeSection === 'edit-page' && 'Edit Page'}
                         {activeSection === 'add-admin' && 'Add Admin'}
+                        {activeSection === 'toggle-page' && 'Toggle Page'}
                     </h1>
                 </div>
 
@@ -563,6 +817,9 @@ function AdminDashboard() {
                 {/* Confirm Volunteers Section */}
                 {activeSection === 'confirm-volunteers' && <ConfirmVolunteers pageOptions={pageOptions} />}
 
+                {/* Confirm Bocce Team Section */}
+                {activeSection == 'confirm-bocce-teams' && <ConfirmBocceTeams pageOptions={pageOptions} />}
+
                 {/* Confirm Coronation Tickets Section */}
                 {activeSection === 'confirm-coronation-tickets' && <ConfirmCoronationTickets />}
 
@@ -571,6 +828,11 @@ function AdminDashboard() {
 
                 {/* Add Admin Section */}
                 {activeSection === 'add-admin' && <AddAdmin />}
+
+                {/* Toggle Page Section */}
+                {activeSection === 'toggle-page' && <TogglePage pageOptions=
+                    {pageOptions.filter(p => !['home', 'login', 'signup'].includes(p.value))} />}
+                    {/* filter removes pages that should NOT be toggleable */}
             </main>
         </div>
     );

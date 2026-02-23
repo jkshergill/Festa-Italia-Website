@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import './App.css'
+import { supabase } from './supabaseClient'
+
 import BocceDash from './Bocce-dashboard'
 import BocceSign from './Bocce-sign-up'
 import CoronationBall from './coronationball'
@@ -14,27 +16,115 @@ import Shopping from './Shopping'
 import Signup from './Signup'
 import Volunteer from './Volunteer'
 
-
 import { useEffect } from 'react'
 import AdminDashboard from './AdminDashboard'
 import AdminFoods from './adminEditMenu'
 import AuthStatus from './AuthStatus'
-import MockCheckout from "./MockCheckout"
-import SignInWall from './SignInWall'
 import ForgotPass from './forgotpassword'
+import MockCheckout from "./MockCheckout"
+import PageOff from './PageOff'
+import SignInWall from './SignInWall'
 
 import UserProfile from './UserProfile' // Added by JK
 
 export default function App(){
     const [page, setPage] = useState('home')
     const [menuOpen, setMenuOpen] = useState(false)
-
     useEffect(() => { {/* Set body ID for styling */}
         document.body.id = 'app-body-id';
         document.body.className = 'app-body';
-      }, []);
+    }, []);
 
-  
+    const [user, setUser] = useState(null)
+    const [userRole, setUserRole] = useState(null)
+    useEffect(() => { {/* Sign-in Status + get user_role */}
+      const initUser = async () => {
+        try {
+          // Get auth session
+          const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+          if (sessionError) throw sessionError;
+
+
+          const currentUser = session?.user ?? null;
+          console.log("current user: ", currentUser)
+          setUser(currentUser);
+
+          // If signed in, fetch user_role
+          if (currentUser!=null) {
+            const { data, error: roleError } = await supabase
+              .from("profiles")
+              .select("role")
+              .eq("id", currentUser.id)
+              .single();
+
+            if (roleError) throw roleError;
+
+            setUserRole(data.role);
+            console.log("userRole fetched:", data.role);
+          } else {
+            setUserRole(null);
+          }
+        } catch (err) {
+          console.error("Error initializing user:", err);
+          setUser(null);
+          setUserRole(null);
+        }
+      };
+      initUser();
+
+      // Subscribe to auth state changes
+      const { data: listener } = supabase.auth.onAuthStateChange(
+        (_event, session) => {
+          const currentUser = session?.user ?? null;
+          setUser(currentUser);
+
+          // Update role on auth change
+          if (currentUser) {
+            supabase
+              .from("profiles")
+              .select("role")
+              .eq("id", currentUser.id)
+              .single()
+              .then(({ data }) => setUserRole(data?.role ?? null))
+              .catch((err) => {
+                console.error("Error fetching role on auth change:", err);
+                setUserRole(null);
+              });
+          } else {
+            setUserRole(null);
+          }
+        }
+      );
+      return () => listener.subscription.unsubscribe();
+    }, []);
+
+    const [pageVisibility, setPageVisibility] = useState({});
+    const [loading, setLoading] = useState(true);
+    useEffect(() => { {/* Page Visibility Status */}
+        const fetchPageVisibility = async () => {
+        try {
+            const { data, error } = await supabase
+            .from("page_status")
+            .select("name, visible"); // fetch all pages
+            if (error) throw error;
+
+            // Convert DB rows into an object mapping for easy toggle
+            const pageState = data.reduce((acc, page) => {
+            acc[page.name] = page.visible; // true = visible, false = hidden
+            return acc;
+            }, {});
+
+            setPageVisibility(pageState);
+        } catch (err) {
+            console.error("Error fetching page visibility:", err);
+            setPageVisibility({});
+        } finally {
+            setLoading(false);
+        }
+        };
+        fetchPageVisibility();
+    }, []);
+
   //MOCK CHECKOUT ROUTE - REMOVE AFTER ADDING CLOVER
   if (window.location.pathname === "/mock-checkout") {
     return <MockCheckout />;
@@ -54,26 +144,49 @@ export default function App(){
   }
 
   function renderPage(){
+    if(loading)return <div>Loading Pages...</div>;
     switch(page){
-      case 'admin-dash': return <AdminDashboard />
-      case "admin-foods": return <AdminFoods />;
-      case 'bocce-dash': return <BocceDash setPage={setPage}/>
-      case 'bocce-sign': return <BocceSign />
-      case 'coronation': return <CoronationBall setPage={setPage}/>
-      case 'coronation-tix': return <CoronationTix />
-      case 'donate': return <Donate />
-      case 'festival': return <FestivalInfo />
+      case 'admin-dash': return user && userRole === "admin" ? <AdminDashboard /> : <SignInWall />;
+      case "admin-foods": return user && userRole === "admin" ? <AdminFoods /> : <SignInWall/>;
+      case 'bocce-dash':
+        if (pageVisibility["Bocce Dashboard"] === undefined) return null;
+        return pageVisibility["Bocce Dashboard"] ? <BocceDash setPage={setPage}/> : <PageOff/>;
+      case 'bocce-sign':
+        if (pageVisibility["Bocce Dashboard"] === undefined) return null;
+        return pageVisibility["Bocce Dashboard"] ? <BocceSign setPage={setPage}/> : <PageOff/>;
+      case 'coronation':
+        if (pageVisibility["Coronation Ball Info"] === undefined) return null;
+        return pageVisibility["Coronation Ball Info"] ? <CoronationBall setPage={setPage}/> : <PageOff/>;
+      case 'coronation-tix':
+      if (pageVisibility["Coronation Ball Tickets"] === undefined) return null;
+        return pageVisibility["Coronation Ball Tickets"] ? <CoronationTix setPage={setPage}/> : <PageOff/>;
+      case 'donate':
+        if (pageVisibility["Donation"] === undefined) return null;
+        return pageVisibility["Donation"] ? <Donate setPage={setPage}/> : <PageOff/>;
+      case 'festival':
+        if (pageVisibility["Fisherman's Festival Info"] === undefined) return null;
+        return pageVisibility["Fisherman's Festival Info"] ? <FestivalInfo setPage={setPage}/> : <PageOff/>;
       case 'reset-pass': return <ResetPass />
       case 'home': return <Home setPage={setPage}/>
       case 'login': return <Login setPage={setPage}/>;
       case 'signup': return <Signup />
-      case 'scholarships': return <Scholarship />
-      case 'shopping': return <Shopping />
-      case 'volunteer': return <Volunteer />
-      case 'sign-in-wall': return <SignInWall />
+      case 'scholarships':
+        if (pageVisibility["Scholarships"] === undefined) return null;
+        return pageVisibility["Scholarships"] ? <Scholarship setPage={setPage}/> : <PageOff/>;
+      case 'shopping':
+        if (pageVisibility["Festa Menu"] === undefined) return null;
+        return pageVisibility["Festa Menu"] ? <Shopping setPage={setPage}/> : <PageOff/>;
+      case 'volunteer':
+        if (pageVisibility["Volunteer Sign-Up"] === undefined) return null;
+        return !pageVisibility["Volunteer Sign-Up"] ? <PageOff/>: !user ? <SignInWall /> : <Volunteer user={user}/>;
       case 'forgot-pass': return <ForgotPass />
+<<<<<<< HEAD
       case 'user-profile': return <UserProfile setPage={setPage} /> // Added by JK
       
+=======
+      case 'sign-in-wall': return <SignInWall setPage={setPage} />
+      case 'page-off': return <PageOff setPage={setPage} />
+>>>>>>> bc5431d0fdc8e2aa820bb96c8d61cc91aecfa65b
       default: return <Home />
     }
   }
@@ -118,7 +231,7 @@ export default function App(){
             padding:'0.5rem'
           }}
         >
-          <button role="menuitem" onClick={() => { setPage('admin-dash'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Admin Dashboard</button>
+          {userRole === "admin" ? <button role="menuitem" onClick={() => { setPage('admin-dash'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Admin Dashboard</button>:""}
           <button role="menuitem" onClick={() => { setPage('admin-foods'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Admin Tool - Food Menu Editor</button>
           <button role="menuitem" onClick={() => { setPage('home'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Home</button>
           <button role="menuitem" onClick={() => { setPage('festival'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Fishermans Festival</button>
@@ -133,13 +246,13 @@ export default function App(){
           <button role="menuitem" onClick={() => { setPage('user-profile'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>User Profile</button> 
 
 
-          {/* Temporary items you noted */}
+          {/* Temporary items */}
           <button role="menuitem" onClick={() => { setPage('bocce-sign'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Bocce Sign up</button>
           <button role="menuitem" onClick={() => { setPage('coronation-tix'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Coronation Ball Tickets</button>
           <button role="menuitem" onClick={() => { setPage('reset-pass'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Reset Password</button>
           <button role="menuitem" onClick={() => { setPage('forgot-pass'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Request Reset Password Email</button>
           <button role="menuitem" onClick={() => { setPage('signup'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Create Account</button>
-          <button role="menuitem" onClick={() => { setPage('sign-in-wall'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>SIGN IN WALL</button>
+
         </div>
       )
     )
@@ -168,7 +281,7 @@ export default function App(){
 
   return (
     <div>
-      {/* App header: logo on left, small menu button on the right */}
+      {/* App header */}
         <div className="site-header-div">
           <header className="site-header">
             <div className="header-inner">
