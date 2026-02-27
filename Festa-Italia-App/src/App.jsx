@@ -297,7 +297,7 @@ export default function App(){
               <div style={{ flex: 1 }} />
 
               <div className="auth-status-wrap">
-                <AuthStatus onLogin={() => setPage('login')} />
+                <AuthStatus onLogin={() => setPage('login')} onProfile={() => setPage('user-profile')} />
               </div>
 
               {burgerButton()}
