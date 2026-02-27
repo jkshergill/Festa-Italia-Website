@@ -1,95 +1,112 @@
 import { useEffect, useState } from "react";
-import { supabase } from "./supabaseClient";
+import { supabase } from "./supabaseClient"; // <- adjust path to your project
 
-export default function PurchasedTickets({ eventId }) {
-  const [orders, setOrders] = useState([]);
+export default function PurchasedTickets() {
+  const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [err, setErr] = useState("");
 
   useEffect(() => {
-    const fetchTickets = async () => {
+    let cancelled = false;
+
+    async function load() {
       setLoading(true);
-      setError(null);
+      setErr("");
 
-      const {
-        data: { user },
-        error: authError
-      } = await supabase.auth.getUser();
-
-      if (authError || !user) {
-        setError("User not authenticated");
+      // 1) Get the currently logged-in user
+      const { data: userData, error: userErr } = await supabase.auth.getUser();
+      if (userErr) {
+        if (!cancelled) setErr(userErr.message);
         setLoading(false);
         return;
       }
 
-      const { data, error } = await supabase
-        .from("orders")
-        .select(`
-          id,
-          created_at,
-          tickets (
-            id,
-            ticket_type,
-            qr_token
-          )
-        `)
-        .eq("user_id", user.id)
-        .eq("event_id", eventId)
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        setError(error.message);
-      } else {
-        setOrders(data);
+      const user = userData?.user;
+      if (!user) {
+        if (!cancelled) setErr("Not logged in.");
+        setLoading(false);
+        return;
       }
 
+      // Assumption (common Supabase pattern): profiles.id === auth.users.id
+      const profileId = user.id;
+
+      // 2) Query tickets purchased by this profile
+      const { data, error } = await supabase
+        .from("tickets")
+        .select(
+          `
+          id,
+          event,
+          ticket_type,
+          price_cents,
+          issued_at,
+          checked_in_at,
+          revoked_at,
+          holder_name,
+          holder_email,
+          qr_token,
+          order_id
+        `
+        )
+        .eq("purchaser_profile_id", profileId)
+        .order("issued_at", { ascending: false });
+
+      if (error) {
+        if (!cancelled) setErr(error.message);
+        setLoading(false);
+        return;
+      }
+
+      if (!cancelled) setTickets(data ?? []);
       setLoading(false);
+    }
+
+    load();
+    return () => {
+      cancelled = true;
     };
+  }, []);
 
-    fetchTickets();
-  }, [eventId]);
+  if (loading) return <div>Loading tickets…</div>;
+  if (err) return <div style={{ color: "crimson" }}>Error: {err}</div>;
 
-  if (loading) return <p>Loading tickets...</p>;
-  if (error) return <p className="error">{error}</p>;
-  if (!orders.length) return <p>No tickets found for this event.</p>;
-
-  // calculate ticket counts
-  const totalTickets = orders.reduce(
-    (sum, order) => sum + (order.tickets ? order.tickets.length : 0),
-    0
-  );
+  if (!tickets.length) {
+    return <div>No purchased tickets found.</div>;
+  }
 
   return (
-    <div className="tickets-container">
-      {/* overall summary */}
-      <div className="tickets-summary">
-        <p>
-          You have purchased <strong>{totalTickets}</strong> ticket{totalTickets !== 1 ? 's' : ''} for this event.
-        </p>
-      </div>
+    <div style={{ display: "grid", gap: 12 }}>
+      {tickets.map((t) => (
+        <div
+          key={t.id}
+          style={{
+            border: "1px solid #ddd",
+            borderRadius: 10,
+            padding: 12,
+          }}
+        >
+          <div style={{ fontWeight: 700 }}>{t.event}</div>
+          <div style={{ opacity: 0.8 }}>
+            {t.ticket_type || "Ticket"} • ${(Number(t.price_cents || 0) / 100).toFixed(2)}
+          </div>
 
-      {orders.map(order => (
-        <div key={order.id} className="order-card">
-          <h3>
-            Order #{order.id.slice(0, 8)} ({order.tickets.length} ticket{order.tickets.length !== 1 ? 's' : ''})
-          </h3>
-          <p>
-            Purchased on{' '}
-            {new Date(order.created_at).toLocaleDateString()}
-          </p>
-
-          <div className="tickets-list">
-            {order.tickets.map(ticket => (
-              <div key={ticket.id} className="ticket-card">
-                <p><strong>Type:</strong> {ticket.ticket_type}</p>
-
-                <img
-                  src={ticket.qr_token}
-                  alt="Ticket QR Code"
-                  width={120}
-                />
-              </div>
-            ))}
+          <div style={{ marginTop: 8, fontSize: 14 }}>
+            <div>
+              <strong>Holder:</strong> {t.holder_name || "—"} ({t.holder_email || "—"})
+            </div>
+            <div>
+              <strong>Issued:</strong>{" "}
+              {t.issued_at ? new Date(t.issued_at).toLocaleString() : "—"}
+            </div>
+            <div>
+              <strong>Status:</strong>{" "}
+              {t.revoked_at
+                ? "Revoked"
+                : t.checked_in_at
+                ? "Checked in"
+                : "Active"}
+            </div>
           </div>
         </div>
       ))}

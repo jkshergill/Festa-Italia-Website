@@ -1,5 +1,6 @@
 import { useState } from "react";
 import PurchasedTickets from "./PurchasedTickets";
+import ProfileInfo from "./ProfileInfo";
 import BocceTeams from "./BocceTeams";
 import "./UserProfile.css";
 
@@ -11,7 +12,7 @@ export default function UserProfile({ eventId, setPage }) {
       case "tickets":
         return <PurchasedTickets eventId={eventId} />;
       case "info":
-        return <p>Your profile information will appear here.</p>;
+        return <ProfileInfo />;
       case "settings":
         return <p>Settings coming soon.</p>;
       case "bocce":
