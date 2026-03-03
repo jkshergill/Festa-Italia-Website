@@ -2,6 +2,7 @@ import { useState } from "react";
 import PurchasedTickets from "./PurchasedTickets";
 import ProfileInfo from "./ProfileInfo";
 import BocceTeams from "./BocceTeams";
+import VolunteerShifts from "./VolunteerShifts";
 import "./UserProfile.css";
 
 export default function UserProfile({ eventId, setPage }) {
@@ -13,9 +14,9 @@ export default function UserProfile({ eventId, setPage }) {
         return <PurchasedTickets eventId={eventId} />;
       case "info":
         return <ProfileInfo />;
-      case "settings":
-        return <p>Settings coming soon.</p>;
-      case "bocce":
+      case "volunteer":
+        return <VolunteerShifts />;
+      case "bocce team":
         return <BocceTeams />;
       default:
         return null;
@@ -41,10 +42,10 @@ export default function UserProfile({ eventId, setPage }) {
           Profile Info
         </button>
         <button
-          className={activeTab === "settings" ? "active" : ""}
-          onClick={() => setActiveTab("settings")}
+          className={activeTab === "volunteer" ? "active" : ""}
+          onClick={() => setActiveTab("volunteer")}
         >
-          Settings
+          Volunteer Shifts
         </button>
         <button
           className={activeTab === "bocce" ? "active" : ""}
