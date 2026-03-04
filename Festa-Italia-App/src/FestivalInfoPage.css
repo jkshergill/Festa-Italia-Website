@@ -53,6 +53,10 @@
   margin-bottom: 0.5rem;
 }
 
+.meta {
+  margin-top: 30px;
+}
+
 .festival-info-body .schedule-item .time {
   font-weight: 600;
   margin-bottom: 0.5rem;
