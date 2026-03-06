@@ -1,7 +1,7 @@
 import { useState } from "react";
 import PurchasedTickets from "./PurchasedTickets";
 import ProfileInfo from "./ProfileInfo";
-import BocceTeams from "./BocceTeams";
+import BocceProfile from "./BocceProfile";
 import VolunteerShifts from "./VolunteerShifts";
 import "./UserProfile.css";
 
@@ -16,8 +16,8 @@ export default function UserProfile({ eventId, setPage }) {
         return <ProfileInfo />;
       case "volunteer":
         return <VolunteerShifts />;
-      case "bocce team":
-        return <BocceTeams />;
+      case "bocce":
+        return <BocceProfile />;
       default:
         return null;
     }
