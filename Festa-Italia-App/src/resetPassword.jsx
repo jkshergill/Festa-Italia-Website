@@ -9,6 +9,9 @@ function App() {
   const [message, setMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const passwordType = showPassword ? 'text' : 'password';
+  const hasLowerCase = /[a-z]/; // This is a regular expression that checks if the password contains at least one lowercase letter
+  const hasUpperCase = /[A-Z]/; // This is a regular expression that checks if the password contains at least one uppercase letter
+  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/; // This is a regular expression that checks if the password contains at least one special character
 
   // Form Fields 
   const [email, setEmail] = useState('');
@@ -34,12 +37,32 @@ function App() {
       return;
     }
 
+    if(!hasLowerCase.test(newPassword)) { // This is to check if the password contains at least one lowercase letter
+      setMessage('Password must contain at least one lowercase letter.');
+      return;
+    }
+
+    if(!hasUpperCase.test(newPassword)) { // This is to check if the password contains at least one uppercase letter
+      setMessage('Password must contain at least one uppercase letter.');
+      return;
+    }
+
+    if(!hasSpecialChar.test(newPassword)) { // This is to check if the password contains at least one special character
+      setMessage('Password must contain at least one special character.');
+      return;
+    }
+
+    if(newPassword.length < 8) {
+      setMessage('Password must be at least 8 characters long.');
+      return;
+    }
+
     try {
       const {data, error} = await supabase.auth.updateUser({password:newPassword}); // This will turn the new password into the user's password
       if (error) {
         setMessage(error.message);
       } else {
-        setMessage('Password updated successfully! You can now log out and log back in with your new password. If you entered this page through the "Reset Password" email, please close this tab.');
+        setMessage('Password updated successfully! If you entered this page through the "Reset Password" email, please close this tab.');
       }
     } catch (error) {
       setMessage(error.message);
@@ -94,6 +117,11 @@ function App() {
         </button> 
 
         {message && <p className="status-message">{message}</p>}
+
+        <p>
+          <br/>
+          Your password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one special character.
+        </p>
       </form>
     </div>
 
