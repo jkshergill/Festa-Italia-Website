@@ -1,6 +1,8 @@
 import { useState } from "react";
 import PurchasedTickets from "./PurchasedTickets";
-import BocceTeams from "./BocceTeams";
+import ProfileInfo from "./ProfileInfo";
+import BocceProfile from "./BocceProfile";
+import VolunteerShifts from "./VolunteerShifts";
 import "./UserProfile.css";
 
 export default function UserProfile({ eventId, setPage }) {
@@ -11,11 +13,11 @@ export default function UserProfile({ eventId, setPage }) {
       case "tickets":
         return <PurchasedTickets eventId={eventId} />;
       case "info":
-        return <p>Your profile information will appear here.</p>;
-      case "settings":
-        return <p>Settings coming soon.</p>;
+        return <ProfileInfo />;
+      case "volunteer":
+        return <VolunteerShifts />;
       case "bocce":
-        return <BocceTeams />;
+        return <BocceProfile />;
       default:
         return null;
     }
@@ -23,8 +25,14 @@ export default function UserProfile({ eventId, setPage }) {
 
   return (
     <div className="user-profile">
-      <h2>My Dashboard</h2>
+      <h2>My Profile Dashboard</h2>
       <div className="tabs">
+        <button
+          className={activeTab === "info" ? "active" : ""}
+          onClick={() => setActiveTab("info")}
+        >
+          Profile Info
+        </button>
         <button
           className={activeTab === "tickets" ? "active" : ""}
           onClick={() => {
@@ -34,16 +42,10 @@ export default function UserProfile({ eventId, setPage }) {
           Purchased Tickets
         </button>
         <button
-          className={activeTab === "info" ? "active" : ""}
-          onClick={() => setActiveTab("info")}
+          className={activeTab === "volunteer" ? "active" : ""}
+          onClick={() => setActiveTab("volunteer")}
         >
-          Profile Info
-        </button>
-        <button
-          className={activeTab === "settings" ? "active" : ""}
-          onClick={() => setActiveTab("settings")}
-        >
-          Settings
+          Volunteer Shifts
         </button>
         <button
           className={activeTab === "bocce" ? "active" : ""}
