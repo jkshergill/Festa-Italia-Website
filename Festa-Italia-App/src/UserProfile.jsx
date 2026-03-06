@@ -25,8 +25,14 @@ export default function UserProfile({ eventId, setPage }) {
 
   return (
     <div className="user-profile">
-      <h2>My Dashboard</h2>
+      <h2>My Profile Dashboard</h2>
       <div className="tabs">
+        <button
+          className={activeTab === "info" ? "active" : ""}
+          onClick={() => setActiveTab("info")}
+        >
+          Profile Info
+        </button>
         <button
           className={activeTab === "tickets" ? "active" : ""}
           onClick={() => {
@@ -34,12 +40,6 @@ export default function UserProfile({ eventId, setPage }) {
           }}
         >
           Purchased Tickets
-        </button>
-        <button
-          className={activeTab === "info" ? "active" : ""}
-          onClick={() => setActiveTab("info")}
-        >
-          Profile Info
         </button>
         <button
           className={activeTab === "volunteer" ? "active" : ""}
