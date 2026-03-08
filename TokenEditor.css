@@ -1,0 +1,61 @@
+.page{
+    padding:10px;
+}
+
+.form{
+    margin-bottom:0;
+    align-items:flex-start;
+    background:white;
+    color:black;
+    padding:20px 20px 10px 20px;
+    border:1px solid;
+    width:300px;
+    gap:10px;
+    display:flex;
+    flex-direction:column;
+    margin-top:20px;
+}
+
+.input{
+    width:100%;
+    padding:10px;
+    margin-bottom:10px;
+
+}
+.submit-btn{
+    margin:0;
+    line-height:normal;
+    padding:10px;
+    background:black;
+    color:white;
+    cursor:pointer;
+    width:100%;
+
+}
+
+.table-title{
+    margin-top:20px;
+
+}
+
+.table{
+    margin-top:10px;
+    width:100%;
+    border-collapse:collapse;
+
+}
+
+.table th,table td{
+    padding:10px;
+    text-align:center;
+    border:1px solid;
+
+}
+
+.delete-btn{
+    background:black;
+    color:white;
+    padding:10px;
+    cursor:pointer;
+
+}
