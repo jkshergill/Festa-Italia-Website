@@ -21,6 +21,8 @@ export default function Volunteer() {
         loadBooths();
     }, []);
 
+    
+
     // Generate hourly slots starting from 9:00 AM (1-hour increments)
     const startHour = 9
     const endHour = 20 // last slot will be 8:00 PM - 9:00 PM

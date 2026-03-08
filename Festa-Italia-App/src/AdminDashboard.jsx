@@ -3,6 +3,7 @@ import { supabase } from "./supabaseClient";
 import './AdminDashboard.css';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import EditPageComponent from './EditPage';
 
 // Reusable PageDropdown component
 function PageDropdown({ pageOptions = [], onSelect }) {
@@ -523,35 +524,9 @@ function ConfirmCoronationTickets() {
     );
 }
 
-// Edit Page Section
-function EditPage({ pageOptions }) {
-    const [selectedPage, setSelectedPage] = useState(null);
 
-    const handleSelect = (page) => {
-        setSelectedPage(page);
-        console.log('Edit page selection:', page);
-    };
-
-    return (
-        <div className="section-content">
-            <PageDropdown pageOptions={pageOptions} onSelect={handleSelect} />
-
-            {selectedPage && (
-                <div style={{ marginTop: '1rem' }}>
-                    <strong>Selected page to edit:</strong> {selectedPage.label}
-                    <div style={{ marginTop: '0.5rem' }}>
-                        <button
-                            className="sidebar-btn"
-                            onClick={() => console.log('Open editor for', selectedPage)}
-                        >
-                            Edit this page (inline)
-                        </button>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-}
+// Edit Page Section – replaced with new EditPageComponent
+// Simply render the new component which has all functionality built-in
 
 // Add Admin Section
 function AddAdmin() {
@@ -728,7 +703,7 @@ function AdminDashboard() {
                 {activeSection === 'confirm-coronation-tickets' && <ConfirmCoronationTickets />}
 
                 {/* Edit Page Section */}
-                {activeSection === 'edit-page' && <EditPage pageOptions={pageOptions} />}
+                {activeSection === 'edit-page' && <EditPageComponent />}
 
                 {/* Add Admin Section */}
                 {activeSection === 'add-admin' && <AddAdmin />}

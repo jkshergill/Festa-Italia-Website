@@ -1,13 +1,112 @@
 import './HomePage.css';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import  QRCode from "react-qr-code";
+import { supabase } from './supabaseClient';
 
 export default function HomePage({setPage}) {
+  const [dynamicContent, setDynamicContent] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => { // Set body ID for styling
     document.body.id = 'homepage-body-id';
     document.body.className = 'homepage-body';
   }, []);
+
+  useEffect(() => {
+    // Load dynamic content from Supabase
+    const loadDynamicContent = async () => {
+      try {
+        setLoading(true);
+
+        // Get the home page UUID
+        const { data: pageData, error: pageError } = await supabase
+          .from('pages')
+          .select('id')
+          .eq('page_id', 'home')
+          .single();
+
+        if (pageError) throw pageError;
+
+        // Get all sections for home page
+        const { data: sectionsData, error: sectionsError } = await supabase
+          .from('sections')
+          .select('*')
+          .eq('page_id', pageData.id)
+          .order('position', { ascending: true });
+
+        if (sectionsError) throw sectionsError;
+
+        // Get all content blocks for these sections
+        const { data: blocksData, error: blocksError } = await supabase
+          .from('content_blocks')
+          .select('*')
+          .in('section_id', sectionsData.map(s => s.id));
+
+        if (blocksError) throw blocksError;
+
+        // Reconstruct sections with their content blocks
+        const sectionsWithBlocks = sectionsData.map(section => {
+          const contentBlocks = blocksData
+            .filter(block => block.section_id === section.id)
+            .sort((a, b) => a.block_index - b.block_index)
+            .map(block => ({
+              text: block.text || '',
+              image: block.image_url || null,
+              imagePosition: block.image_position || 'right'
+            }));
+
+          return {
+            id: section.id,
+            title: section.title,
+            contentBlocks
+          };
+        });
+
+        setDynamicContent(sectionsWithBlocks);
+      } catch (error) {
+        console.error('Error loading dynamic content from Supabase:', error);
+        setDynamicContent([]); // Set empty array on error so page still loads
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDynamicContent();
+
+    // Set up real-time listener for changes
+    const subscription = supabase
+      .channel('sections-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'content_blocks' },
+        () => {
+          // Reload content when changes occur
+          loadDynamicContent();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  // Show loading screen while data is being fetched
+  if (loading) {
+    return (
+      <div className="page-root">
+        <main>
+          <div className="loading-screen">
+            <div className="loading-screen-content">
+              <div className="loading-spinner"></div>
+              <p className="loading-text">Loading Content</p>
+              <p className="loading-subtext">Please wait while we prepare the page...</p>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     
@@ -47,6 +146,43 @@ export default function HomePage({setPage}) {
             music, and celebration.
           </p>
         </section>
+
+        {/* Dynamic Content from Supabase */}
+        {dynamicContent && dynamicContent.length > 0 && (
+          <section id="dynamic-content" className="container section dynamic-sections">
+            {dynamicContent.map((section) => (
+              <div key={section.id} className="dynamic-section">
+                <h2>{section.title}</h2>
+                {section.contentBlocks && section.contentBlocks.map((block, blockIndex) => (
+                  <div key={blockIndex} className={`content-block image-position-${block.imagePosition || 'right'} ${block.image ? 'has-image' : 'no-image'}`}>
+                    {block.image && block.imagePosition === 'above' && (
+                      <img
+                        src={block.image}
+                        alt={`Content block ${blockIndex + 1}`}
+                        className="content-image"
+                      />
+                    )}
+                    {block.image && (block.imagePosition === 'left' || block.imagePosition === 'right') && (
+                      <img
+                        src={block.image}
+                        alt={`Content block ${blockIndex + 1}`}
+                        className="content-image"
+                      />
+                    )}
+                    {block.text && <p>{block.text}</p>}
+                    {block.image && block.imagePosition === 'below' && (
+                      <img
+                        src={block.image}
+                        alt={`Content block ${blockIndex + 1}`}
+                        className="content-image"
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </section>
+        )}
       </main>
 
       <footer className="site-footer">
