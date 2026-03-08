@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "./supabaseClient";
 
 function to12Hour(h) {
@@ -13,7 +13,7 @@ function formatRange(h) {
 
 export default function VolunteerShifts() {
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
   const [shifts, setShifts] = useState([]);
 
   useEffect(() => {
@@ -21,43 +21,48 @@ export default function VolunteerShifts() {
 
     async function load() {
       setLoading(true);
-      setError(null);
+      setError("");
 
-      const { data: authData, error: authErr } = await supabase.auth.getUser();
-      if (authErr) {
-        if (!cancelled) {
-          setError(authErr.message);
-          setLoading(false);
-        }
+      const { data: userData, error: userErr } = await supabase.auth.getUser();
+      if (userErr) {
+        if (!cancelled) setError(userErr.message);
+        setLoading(false);
         return;
       }
 
-      const user = authData?.user;
+      const user = userData?.user;
       if (!user) {
-        if (!cancelled) {
-          setError("You must be signed in to view your volunteer shifts.");
-          setLoading(false);
-        }
+        if (!cancelled) setError("Not logged in.");
+        setLoading(false);
         return;
       }
 
       // Requires FK: volunteer_signups.booth_id -> booths.id
-      const { data, error: qErr } = await supabase
+      const { data, error } = await supabase
         .from("volunteer_signups")
-        .select("id, day, hour, confirm, booths ( name )")
+        .select(
+          `
+          id, 
+          day, 
+          hour, 
+          confirm, 
+          booths!volunteer_signups_booth_id_fkey (name)
+          `
+        )
         .eq("user_id", user.id)
         .order("day", { ascending: true })
         .order("hour", { ascending: true });
+      
+      
 
-      if (!cancelled) {
-        if (qErr) {
-          setError(qErr.message);
-          setShifts([]);
-        } else {
-          setShifts(data ?? []);
-        }
+      if (error) {
+        if (!cancelled) setError(error.message);
         setLoading(false);
+        return;
       }
+
+      if (!cancelled) setShifts(data ?? []);
+      setLoading(false);
     }
 
     load();
@@ -66,7 +71,7 @@ export default function VolunteerShifts() {
     };
   }, []);
 
-  const grouped = useMemo(() => {
+  /*const grouped = useMemo(() => {
     const byDay = new Map();
     for (const s of shifts) {
       const day = (s.day ?? "").toLowerCase();
@@ -74,7 +79,7 @@ export default function VolunteerShifts() {
       byDay.get(day).push(s);
     }
     return byDay;
-  }, [shifts]);
+  }, [shifts]);*/
 
   if (loading) return <p>Loading your volunteer shifts…</p>;
   if (error) return <p style={{ color: "crimson" }}>{error}</p>;
@@ -88,36 +93,36 @@ export default function VolunteerShifts() {
     );
   }
 
-  const dayOrder = ["friday", "saturday", "sunday", "monday", "tuesday", "wednesday", "thursday"];
+  // const dayOrder = ["friday", "saturday", "sunday", "monday", "tuesday", "wednesday", "thursday"];
 
   return (
-    <div>
-      <h3>My Volunteer Shifts</h3>
-      <div style={{ overflowX: "auto" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr>
-              <th style={{ textAlign: "left", padding: ".5rem" }}>Day</th>
-              <th style={{ textAlign: "left", padding: ".5rem" }}>Time</th>
-              <th style={{ textAlign: "left", padding: ".5rem" }}>Booth</th>
-              <th style={{ textAlign: "left", padding: ".5rem" }}>Confirmed</th>
-            </tr>
-          </thead>
-          <tbody>
-            {dayOrder
-              .filter((d) => grouped.has(d))
-              .flatMap((d) => grouped.get(d).map((s) => ({ ...s, _day: d })))
-              .map((s) => (
-                <tr key={s.id}>
-                  <td style={{ padding: ".5rem" }}>{s._day.charAt(0).toUpperCase() + s._day.slice(1)}</td>
-                  <td style={{ padding: ".5rem" }}>{formatRange(Number(s.hour))}</td>
-                  <td style={{ padding: ".5rem" }}>{s.booths?.name ?? "(unknown)"}</td>
-                  <td style={{ padding: ".5rem" }}>{s.confirm ? "Yes" : "No"}</td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
-      </div>
+  <div style={{ display: "grid", gap: 12 }}>
+      {shifts.map((s) => (
+        <div
+          key={s.id}
+          style={{
+            border: "1px solid #ddd",
+            borderRadius: 10,
+            padding: 12,
+          }}
+        >
+          <div style={{ fontWeight: 700 }}>
+            {s.booths?.name || "Booth"}
+          </div>
+
+          <div style={{ opacity: 0.8 }}>
+            {s.day?.charAt(0).toUpperCase() + s.day?.slice(1)} •{" "}
+            {formatRange(Number(s.hour))}
+          </div>
+
+          <div style={{ marginTop: 8, fontSize: 14 }}>
+            <div>
+              <strong>Status:</strong>{" "}
+              {s.confirm ? "Confirmed" : "Pending confirmation"}
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

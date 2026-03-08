@@ -46,7 +46,8 @@ export default function PurchasedTickets() {
           holder_name,
           holder_email,
           qr_token,
-          order_id
+          order_id,
+          dinner_choice
         `
         )
         .eq("purchaser_profile_id", profileId)
@@ -106,6 +107,9 @@ export default function PurchasedTickets() {
                 : t.checked_in_at
                 ? "Checked in"
                 : "Active"}
+            </div>
+            <div>
+              <strong>Dinner Choice:</strong> {t.dinner_choice || "—"}
             </div>
           </div>
         </div>

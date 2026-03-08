@@ -15,7 +15,7 @@ export default function UserProfile({ eventId, setPage }) {
       case "info":
         return <ProfileInfo />;
       case "volunteer":
-        return <VolunteerShifts />;
+        return <VolunteerShifts eventId={eventId} />;
       case "bocce":
         return <BocceProfile />;
       default:
