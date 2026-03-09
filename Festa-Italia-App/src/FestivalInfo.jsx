@@ -1,7 +1,6 @@
+import { useEffect, useState } from 'react';
 import './FestivalInfoPage.css';
-import { useEffect } from 'react';
-import { supabase } from "./supabaseClient";  
-import { useState } from 'react';
+import { supabase } from "./supabaseClient";
 
 const getFestivalInfoImageUrl = (imagePath) => { // This function is used to get the public URL of the food image from the Supabase storage bucket
     if (!imagePath) {
@@ -12,7 +11,7 @@ const getFestivalInfoImageUrl = (imagePath) => { // This function is used to get
     return data.publicUrl;
 };
 
-export default function FestivalInfo() {
+export default function FestivalInfo({ setPage }) {
   useEffect(() => {
     document.body.id = 'festival-info-body-id';
     document.body.classList.add('festival-info-body');
@@ -50,6 +49,29 @@ export default function FestivalInfo() {
     <div className="festival-info-body">
       <main>
         <div className="festival-container">
+          {/* sidebar added alongside schedule content */}
+          <aside className="festival-sidebar">
+            <div className="schedule-item">
+              <h3>Volunteering</h3>
+              <p>Sign up to volunteer for a booth here!</p>
+                <button className="signup-btn"
+                  onClick={() => setPage('volunteer')}
+                  title="Go to Festa Signups"
+                  >
+                  Volunteer Request
+                </button>
+            </div>
+            <div className="schedule-item">
+              <h3>Festival Booths</h3>
+              <p>Check out this years food items and prices</p>
+                <button className="signup-btn"
+                  onClick={() => setPage('shopping')}
+                  title="Go to Festa Menu"
+                  >
+                  Festival Menu
+                </button>
+            </div>
+          </aside>
           <section id="about" className="section features">
             <h2>Friday Event Schedule</h2>
 

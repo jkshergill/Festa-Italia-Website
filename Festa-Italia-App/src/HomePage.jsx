@@ -1,6 +1,6 @@
-import './HomePage.css';
 import { useEffect, useState } from 'react';
-import  QRCode from "react-qr-code";
+import QRCode from "react-qr-code";
+import './HomePage.css';
 import { supabase } from './supabaseClient';
 
 export default function HomePage({setPage}) {
@@ -113,10 +113,6 @@ export default function HomePage({setPage}) {
     <div className="page-root">
 
       <main>
-        <div>
-          <button onClick = {() => setPage("admin-dash")} style = {{backgroundColor: 'black', color: 'white'}}> Admin Dashboard</button>
-          
-        </div>
         <section id="gallery" className="container section gallery">
           <h2>Gallery</h2>
           <div className="gallery-row" role="list">

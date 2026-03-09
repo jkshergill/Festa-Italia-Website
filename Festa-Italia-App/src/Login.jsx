@@ -108,10 +108,10 @@ function Login({ setPage }) {
         )}
 
         <p className="form__login--redirect">
-          Don't have an account? <a href="#" className="form__signup--link">Sign Up</a>
+          Don't have an account? <a href="#" className="form__signup--link" onClick={()=>setPage('signup')}>Sign Up</a>
         </p>
         <p className="form__forgot-password">
-          <a href="#" className="form__forgot-password--link">Forgot Password?</a>
+          <a href="#" className="form__forgot-password--link" onClick={()=>setPage('forgot-pass')}>Forgot Password?</a>
         </p>
       </form>
     </div>

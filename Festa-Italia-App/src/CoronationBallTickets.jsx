@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import "./CoronationBallTickets.css";
 import { supabase } from "./supabaseClient";
 
 
-export default function TicketPurchase() {
+export default function TicketPurchase( {setPage} ) {
   // Ticket prices
   const prices = { adult: 20, child: 10 };
 
@@ -327,6 +327,10 @@ export default function TicketPurchase() {
           </button>
         </div>
       )}
+    <button onClick={() => setPage('coronation')} >
+      Back
+    </button>
     </div>
+    
   );
 }

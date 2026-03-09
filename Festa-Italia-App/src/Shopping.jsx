@@ -1,7 +1,6 @@
+import { useEffect, useState } from 'react';
 import './Shopping.css';
 import { supabase } from "./supabaseClient";
-import { useEffect } from 'react';
-import { useState } from 'react';
 
 const getFoodImageUrl = (imagePath) => { // This function is used to get the public URL of the food image from the Supabase storage bucket
     if (!imagePath) {
@@ -22,7 +21,7 @@ const getTokenImageUrl = (imagePath) => { // This function is used to get the pu
 };
 
 
-function Shopping() {
+function Shopping( {setPage} ) {
     const [food, setFood] = useState([]);
     const [tokens, setTokens] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -174,14 +173,14 @@ function Shopping() {
 
             <p className='menu-topic'>
                 Food
-            </p>  
+            </p>
 
-            <div className='food-section'>     
+            <div className='food-section'>
                 {food.length === 0 ? (
                     <p>Menu coming soon!</p>
                 ) : (
                     food.filter(f => f.food_type === "food").map(f => (
-                        <>  
+                        <>
                             <div className='food-container'>
                                 <p className='food-name'>{f.name}</p>
                                 <p>{f.description}</p>
@@ -199,9 +198,9 @@ function Shopping() {
                                                                     ))}
                                                                 </select>
                             </div>
-                        </>                        
+                        </>
                     ))
-                 )
+                )
                 }
             </div>
 
@@ -215,7 +214,7 @@ function Shopping() {
                     <p>Menu coming soon!</p>
                 ) : (
                     food.filter(f => f.food_type === "drink").map(f => (
-                        <>  
+                        <>
                             <div className='food-container'>
                                 <p className='food-name'>{f.name}</p>
                                 <p>{f.description}</p>
@@ -233,9 +232,9 @@ function Shopping() {
                                                                     ))}
                                                                 </select>
                             </div>
-                        </>                        
+                        </>
                     ))
-                 )
+                )
                 }
                 
             </div>
@@ -287,6 +286,10 @@ function Shopping() {
             <button className='reset-button' onClick={handleReset}>
                 Reset Totals
             </button>   
+
+            <button className='reset-button' onClick={() => { window.scrollTo(0, 0); setPage('festival'); }}>
+                Back
+            </button>
         </>
     );
 }
