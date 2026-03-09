@@ -5,6 +5,8 @@ export default function DeleteAccount({ setPage }) {
   const [user, setUser] = useState(null);
   const [session, setSession] = useState(null);
   const [confirmText, setConfirmText] = useState('');
+  const [inputEmail, setInputEmail] = useState('');
+  const [inputPassword, setInputPassword] = useState('');
   const [deleting, setDeleting] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -43,24 +45,60 @@ export default function DeleteAccount({ setPage }) {
       setError('Please type DELETE in the confirmation field to proceed.');
       return;
     }
+    // Basic client-side checks for email/password
+    if (!inputEmail || !inputPassword) {
+      setError('Please provide your email and password to confirm.');
+      return;
+    }
+
+    // Ensure the email entered matches the currently signed-in user's email
+    if ((inputEmail || '').trim().toLowerCase() !== (user.email || '').toLowerCase()) {
+      setError('The email you entered does not match the signed-in account.');
+      return;
+    }
 
     setDeleting(true);
 
     try {
-      // Try to call a backend endpoint that performs the server-side delete.
-      // This project expects a serverless function / endpoint to perform the
-      // actual user deletion (because deleting a Supabase user requires a
-      // service role key). We pass the user's access token for server-side
-      // verification. If that endpoint is not present, the component will
-      // show an actionable error message.
-      const accessToken = session?.access_token;
+      // Re-authenticate the user by signing in with the provided credentials.
+      // This returns a fresh access token we can send to the server-side
+      // deletion endpoint for verification. If the credentials are wrong,
+      // Supabase will return an error.
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: inputEmail,
+        password: inputPassword,
+      });
 
-      if (!accessToken) {
-        setError('Missing session token. Please sign out and sign back in, then try again.');
+      if (signInError) {
+        setError(signInError.message || 'Unable to authenticate. Check your credentials.');
         setDeleting(false);
         return;
       }
 
+      const newUser = signInData?.user ?? null;
+      const newSession = signInData?.session ?? null;
+
+      if (!newUser || !newSession) {
+        setError('Authentication did not return a valid session.');
+        setDeleting(false);
+        return;
+      }
+
+      // Ensure the authenticated user matches the previously fetched user
+      if (newUser.id !== user.id) {
+        setError('Authenticated credentials do not match the currently signed-in user.');
+        setDeleting(false);
+        return;
+      }
+
+      const accessToken = newSession.access_token;
+      if (!accessToken) {
+        setError('Missing access token from authentication.');
+        setDeleting(false);
+        return;
+      }
+
+      // Call the server-side delete endpoint with service-role-protected logic.
       const functionsBase = import.meta.env.VITE_SUPABASE_URL || window.location.origin;
       const resp = await fetch(`${functionsBase}/functions/v1/delete-user`, {
         method: 'POST',
@@ -80,11 +118,13 @@ export default function DeleteAccount({ setPage }) {
         return;
       }
 
-      setMessage('Your account has been deleted. You will be signed out.');
+  setMessage('Your account has been deleted. You will be signed out.');
 
-      // sign out locally
-      await supabase.auth.signOut();
-      setDeleting(false);
+  // sign out locally
+  await supabase.auth.signOut();
+  setDeleting(false);
+  // Redirect to home page after a short delay for UX
+  setTimeout(() => setPage('home'), 1200);
     } catch (err) {
       setError('An unexpected error occurred while deleting the account.');
       setDeleting(false);
@@ -118,6 +158,27 @@ export default function DeleteAccount({ setPage }) {
           Deleting your account is permanent. All your personal data associated with
           this account will be removed. This action cannot be undone.
         </p>
+
+        <label style={{ display: 'block', marginTop: '0.75rem' }}>
+          Email (must match the signed-in account):
+        </label>
+        <input
+          value={inputEmail}
+          onChange={(e) => setInputEmail(e.target.value)}
+          placeholder="Email"
+          style={{ marginTop: '0.5rem', padding: '0.5rem', width: '100%', maxWidth: 360 }}
+        />
+
+        <label style={{ display: 'block', marginTop: '0.75rem' }}>
+          Password:
+        </label>
+        <input
+          type="password"
+          value={inputPassword}
+          onChange={(e) => setInputPassword(e.target.value)}
+          placeholder="Password"
+          style={{ marginTop: '0.5rem', padding: '0.5rem', width: '100%', maxWidth: 360 }}
+        />
 
         <label style={{ display: 'block', marginTop: '0.75rem' }}>
           Type <strong>DELETE</strong> to confirm:
