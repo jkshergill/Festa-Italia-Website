@@ -21,14 +21,18 @@ const getTokenImageUrl = (imagePath) => { // This function is used to get the pu
     return data.publicUrl;
 };
 
-function Shopping() {
 
+function Shopping() {
     const [food, setFood] = useState([]);
     const [tokens, setTokens] = useState([]);
     const [loading, setLoading] = useState(true);
     const [errorMsg, setErrorMsg] = useState("");
+    // Committed order quantities
     const [foodQuantities, setFoodQuantities] = useState({}); 
     const [tokenQuantities, setTokenQuantities] = useState({});
+    // Pending (dropdown) quantities
+    const [pendingFoodQuantities, setPendingFoodQuantities] = useState({});
+    const [pendingTokenQuantities, setPendingTokenQuantities] = useState({});
 
     useEffect(() => {
         document.body.id = 'shopping-body-id';
@@ -64,21 +68,70 @@ function Shopping() {
 
 
 
-    const handleFoodQuantityChange = (foodId, quantity) => {
-        if(quantity < 0) return; // Prevent negative quantities
-        setFoodQuantities(prevQuantities => ({
-            ...prevQuantities,
+    // Dropdowns update pending state
+    const handlePendingFoodQuantityChange = (foodId, quantity) => {
+        if(quantity < 0) return;
+        setPendingFoodQuantities(prev => ({
+            ...prev,
             [foodId]: quantity
         }));
-    }
+    };
 
-    const handleTokenQuantityChange = (tokenType, quantity) => {
-        if(quantity < 0) return; // Prevent negative quantities
-        setTokenQuantities(prevQuantities => ({
-            ...prevQuantities,
-            [tokenType]: quantity
+    const handlePendingTokenQuantityChange = (tokenId, quantity) => {
+        if(quantity < 0) return;
+        setPendingTokenQuantities(prev => ({
+            ...prev,
+            [tokenId]: quantity
         }));
-    }
+    };
+
+    // Add to Order button copies pending food to committed, and sets tokens to minimum needed for food total
+    const handleAddToOrder = () => {
+        const committedFood = { ...pendingFoodQuantities };
+        setFoodQuantities(committedFood);
+
+        // Calculate total food price
+        let foodTotal = 0;
+        Object.keys(committedFood).forEach(foodId => {
+            const foodItem = food.find(f => f.id === foodId);
+            if (foodItem) {
+                foodTotal += foodItem.price * committedFood[foodId];
+            }
+        });
+
+
+        // Bounded knapsack: find minimum token value >= foodTotal, using up to 5 of each token type
+        // Build all possible token combinations (small N, so feasible)
+        let minTotal = Infinity;
+        let bestCombo = {};
+        const tokenTypes = tokens.map(t => ({ id: t.id, price: t.price }));
+        const n = tokenTypes.length;
+        // Brute force all combinations (0-5 of each token type)
+        function search(idx, currentQty, currentSum) {
+            if (idx === n) {
+                if (currentSum >= foodTotal && currentSum < minTotal) {
+                    minTotal = currentSum;
+                    bestCombo = { ...currentQty };
+                }
+                return;
+            }
+            for (let q = 0; q <= 5; q++) {
+                currentQty[tokenTypes[idx].id] = q;
+                search(idx + 1, currentQty, currentSum + q * tokenTypes[idx].price);
+            }
+        }
+        search(0, {}, 0);
+        // Fill in zeros for any missing token types
+        tokens.forEach(t => { if (!bestCombo[t.id]) bestCombo[t.id] = 0; });
+        setTokenQuantities(bestCombo);
+
+        // Optionally reset pending to zero
+    setPendingFoodQuantities({});
+    // Explicitly reset all pending token dropdowns to zero for all token ids
+    const resetPendingTokens = {};
+    tokens.forEach(token => { resetPendingTokens[token.id] = 0; });
+    setPendingTokenQuantities(resetPendingTokens);
+    };
 
     const handleTotalFoodPrices = () => { // This is used to calculate the total price of the food items based on the quantity selected by the user
         let total = 0;
@@ -105,6 +158,8 @@ function Shopping() {
     const handleReset = () => { // This is used to reset the total prices and quantities of the food items and tokens to 0.
         setFoodQuantities({});
         setTokenQuantities({});
+        setPendingFoodQuantities({});
+        setPendingTokenQuantities({});
     }
 
     return (
@@ -133,8 +188,16 @@ function Shopping() {
                                 <p className='food-price'>Price: ${f.price}</p>
                                 <p className='food-calories'>Calories: {f.calories}</p>
                                 <img className='food-image' src={getFoodImageUrl(f.image_path)} alt={f.name} />
-                                <p>Quantity:</p>
-                                <input type="number" min="0" value={foodQuantities[f.id] || 0} onChange={(e) => handleFoodQuantityChange(f.id, parseInt(e.target.value) || 0)} />
+                                                                <p>Quantity:</p>
+                                                                <select
+                                                                    value={pendingFoodQuantities[f.id] || 0}
+                                                                    onChange={e => handlePendingFoodQuantityChange(f.id, parseInt(e.target.value, 10))}
+                                                                    style={{ padding: '0.3rem', fontSize: '1rem' }}
+                                                                >
+                                                                    {[0,1,2,3,4,5].map(q => (
+                                                                        <option key={q} value={q}>{q}</option>
+                                                                    ))}
+                                                                </select>
                             </div>
                         </>                        
                     ))
@@ -159,8 +222,16 @@ function Shopping() {
                                 <p className='food-price'>Price: ${f.price}</p>
                                 <p className='food-calories'>Calories: {f.calories}</p>
                                 <img className='food-image' src={getFoodImageUrl(f.image_path)} alt={f.name} />
-                                <p>Quantity:</p>
-                                <input type="number" min="0" value={foodQuantities[f.id] || 0} onChange={(e) => handleFoodQuantityChange(f.id, parseInt(e.target.value) || 0)} />
+                                                                <p>Quantity:</p>
+                                                                <select
+                                                                    value={pendingFoodQuantities[f.id] || 0}
+                                                                    onChange={e => handlePendingFoodQuantityChange(f.id, parseInt(e.target.value, 10))}
+                                                                    style={{ padding: '0.3rem', fontSize: '1rem' }}
+                                                                >
+                                                                    {[0,1,2,3,4,5].map(q => (
+                                                                        <option key={q} value={q}>{q}</option>
+                                                                    ))}
+                                                                </select>
                             </div>
                         </>                        
                     ))
@@ -182,13 +253,28 @@ function Shopping() {
                                 <p className='token-name'>{t.color} tokens</p>
                                 <img className='token-image' src={getTokenImageUrl(t.image_path)} alt={t.color} />
                                 <p className='token-price'>Price: ${t.price}</p>
-                                <p>Quantity:</p>
-                                <input type="number" min="0" value={tokenQuantities[t.id] || 0} onChange={(e) => handleTokenQuantityChange(t.id, parseInt(e.target.value) || 0)} />
+                                                                <p>Quantity:</p>
+                                                                <select
+                                                                    value={pendingTokenQuantities[t.id] || 0}
+                                                                    onChange={e => handlePendingTokenQuantityChange(t.id, parseInt(e.target.value, 10))}
+                                                                    style={{ padding: '0.3rem', fontSize: '1rem' }}
+                                                                >
+                                                                    {[0,1,2,3,4,5].map(q => (
+                                                                        <option key={q} value={q}>{q}</option>
+                                                                    ))}
+                                                                </select>
                             </div>
                         </>                        
                     ))
                  )
                 }
+                </div>
+
+                {/* Add to Order button under tokens */}
+                <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+                    <button className='add-to-order-button' onClick={handleAddToOrder} style={{ padding: '0.7rem 1.5rem', fontSize: '1.1rem', background: '#1976d2', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer' }}>
+                        Add to Order
+                    </button>
                 </div>
             </section>  
 
