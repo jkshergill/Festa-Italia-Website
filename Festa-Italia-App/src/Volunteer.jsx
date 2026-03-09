@@ -21,6 +21,8 @@ export default function Volunteer() {
         loadBooths();
     }, []);
 
+    
+
     // Generate hourly slots starting from 9:00 AM (1-hour increments)
     const startHour = 9
     const endHour = 20 // last slot will be 8:00 PM - 9:00 PM
@@ -103,6 +105,34 @@ export default function Volunteer() {
                     onChange={(e) => setSelectedBooth(e.target.value)}
                 >
                     <option value="">-- Select a booth --</option>
+                    {booths.map((b) => (
+                        <option key={b.id} value={b.id}>
+                            {b.name}
+                        </option>
+                    ))}
+
+                    <option value="f9f602de-cf5a-44c1-a476-27744ae7647d">Tokens</option>
+                    {booths.map((b) => (
+                        <option key={b.id} value={b.id}>
+                            {b.name}
+                        </option>
+                    ))}
+
+                    <option value="565a6dbe-0ccc-48f9-9245-8e07ebb498c3">Ice Cream</option>
+                    {booths.map((b) => (
+                        <option key={b.id} value={b.id}>
+                            {b.name}
+                        </option>
+                    ))}
+
+                    <option value="4a228da4-a248-40a0-85ac-60cd6b60e624">Food</option>
+                    {booths.map((b) => (
+                        <option key={b.id} value={b.id}>
+                            {b.name}
+                        </option>
+                    ))}
+
+                    <option value="6e6ecaae-9e1e-4c4d-a9ed-88adf8a43fb9">Pizza</option>
                     {booths.map((b) => (
                         <option key={b.id} value={b.id}>
                             {b.name}

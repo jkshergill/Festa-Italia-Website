@@ -27,6 +27,7 @@ import MockCheckout from "./MockCheckout"
 import PageOff from './PageOff'
 import SignInWall from './SignInWall'
 import UserProfile from './UserProfile' 
+import TokenEditor from './tokenEditor'
 
  
 
@@ -190,7 +191,7 @@ export default function App(){
 
       case 'sign-in-wall': return <SignInWall setPage={setPage} />
       case 'page-off': return <PageOff setPage={setPage} />
- 
+      case 'token-editor': return <TokenEditor />
       default: return <Home />
     }
   }
@@ -249,6 +250,7 @@ export default function App(){
           <button role="menuitem" onClick={() => { setPage('donation'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Previous Sponsors</button>
           <button role="menuitem" onClick={() => { setPage('user-profile'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>User Profile</button>  
           <button role="menuitem" onClick={() => { setPage('delete-account'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Delete Account</button>
+          <button role="menuitem" onClick={() => { setPage('token-editor'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Token Editor</button>
           {/* Temporary items */}
           <button role="menuitem" onClick={() => { setPage('bocce-sign'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Bocce Sign up</button>
           <button role="menuitem" onClick={() => { setPage('coronation-tix'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Coronation Ball Tickets</button>
@@ -297,7 +299,7 @@ export default function App(){
               <div style={{ flex: 1 }} />
 
               <div className="auth-status-wrap">
-                <AuthStatus onLogin={() => setPage('login')} />
+                <AuthStatus onLogin={() => setPage('login')} onProfile={() => setPage('user-profile')} />
               </div>
 
               {burgerButton()}
