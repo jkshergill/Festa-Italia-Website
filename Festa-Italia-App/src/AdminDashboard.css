@@ -390,3 +390,53 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* Toggle Page Buttons */
+.toggle-on-btn,
+.toggle-off-btn {
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.toggle-on-btn {
+    background: #28a745;
+    color: #fff;
+}
+
+.toggle-on-btn:hover {
+    background: #218838;
+}
+
+.toggle-off-btn {
+    background: #dc3545;
+    color: #fff;
+}
+
+.toggle-off-btn:hover {
+    background: #c82333;
+}
+
+.save-btn {
+    margin-top: 1.5rem;
+    padding: 0.8rem 1.5rem;
+    background: #009246;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.save-btn:hover {
+    background: #007038;
+}
+
+.save-btn:active {
+    transform: scale(0.98);
+}

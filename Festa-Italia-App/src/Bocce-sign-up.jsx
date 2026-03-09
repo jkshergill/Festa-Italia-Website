@@ -30,7 +30,18 @@ export default function BocceSignUp() {
     ];
     const sponsorName = formData.get('sponsorName') || null; // Set to null if sponsor name is empty
 
-    // Insert data into Supabase.
+    // Get current user to associate with this team
+    const {
+      data: { user },
+      error: authError
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      alert('You must be logged in to sign up a bocce team.');
+      return;
+    }
+
+    // Insert data into Supabase with user_id
     const { data, error } = await supabase
       .from('bocce_teams')
       .insert([
@@ -40,7 +51,8 @@ export default function BocceSignUp() {
           player2: playerNames[1],
           player3: playerNames[2],
           player4: playerNames[3],
-          sponsor_name: sponsorName
+          sponsor_name: sponsorName,
+          user_id: user.id
         }
       ]);
 
