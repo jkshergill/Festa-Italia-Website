@@ -17,6 +17,10 @@ import Scholarship from './Scholarship'
 import Shopping from './Shopping'
 import Signup from './Signup'
 import Volunteer from './Volunteer'
+import DeleteAccount from './DeleteAccount'
+import PaymentSuccess from './PaymentSuccess';
+import PaymentCancelled from './PaymentCancelled';
+import PaymentFailed from './PaymentFailed';
 
 import { useEffect } from 'react'
 import AdminDashboard from './AdminDashboard'
@@ -191,6 +195,10 @@ export default function App(){
       case 'sign-in-wall': return <SignInWall setPage={setPage} />
       case 'page-off': return <PageOff setPage={setPage} />
       case 'token-editor': return <TokenEditor />
+      case 'success': return <PaymentSuccess setPage={setPage} />;
+      case 'cancel': return <PaymentCancelled setPage={setPage} />;
+      case 'failure': return <PaymentFailed setPage={setPage} />;
+ 
       default: return <Home />
     }
   }
