@@ -6,9 +6,11 @@ export default defineConfig({
   server: {
     host: "127.0.0.1",
     port: 5173,
+    allowedHosts: [
+      '.ngrok-free.dev' // This allows ALL ngrok subdomains
+    ],
   },
-
-   test: {                    
+  test: {                    
     environment: "jsdom",      
     globals: true,           
     setupFiles: "./src/setupTests.js", 

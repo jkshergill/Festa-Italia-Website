@@ -1,0 +1,205 @@
+.success-body {
+  background-color: white;
+  height: auto;
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.success-container {
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
+  color: #333;
+  padding: 40px;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.success-card {
+  background: white;
+  padding: 40px;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 100%;
+  margin: 20px auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.success-card h1 {
+  font-family: "Great Vibes", cursive;
+  letter-spacing: 0.05em;
+  font-size: 3rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #b71c1c;
+}
+
+.success-card h2 {
+  color: #b71c1c;
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+}
+
+.success-card h3 {
+  color: #b71c1c;
+  margin: 20px 0 10px;
+  font-size: 1.4rem;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #b71c1c;
+  border-radius: 50%;
+  margin: 20px auto;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.success-icon {
+  font-size: 64px;
+  margin: 20px 0;
+  color: #2ecc71;
+}
+
+.error-icon {
+  font-size: 64px;
+  margin: 20px 0;
+  color: #e74c3c;
+}
+
+.success-message {
+  color: #2ecc71;
+  font-size: 1.2rem;
+  margin: 20px 0;
+  font-weight: 500;
+}
+
+.error-message {
+  color: #e74c3c;
+  font-size: 1.2rem;
+  margin: 20px 0;
+  font-weight: 500;
+}
+
+.ticket-summary {
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 20px 0;
+  text-align: left;
+}
+
+.ticket-summary p {
+  margin: 8px 0;
+  color: #333;
+  font-size: 1rem;
+}
+
+.ticket-summary strong {
+  color: #b71c1c;
+  font-weight: 600;
+}
+
+.success-actions {
+  margin-top: 30px;
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.btn-primary {
+  background-color: #b71c1c;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-size: 1rem;
+}
+
+.btn-primary:hover {
+  background-color: #8e1515;
+}
+
+.btn-secondary {
+  background-color: #666;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-size: 1rem;
+}
+
+.btn-secondary:hover {
+  background-color: #4d4d4d;
+}
+
+.pending-order-details {
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 20px 0;
+  text-align: left;
+}
+
+.pending-order-details h4 {
+  color: #b71c1c;
+  margin: 10px 0;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.pending-order-details ul {
+  list-style: none;
+  padding: 0;
+}
+
+.pending-order-details li {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+  color: #333;
+}
+
+.pending-order-details li:last-child {
+  border-bottom: none;
+}
+
+.pending-order-details small {
+  color: #777;
+  font-style: italic;
+}
+
+/* Link styling */
+.success-card a {
+  color: #b71c1c;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.success-card a:hover {
+  text-decoration: underline;
+}
+
+/* Order ID display */
+.order-id {
+  color: #777;
+  font-size: 0.9rem;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+}
