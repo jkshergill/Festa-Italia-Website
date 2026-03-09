@@ -1,9 +1,11 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import EditPageComponent from './EditPage';
 import { useEffect, useState } from 'react';
 import './AdminDashboard.css';
+import EditPageComponent from './EditPage';
 import { supabase } from "./supabaseClient";
+
+
 
 // Reusable PageDropdown component
 function PageDropdown({ pageOptions = [], onSelect }) {
@@ -524,10 +526,6 @@ function ConfirmCoronationTickets() {
     );
 }
 
-
-// Edit Page Section – replaced with new EditPageComponent
-// Simply render the new component which has all functionality built-in
-
 // Add Admin Section
 function AddAdmin() {
     const [query, setQuery] = useState('');
@@ -601,118 +599,108 @@ function AddAdmin() {
     );
 }
 
-// Toggle Page Visability Section
-function TogglePage({ pageOptions = [] }){
-    const [allPages, setAllPages] = useState([]); // all page rows from DB
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchPages = async () => {
-        try {
-            const { data, error } = await supabase
-            .from("page_status")
-            .select("name, visible"); // fetch all pages
-
-            if (error) throw error;
-
-            // Convert DB rows into an object mapping for easy toggle
-            const pageStates = data.reduce((acc, page) => {
-            acc[page.name] = page.visible; // true = visible, false = hidden
-            return acc;
-            }, {});
-
-            setAllPages(pageStates);
-        } catch (err) {
-            console.error("Error fetching page visibility:", err);
-            setAllPages({});
-        } finally {
-            setLoading(false);
-        }
-        };
-
-        fetchPages();
-    }, []);
-
-    const togglePage = (pageName) => {
-        setAllPages((prev) => ({
-        ...prev,
-        [pageName]: !prev[pageName],
-        }));
-    };
-
-    const saveChanges = async () => {
-        try {
-        const updates = Object.entries(allPages).map(([name, isVisible]) => ({
-            name,
-            visible: isVisible, // DB stores visible
-        }));
-
-        for (const update of updates) {
-            await supabase
-                .from("page_status")
-                .update({ visible: update.visible })
-                .eq("name", update.name);
-        }
-
-        alert("Page visibility settings saved!");
-        } catch (err) {
-        console.error("Error saving changes:", err);
-        alert("Failed to save page visibility");
-        }
-    };
-
-    if (loading) return <div>Loading Pages...</div>;
+// Toggle Page Section
+function TogglePage({ pageOptions = [], pageStates = {}, togglePage, saveChanges }) {
+    if (!pageOptions || pageOptions.length === 0) {
+        return <div className="section-content"><div className="muted">No pages available.</div></div>;
+    }
+    // filter out the Home (it shouldnt be toggleable)
+    const visibleOptions = pageOptions.filter(p => p.value !== 'home');
 
     return (
         <div className="section-content">
-        <div className="admin-list">
-            <h4>Page Visibility</h4>
-            {Object.entries(allPages).map(([name, isVisible]) => (
-            <div key={name} className="admin-item">
-                <div className="name">{name}</div>
-                <div className="actions">
-                <button
-                    className={isVisible ? "toggle-on-btn" : "toggle-off-btn"}
-                    onClick={() => togglePage(name)}
-                >
-                    {isVisible ? "Visible" : "Hidden"}
+            <div className="admin-list">
+                <h4>Page Visibility</h4>
+                {visibleOptions.map((page) => (
+                    <div key={page.label} className="admin-item">
+                        <div className="name">{page.label}</div>
+                        <div className="actions">
+                            <button
+                                className={pageStates[page.label] ? 'toggle-on-btn' : 'toggle-off-btn'}
+                                onClick={() => togglePage(page.label)}
+                            >
+                                {pageStates[page.label] ? 'Visible' : 'Hidden'}
+                            </button>
+                        </div>
+                    </div>
+                ))}
+                <button className="save-btn" onClick={saveChanges}>
+                    Save Changes
                 </button>
-                </div>
             </div>
-            ))}
-            <button className="save-btn" onClick={saveChanges}>
-            Save Changes
-            </button>
-        </div>
         </div>
     );
 }
 
-
 function AdminDashboard() {
     // sidebar active section state
     const [activeSection, setActiveSection] = useState('main');
+
+    // pages fetched from database for dropdowns (replaces static pageOptions const)
+    const [pageOptions, setPageOptions] = useState([]);
+    const [pageStates, setPageStates] = useState({}); // visibility mapping
+
+    // load page names once on mount
+    useEffect(() => {
+        const loadPages = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from('page_status')
+                    .select('name, visible');
+                if (error) throw error;
+                // build dropdown options and visibility map
+                const opts = data.map(p => ({
+                    value: p.name.toLowerCase().replace(/\s+/g, '-'),
+                    label: p.name
+                }));
+                const states = data.reduce((acc, p) => {
+                    acc[p.name] = p.visible;
+                    return acc;
+                }, {});
+                setPageOptions(opts);
+                setPageStates(states);
+            } catch (err) {
+                console.error('Error loading page options:', err);
+                setPageOptions([]);
+                setPageStates({});
+            }
+        };
+        loadPages();
+    }, []);
+
+    // toggle a single page's visibility in local state
+    const togglePage = (pageName) => {
+        setPageStates(prev => ({
+            ...prev,
+            [pageName]: !prev[pageName]
+        }));
+    };
+
+    // persist current state values back to database
+    const savePageStates = async () => {
+        try {
+            const updates = Object.entries(pageStates).map(([name, isVisible]) => ({
+                name,
+                visible: isVisible
+            }));
+            for (const update of updates) {
+                await supabase
+                    .from('page_status')
+                    .update({ visible: update.visible })
+                    .eq('name', update.name);
+            }
+            alert('Page visibility settings saved!');
+        } catch (err) {
+            console.error('Error saving page states:', err);
+            alert('Failed to save page visibility');
+        }
+    };
 
     // Handler for sidebar buttons
     const handleSidebarClick = (action) => {
         setActiveSection(action);
         console.log(`Admin section: ${action}`);
     };
-
-    // List of available pages for the dropdown
-    const pageOptions = [
-        { value: 'home', label: 'Home Page' },
-        { value: 'festival', label: 'Fishermans Festival' },
-        { value: 'bocce-dash', label: 'Bocce Tournament' },
-        { value: 'coronation', label: "Queen's Court" },
-        { value: 'scholarships', label: 'Scholarships' },
-        { value: 'donate', label: 'Donate' },
-        { value: 'shopping', label: 'Shopping' },
-        { value: 'bocce-sign', label: 'Bocce Sign up' },
-        { value: 'coronation-tix', label: 'Coronation Ball Tickets' },
-        { value: 'login', label: 'Log in' },
-        { value: 'signup', label: 'Create Account' }
-    ];
 
     return (
         <div className="admin-dashboard">
@@ -803,11 +791,14 @@ function AdminDashboard() {
 
                 {/* Add Admin Section */}
                 {activeSection === 'add-admin' && <AddAdmin />}
-
-                {/* Toggle Page Section */}
-                {activeSection === 'toggle-page' && <TogglePage pageOptions=
-                    {pageOptions.filter(p => !['home', 'login', 'signup'].includes(p.value))} />}
-                    {/* filter removes pages that should NOT be toggleable */}
+                {activeSection === 'toggle-page' && (
+                    <TogglePage
+                        pageOptions={pageOptions}
+                        pageStates={pageStates}
+                        togglePage={togglePage}
+                        saveChanges={savePageStates}
+                    />
+                )}
             </main>
         </div>
     );

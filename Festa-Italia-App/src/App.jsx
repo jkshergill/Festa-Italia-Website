@@ -6,6 +6,7 @@ import BocceDash from './Bocce-dashboard'
 import BocceSign from './Bocce-sign-up'
 import CoronationBall from './coronationball'
 import CoronationTix from './CoronationBallTickets'
+import DeleteAccount from './DeleteAccount'
 import Donate from './Donate'
 import Donation from './Donation'
 import FestivalInfo from './FestivalInfo'
@@ -29,10 +30,9 @@ import ForgotPass from './forgotpassword'
 import MockCheckout from "./MockCheckout"
 import PageOff from './PageOff'
 import SignInWall from './SignInWall'
-import UserProfile from './UserProfile' 
-//import TokenEditor from './tokenEditor'
+import TokenEditor from './tokenEditor'
+import UserProfile from './UserProfile'
 
- 
 
 export default function App(){
     const [page, setPage] = useState('home')
@@ -153,8 +153,8 @@ export default function App(){
   function renderPage(){
     if(loading)return <div>Loading Pages...</div>;
     switch(page){
-      case 'admin-dash': return user && userRole === "admin" ? <AdminDashboard /> : <SignInWall />;
-      case "admin-foods": return user && userRole === "admin" ? <AdminFoods /> : <SignInWall/>;
+      case 'admin-dash': return user && userRole === "admin" ? <AdminDashboard /> : <SignInWall setPage={setPage}/>;
+      case "admin-foods": return user && userRole === "admin" ? <AdminFoods /> : <SignInWall setPage={setPage}/>;
       case 'bocce-dash':
         if (pageVisibility["Bocce Dashboard"] === undefined) return null;
         return pageVisibility["Bocce Dashboard"] ? <BocceDash setPage={setPage}/> : <PageOff/>;
@@ -166,7 +166,7 @@ export default function App(){
         return pageVisibility["Coronation Ball Info"] ? <CoronationBall setPage={setPage}/> : <PageOff/>;
       case 'coronation-tix':
       if (pageVisibility["Coronation Ball Tickets"] === undefined) return null;
-        return pageVisibility["Coronation Ball Tickets"] ? <CoronationTix setPage={setPage}/> : <PageOff/>;
+        return !pageVisibility["Coronation Ball Tickets"] ? <PageOff/> : !user ? <SignInWall setPage={setPage}/> : <CoronationTix setPage={setPage}/> ;
       case 'donate':
         if (pageVisibility["Donation"] === undefined) return null;
         return pageVisibility["Donation"] ? <Donate setPage={setPage}/> : <PageOff/>;
@@ -185,7 +185,7 @@ export default function App(){
         return pageVisibility["Festa Menu"] ? <Shopping setPage={setPage}/> : <PageOff/>;
       case 'volunteer':
         if (pageVisibility["Volunteer Sign-Up"] === undefined) return null;
-        return !pageVisibility["Volunteer Sign-Up"] ? <PageOff/>: !user ? <SignInWall /> : <Volunteer user={user}/>;
+        return !pageVisibility["Volunteer Sign-Up"] ? <PageOff/>: !user ? <SignInWall setPage={setPage}/> : <Volunteer setPage={setPage}/>;
       case 'forgot-pass': return <ForgotPass />
       case 'user-profile': return <UserProfile setPage={setPage} /> // Added by JK
       
@@ -234,36 +234,26 @@ export default function App(){
           /* CHANGED: move panel left of the toggle & ensure it stacks below the button */
           style={{
             position:'absolute',
-            right:'4.5rem',   // was 16px
-            top:'64px',       // was 56px
-            zIndex: 1000,     // sits under the 1001 button
-            background:'#fc0000ff',
-            borderRadius:8,
-            boxShadow:'0 6px 18px rgba(0,0,0,0.12)',
-            padding:'0.5rem'
+            right:'4.5rem',
+            top:'64px',
+            zIndex: 1000,
+            background:'rgba(0,0,0,0)',
+            padding:0
           }}
         >
-          {userRole === "admin" ? <button role="menuitem" onClick={() => { setPage('admin-dash'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Admin Dashboard</button>:""}
+          {userRole === "admin" ? <button role="menuitem" onClick={() => { setPage('admin-dash'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Admin Dashboard</button>:""}
+          <button role="menuitem" onClick={() => { setPage('home'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Home</button>
+          <button role="menuitem" onClick={() => { setPage('festival'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Fishermans Festival</button>
+          <button role="menuitem" onClick={() => { setPage('bocce-dash'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Bocce Tournament</button>
+          <button role="menuitem" onClick={() => { setPage('coronation'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Queen's Court</button>
+          <button role="menuitem" onClick={() => { setPage('scholarships'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Scholarships</button>
+          <button role="menuitem" onClick={() => { setPage('donate'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Donate</button>
+          <button role="menuitem" onClick={() => { setPage('donation'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Previous Sponsors</button>
+          
+          {/* admin tools to be moved next sprint */}
           <button role="menuitem" onClick={() => { setPage('admin-foods'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Admin Tool - Food Menu Editor</button>
-          <button role="menuitem" onClick={() => { setPage('home'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Home</button>
-          <button role="menuitem" onClick={() => { setPage('festival'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Fishermans Festival</button>
-          <button role="menuitem" onClick={() => { setPage('volunteer'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Festival Volunteering</button>
-          <button role="menuitem" onClick={() => { setPage('bocce-dash'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Bocce Tournament</button>
-          <button role="menuitem" onClick={() => { setPage('coronation'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Queen's Court</button>
-          <button role="menuitem" onClick={() => { setPage('scholarships'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Scholarships</button>
-          <button role="menuitem" onClick={() => { setPage('donate'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Donate</button>
-          <button role="menuitem" onClick={() => { setPage('login'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Log in</button>
-          <button role="menuitem" onClick={() => { setPage('shopping'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Shopping</button>
-          <button role="menuitem" onClick={() => { setPage('donation'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Previous Sponsors</button>
-          <button role="menuitem" onClick={() => { setPage('user-profile'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>User Profile</button>  
-          <button role="menuitem" onClick={() => { setPage('delete-account'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Delete Account</button>
           <button role="menuitem" onClick={() => { setPage('token-editor'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Token Editor</button>
-          {/* Temporary items */}
-          <button role="menuitem" onClick={() => { setPage('bocce-sign'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Bocce Sign up</button>
-          <button role="menuitem" onClick={() => { setPage('coronation-tix'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Coronation Ball Tickets</button>
-          <button role="menuitem" onClick={() => { setPage('reset-pass'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Reset Password</button>
-          <button role="menuitem" onClick={() => { setPage('forgot-pass'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Request Reset Password Email</button>
-          <button role="menuitem" onClick={() => { setPage('signup'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Create Account</button>
+
 
         </div>
       )

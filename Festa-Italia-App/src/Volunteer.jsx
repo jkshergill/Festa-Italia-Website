@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from "./supabaseClient";
 import './Volunteer.css';
 
-export default function Volunteer() {
+export default function Volunteer( {setPage} ) {
     const [selectedBooth, setSelectedBooth] = useState('');
     const [selectedSlots, setSelectedSlots] = useState([]);
 
@@ -91,7 +91,7 @@ export default function Volunteer() {
 
     alert('Signed up successfully')
     setSelectedSlots([])
-}
+    }
 
     return (
         <div className="volunteer-container">
@@ -162,7 +162,8 @@ export default function Volunteer() {
                 </table>
             </div>
             
-            <div style={{textAlign:'right', marginTop: '1rem'}}>
+            <div style={{display: 'flex', justifyContent: 'space-between', marginTop: '1rem'}}>
+                <button className="signup-button" onClick={() => setPage('festival')}> Back </button>
                 <button className="signup-button" onClick={signUpForSelected}>Sign up for selected times</button>
             </div>
         </div>

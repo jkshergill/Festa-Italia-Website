@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "./supabaseClient"; // adjust path
 
-export default function ProfileInfo() {
+export default function ProfileInfo( {setPage} ) {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
   const [userEmail, setUserEmail] = useState("");
@@ -83,6 +83,12 @@ export default function ProfileInfo() {
         <div style={{ fontWeight: 700 }}>Last name</div>
         <div>{profile.last_name || "—"}</div>
       </div>
+      <button onClick={() => setPage('reset-pass')}>
+        Reset Password
+      </button>
+      <button onClick={() => setPage('delete-account')}>
+        Delete Account
+      </button>
     </div>
   );
 }

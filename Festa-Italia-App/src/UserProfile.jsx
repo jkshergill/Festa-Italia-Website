@@ -1,19 +1,19 @@
 import { useState } from "react";
-import PurchasedTickets from "./PurchasedTickets";
-import ProfileInfo from "./ProfileInfo";
 import BocceProfile from "./BocceProfile";
-import VolunteerShifts from "./VolunteerShifts";
+import ProfileInfo from "./ProfileInfo";
+import PurchasedTickets from "./PurchasedTickets";
 import "./UserProfile.css";
+import VolunteerShifts from "./VolunteerShifts";
 
 export default function UserProfile({ eventId, setPage }) {
-  const [activeTab, setActiveTab] = useState("tickets");
+  const [activeTab, setActiveTab] = useState("info");
 
   const renderTab = () => {
     switch (activeTab) {
       case "tickets":
         return <PurchasedTickets eventId={eventId} />;
       case "info":
-        return <ProfileInfo />;
+        return <ProfileInfo setPage={setPage}/>;
       case "volunteer":
         return <VolunteerShifts eventId={eventId} />;
       case "bocce":
