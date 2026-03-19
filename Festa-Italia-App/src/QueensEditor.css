@@ -1,0 +1,194 @@
+html,body,#root{min-height:100vh}
+
+.queens-edit-body {
+  min-height: 100vh;
+}
+
+.editor-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: white;
+}
+
+.queens-header {
+  font-family: "Great Vibes", cursive;
+  letter-spacing: 0.05em;
+  font-size: 3rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.refresh-button {
+  background-color: black;
+  color: white;
+}
+
+.editor-button {
+  background-color: black;
+  color: white;
+}
+
+.add-form {
+  display: "grid";
+  gap: 12;
+}
+
+.add-year-input {
+  width: 350px;
+  height: 25px ;
+}
+
+.add-description-input {
+  font-size: large;
+  width: 670px;
+  height: 200px; 
+  overflow: hidden;
+}
+
+.add-checkbox {
+  width: 20px;
+  height: 20px;
+}
+
+.edit-modal-overlay {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  height: auto;
+  width: auto;
+}
+
+.coronation-images {
+    height: 250px;
+    width: 250px;
+}
+
+.description {
+    font-size: 18px;
+}
+
+.year {
+    font-size: 17px;
+}
+
+.determine-to-delete {
+  font-size: 18px;
+}
+
+/* Responsive design for mobile devices */
+@media screen and (max-width: 600px) {
+
+  .editor-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: white;
+    height: 100%;
+  }
+
+  .add-form {
+    display: "grid";
+    gap: 12;
+  }
+
+  .add-year-input {
+    width: auto;
+    height: 25px ;
+    display: flex;
+  }
+
+  .add-description-input {
+    font-size: large;
+    width: auto;
+    height: 150px; 
+    overflow: hidden;
+  }
+
+  .add-checkbox {
+    width: 20px;
+    height: 20px;
+  }
+
+  .coronation-images {
+    height: 250px;
+    width: 250px;
+    margin-top: 12px;
+  }
+
+  .description {
+    font-size: 18px;
+  }
+
+  .year {
+    font-size: 17px;
+  }
+
+  .determine-to-delete {
+    font-size: 18px;
+  }
+
+  .edit-modal-overlay {
+    background-color: white;
+  }
+
+}
+
+/* Responsive design for tablets and small laptops */
+@media screen and (max-width: 1024px) {
+
+  .editor-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: white;
+    height: 100%;
+  }
+
+  .add-form {
+    display: "grid";
+    gap: 12;
+  }
+
+  .add-year-input {
+    width: 350px;
+    height: 25px ;
+  }
+
+  .add-description-input {
+    font-size: large;
+    width: auto;
+    height: 350px; 
+    overflow: hidden;
+  }
+
+  .add-checkbox {
+    width: 20px;
+    height: 20px;
+  }
+
+  .coronation-images {
+    height: 250px;
+    width: 250px;
+    margin-top: 12px;
+  }
+
+  .description {
+    font-size: 18px;
+  }
+
+  .year {
+    font-size: 17px;
+  }
+
+  .determine-to-delete {
+    font-size: 18px;
+  }
+
+  .edit-modal-overlay {
+    background-color: white;
+  }
+
+}

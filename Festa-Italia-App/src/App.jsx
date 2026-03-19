@@ -17,7 +17,6 @@ import Scholarship from './Scholarship'
 import Shopping from './Shopping'
 import Signup from './Signup'
 import Volunteer from './Volunteer'
-import DeleteAccount from './DeleteAccount'
 import PaymentSuccess from './PaymentSuccess';
 import PaymentCancelled from './PaymentCancelled';
 import PaymentFailed from './PaymentFailed';
@@ -32,6 +31,7 @@ import PageOff from './PageOff'
 import SignInWall from './SignInWall'
 import TokenEditor from './tokenEditor'
 import UserProfile from './UserProfile'
+import QueensEditor from './QueensEditor'
 
 
 export default function App(){
@@ -198,6 +198,7 @@ export default function App(){
       case 'success': return <PaymentSuccess setPage={setPage} />;
       case 'cancel': return <PaymentCancelled setPage={setPage} />;
       case 'failure': return <PaymentFailed setPage={setPage} />;
+      case "queens-editor": return user && userRole === "admin" ? <QueensEditor /> : <SignInWall setPage={setPage}/>;
  
       default: return <Home />
     }
@@ -251,9 +252,9 @@ export default function App(){
           <button role="menuitem" onClick={() => { setPage('donation'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Previous Sponsors</button>
           
           {/* admin tools to be moved next sprint */}
-          <button role="menuitem" onClick={() => { setPage('admin-foods'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Admin Tool - Food Menu Editor</button>
-          <button role="menuitem" onClick={() => { setPage('token-editor'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Token Editor</button>
-
+          <button role="menuitem" onClick={() => { setPage('admin-foods'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Admin Tool - Food Menu Editor</button>
+          <button role="menuitem" onClick={() => { setPage('token-editor'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Token Editor</button>
+          <button role="menuitem" onClick={() => { setPage('queens-editor'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Queens Editor</button>
 
         </div>
       )
