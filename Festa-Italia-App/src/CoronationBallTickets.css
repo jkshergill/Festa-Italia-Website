@@ -119,7 +119,7 @@ h4 {
 /* Responsive design for mobile devices */
 @media screen and (max-width: 600px) {
     .ticket-container {
-    padding: 15px; /* reduce from 40px — this also helps */
+    padding: 15px; 
   }
 
   .ticket-section {
@@ -145,7 +145,7 @@ h4 {
 /* Responsive design for tablets and small laptops */
 @media screen and (max-width: 1024px) {
   .ticket-container {
-    padding: 15px; /* reduce from 40px — this also helps */
+    padding: 15px; 
   }
 
   .ticket-section {
@@ -156,13 +156,12 @@ h4 {
     box-sizing: border-box;
   }
 
-  /* 🔥 THIS IS THE MAIN FIX */
+
   .name-block {
-    flex-direction: column;   /* stack instead of side-by-side */
+    flex-direction: column;   
     gap: 10px;
   }
 
-  /* ensure inputs don’t overflow */
   .name-input input,
   .food-input select {
     width: 100%;
