@@ -1,94 +1,152 @@
 import React, { useState } from "react";
-import "./index.css";
+import "./coronationball.css";
 import { useEffect } from "react";
+import { supabase } from "./supabaseClient";
+
+
+const getQueenImageURL = (imagePath) => { // This function is used to get the public URL of the Coronation image from the Supabase storage bucket
+    if (!imagePath) {
+        return "placeholder.png"; // Return a placeholder image if no image path is provided
+    }
+
+    const {data} = supabase.storage.from('coronation').getPublicUrl(imagePath);
+    return data.publicUrl;
+};
 
 function Coronationball({setPage}) {
 
   useEffect(() => { {/* Set body ID for styling */}
     document.body.id = 'coronationball-body-id';
     document.body.className = 'coronationball-body';
+
+    const coronationInfo = async () => { // This function is used to fetch the festival information from the database
+      const { data, error } = await supabase .from("coronation") .select("*"); // This is used to select all the columns from the foods table
+        
+      if (error) { 
+        setErrorMsg(error.message); 
+      } else if(data && data.length > 0) { 
+          const activeCoronationInfo = data.filter(c => c.is_previous === true || c.is_current === true); // Check if the is_previous or is_current column is true to only display current and previous coronation information
+          setCoronation(activeCoronationInfo); // Adds both current and previous coronation info to the state variable 
+          }
+    
+          setLoading(false); 
+    };
+
+    coronationInfo();
   }, []);
+
+    const [coronation, setCoronation] = useState([]); // This is used to store the coronation information fetched from the database
+    const [loading, setLoading] = useState(true);
+    const [errorMsg, setErrorMsg] = useState("");
+    const currentCoronation = coronation.filter(c => c.is_current === true); // Filter the coronation information to only display the current coronation information
+    const previousCoronation = coronation.filter(c => c.is_previous === true); // Filter the coronation information to only display the previous coronation information
+
     return (
-        <div className="min-h-screen bg-gray-100 flex flex-col font-sans">
-            <header className= "flex justify-between items-center bg-green-700 text-white px-8 py-4">
-               
-                <h1 className = "text-2xl font-bold text-grey-800">
-                    Queen's Coronation Ball </h1>
-                 <div className=" flex flex-col justify-between w-6 h-5 cursor-pointer">
-                   <span className="block h-[3px] bg-white rounded"></span>
-                   <span className="block h-[3px] bg-white rounded"></span>
-                   <span className="block h-[3px] bg-white rounded"></span>
-                  </div>
-                  
-                  </header>
-
-
-        <main className= "flex-1 p-6 flex flex-col space-y-8">
-            {/*First row display*/}
-
-         <div className="flex flex-col md:flex-row md:space-x-6">
-
-            {/* Left Column: Queen's Court and Gallery */}
-            <div className="flex flex-col flex-1 space-y-6">
-              {/* first box*/}
-              <div className= "flex-1  bg-white rounded-1g shadow p-4">
-              <h2 className="text-1g font-semibold text-gray-700 mb-3">Queen's Court</h2> 
-
-           <div className= "w-full h-60 bg-gray-200 rounded flex items-center justify-center mb-4">
+        
+        <div >
           
-                   <p className= "text-gray-500 ">pictures of current court</p>
-                
+          <header>
+            <h1 className = "queens-coronation-ball">
+              Queen's Coronation Ball 
+            </h1>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+          </header>
+
+          <main className="coronationball-main">
+            <div>
+              <h2 className="queens-court">
+                Queen's Court 
+              </h2>
+
+              <p className="pictures-text">
+                Pictures of Current Court 
+              </p>
+
+              <div className="display">
+                {currentCoronation.length === 0 ? (
+                  <>
+                    Coming Soon
+                  </>
+                ) : (
+                  currentCoronation.map(c => ( 
+                    <div key={c.id} className="coronation-info">
+                      <img className="coronation-images" src={getQueenImageURL(c.image_url)}/>
+
+                        <p className="description">
+                          {c.description}
+                        </p>
+
+                        <p className="year">
+                          {c.year}
+                        </p>
+                    </div>                      
+                  ))
+                 )
+                }
+                </div>
             </div>
-            </div>  
 
-              {/* gallery */}
-              <div className= "flex-1  bg-pink rounded-1g shadow p-4">
-                  <h2 className="text-1g font-semibold text-gray-700 mb-3">Gallery</h2> 
-                    {/* put p[ictures 7 -12 here*/}
-                     <div className= "w-full h-60 bg-gray-200 rounded flex items-center justify-center mb-4">
-          
-                     <p className= "text-gray-500 "> previous pictures of court</p>
-                
-                    </div>
+            <div>
+              <h2 className="gallery-text">
+                Gallery
+              </h2>
+
+              <p className="pictures-text"> 
+                Pictures of Previous Coronations
+              </p>
+
+              <div className="display">
+                {previousCoronation.length === 0 ? (
+                  <>
+                    Coming Soon
+                  </>
+                  ) : (
+                    previousCoronation.map(c => (
+
+                      <div key={c.id} className="coronation-info">
+                        <img className="coronation-images" src={getQueenImageURL(c.image_url)}/>
+                        <p className="description">
+                          {c.description}
+                        </p>
+
+                        <p className="year">
+                          {c.year}
+                        </p>
+                      </div>
+                                            
+                    ))
+                 )
+                }
               </div>
             </div>
-          
-            {/* Right Column: Buy Tickets */}
-            <div className= "w-full md:w-1/3 bg-white rounded-1g shadow p-4 h-fit">
-            <h2 className = "text-1g font-semibold text-gray-700 mb-2"> Buy Tickets </h2>
-             <button onClick={()=> setPage("coronation-tix")}> Buy </button>
-              
-             {/* <p className= "text-gray-700 mb-3">
 
-              <span className ="font-medium"> Coronation Ball Tickets</span> <br /> 
-                 Price per ticket :  <span className = "font-semibold">$25.00</span>
-             </p> */}
-             {/* <input type ="number" placeholder = "Enter no of Tickets" min ="0" step ="1" 
-                    className = "w-full border rounded-md p-2 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-               <a href="https://example.com/Checkout"
-                  target = "_blank"
-                  rel = "noopener noreferrer"
-                  className = "block w-full bg-yellow-500 hover:bg-yellow-600 text-white text-center py-2 rounded-md">
-                  Checkout </a> */}
-               </div>      
-             </div>
+            <div>
+              <h2 className = "buy-tickets-header"> 
+                Buy Tickets 
+                </h2>
 
-             {/* displaying link and Information*/}
+              <button className="buy-tickets-button" onClick={()=> setPage("coronation-tix")}> 
+                Buy 
+              </button>
+            </div>      
+            
+            <div className="info-section">
+              <p className="participation-requirements"> 
+                If you are interested in particpating in the Queen's Coronation, <a href="https://festaitaliamonterey.org/Publish/docs/2020_queens_requirements.pdf" target="_blank" >
+                  CLICK HERE
+                </a> to view the participation requirements.
+              </p>
 
-        <div className="flex flex-col md:flex-row md:space-x-6 items-start"> 
+              <p className="participation-application">
+                Then, <a href="https://festaitaliamonterey.org/Publish/docs/2020_queens_application_form.pdf" target="_blank" >
+                  CLICK HERE
+                </a> to download and fill the application.
+              </p>
 
-            {/*link*/}
-           <div className = "w-full md:w-1/3 flex justify-center items-center">
-           <a href="https://example.com/Information"
-                target = "_blank"
-                rel = "noopener noreferrer"
-                className = "bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-8  py-3 rounded-md ">
-                Information Link </a>
-           </div>
-
-           
-        </div>
+              <p className="email">
+                For more information on becoming a representative on the Queen's Court or a Coronation Ball committee member, send a request to: queenscourt@festaitaliamonterey.org
+              </p>
+            </div>
 
         </main>
       </div>      
