@@ -17,7 +17,7 @@ import { supabase } from './supabaseClient';
 function Login({ setPage }) {
   useEffect(() => {
     document.body.id = 'login-body-id';
-        document.body.className = 'login-body';
+    document.body.className = 'login-body';
   }, []);
 
   // [SUPABASE] Controlled inputs + status message
@@ -29,6 +29,12 @@ function Login({ setPage }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus(null);
+
+    // [SUPABASE] Basic custom validation since native required is disabled
+    if (!email.trim() || !password.trim()) {
+      setStatus({ type: 'error', text: 'Please enter your email and password.' });
+      return;
+    }
 
     const { error } = await supabase.auth.signInWithPassword({ email, password });
 
@@ -51,8 +57,8 @@ function Login({ setPage }) {
     <div className="form__container">
       {/* [SUPABASE] noValidate disables the browser's native required popups */}
       <form autoComplete="off" className="form" /* method="POST" */ onSubmit={handleSubmit} noValidate>
-        <p className="form__title">Login</p>
-        <p className="form__message">Login now to view your dashboard</p>
+        <p className="form__title">Welcome Back</p>
+        <p className="form__message">Sign in to access your account and event features.</p>
 
         {/* Keep First/Last Name kept intact but ignored for now */}
         {/*
@@ -69,9 +75,9 @@ function Login({ setPage }) {
         {/* [SUPABASE] Email: controlled input; comment out `required` */}
         <label>
           <input
-            type="text"
+            type="email"
             name="Email"
-            placeholder="Email"
+            placeholder="Email address"
             // required  // [SUPABASE] disabled native validation; handled by Supabase + our own checks
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -92,26 +98,48 @@ function Login({ setPage }) {
           />
         </label>
 
-        <button type="submit" className="form__submit">Submit</button>
+        <div className="form__actions">
+          <button type="submit" className="form__submit">Log In</button>
 
-        {/* [SUPABASE] Inline status feedback */}
-        {status && (
-          <p
-            style={{
-              marginTop: '10px',
-              color: status.type === 'error' ? '#b00020' : '#0a7d00',
-              fontWeight: 600,
-            }}
-          >
-            {status.text}
-          </p>
-        )}
+          {/* [SUPABASE] Inline status feedback */}
+          {status && (
+            <p
+              className={`form__status ${
+                status.type === 'error' ? 'form__status--error' : 'form__status--success'
+              }`}
+            >
+              {status.text}
+            </p>
+          )}
+        </div>
+
+        <div className="form__divider" />
 
         <p className="form__login--redirect">
-          Don't have an account? <a href="#" className="form__signup--link" onClick={()=>setPage('signup')}>Sign Up</a>
+          Don&apos;t have an account?{' '}
+          <a
+            href="#"
+            className="form__signup--link"
+            onClick={(e) => {
+              e.preventDefault();
+              setPage('signup');
+            }}
+          >
+            Sign Up
+          </a>
         </p>
+
         <p className="form__forgot-password">
-          <a href="#" className="form__forgot-password--link" onClick={()=>setPage('forgot-pass')}>Forgot Password?</a>
+          <a
+            href="#"
+            className="form__forgot-password--link"
+            onClick={(e) => {
+              e.preventDefault();
+              setPage('forgot-pass');
+            }}
+          >
+            Forgot Password?
+          </a>
         </p>
       </form>
     </div>
