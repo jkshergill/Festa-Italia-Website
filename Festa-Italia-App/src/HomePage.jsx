@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import QRCode from "react-qr-code";
 import './HomePage.css';
 import { supabase } from './supabaseClient';
+import ImageRotator from './Rotator';
+import { formatRichTextForRender } from './richTextUtils';
 
 export default function HomePage({setPage}) {
   const [dynamicContent, setDynamicContent] = useState(null);
@@ -11,6 +13,24 @@ export default function HomePage({setPage}) {
     document.body.id = 'homepage-body-id';
     document.body.className = 'homepage-body';
   }, []);
+
+  // IntersectionObserver to add entrance animations to elements
+  useEffect(() => {
+    const els = Array.from(document.querySelectorAll('.animate-on-scroll'));
+    if (!els.length) return;
+
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+        }
+      });
+    }, { threshold: 0.12 });
+
+    els.forEach(el => obs.observe(el));
+
+    return () => obs.disconnect();
+  }, [dynamicContent, loading]);
 
   useEffect(() => {
     // Load dynamic content from Supabase
@@ -52,7 +72,7 @@ export default function HomePage({setPage}) {
             .map(block => ({
               text: block.text || '',
               image: block.image_url || null,
-              imagePosition: block.image_position || 'right'
+              imagePosition: block.image_position || 'left'
             }));
 
           return {
@@ -113,44 +133,36 @@ export default function HomePage({setPage}) {
     <div className="page-root">
 
       <main>
-        <section id="gallery" className="container section gallery">
-          <h2>Gallery</h2>
-          <div className="gallery-row" role="list">
-            <figure role="listitem">
-              <img src="/images/Past%20festival%201.png" alt="Festa Italia photo 1" />
-            </figure>
-            <figure role="listitem">
-              <img src="/images/Past%20festival%202.png" alt="Festa Italia photo 2" />
-            </figure>
-            <figure role="listitem">
-              <img src="/images/Past%20festival%203.png" alt="Festa Italia photo 3" />
-            </figure>
-            <figure role="listitem">
-              <img src="/images/Past%20festival%204.png" alt="Festa Italia photo 4" />
-            </figure>
-            <figure role="listitem">
-              <img src="/images/Past%20festival%205.png" alt="Festa Italia photo 5" />
-            </figure>
+        {/* Hero */}
+        <section className="container section hero animate-on-scroll">
+          <div className="hero-inner">
+            <div className="hero-copy">
+              <h1 className="hero-title">Welcome to Festa Italia!</h1>
+              <p className="hero-sub">Join food, music, games and community support scholarships and local traditions.</p>
+              <div>
+                <a
+                  className="btn btn-primary hero-cta-link"
+                  style={{ background: '#000', boxShadow: 'none' }}
+                  href="#dynamic-content"
+                >
+                  See Updates
+                </a>
+              </div>
+            </div>
+            <div className="hero-visual">
+              <ImageRotator />
+            </div>
           </div>
-        </section>
-
-        <section id="about" className="container section features">
-          <h2>About Festa Italia</h2>
-          <p>
-            Festa Italia Foundation, Inc. promotes Italian heritage, honors Monterey's
-            fishermen, and provides scholarships to local students. Join us for food,
-            music, and celebration.
-          </p>
         </section>
 
         {/* Dynamic Content from Supabase */}
         {dynamicContent && dynamicContent.length > 0 && (
           <section id="dynamic-content" className="container section dynamic-sections">
             {dynamicContent.map((section) => (
-              <div key={section.id} className="dynamic-section">
+              <div key={section.id} className="dynamic-section animate-on-scroll">
                 <h2>{section.title}</h2>
                 {section.contentBlocks && section.contentBlocks.map((block, blockIndex) => (
-                  <div key={blockIndex} className={`content-block image-position-${block.imagePosition || 'right'} ${block.image ? 'has-image' : 'no-image'}`}>
+                  <div key={blockIndex} className={`content-block image-position-${block.imagePosition || 'left'} ${block.image ? 'has-image' : 'no-image'} animate-on-scroll`}>
                     {block.image && block.imagePosition === 'above' && (
                       <img
                         src={block.image}
@@ -165,7 +177,7 @@ export default function HomePage({setPage}) {
                         className="content-image"
                       />
                     )}
-                    {block.text && <p>{block.text}</p>}
+                    {block.text && <p dangerouslySetInnerHTML={{ __html: formatRichTextForRender(block.text) }}></p>}
                     {block.image && block.imagePosition === 'below' && (
                       <img
                         src={block.image}
