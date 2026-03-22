@@ -293,7 +293,7 @@ export default function App(){
                 </a>
               </div>
 
-              <div style={{ flex: 1 }} />
+            
 
               <div className="auth-status-wrap">
                 <AuthStatus onLogin={() => setPage('login')} onProfile={() => setPage('user-profile')} />
