@@ -2,9 +2,14 @@
   --flag-green: #009246;
   --flag-white: #ffffff;
   --flag-red: #ce2b37;
+  --accent: #2a9df4;
+  --muted: #6b7280;
   --bg: var(--flag-white);
   --text: #1f1f1f;
   --container: 1100px;
+  /* background image for the site — set to `url('/images/your-photo.jpg')` to enable */
+  --site-bg-url: url('/images/Past%20festival%204.png');
+  --site-bg-opacity: 0.15; /* 0 = invisible, 1 = opaque */
 }
 
 *{box-sizing:border-box}
@@ -12,10 +17,28 @@ html,body,#root{min-height:100vh}
 body{margin:0;font-family:system-ui,-apple-system,'Segoe UI',Roboto,Arial;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;line-height:1.45}
 
 /* Scope all page styles under .page-root to avoid global stylesheet interference */
-.page-root{width:100%;box-sizing:border-box}
+.page-root{width:100%;box-sizing:border-box;position:relative}
+.page-root::before{
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: var(--site-bg-url);
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  opacity: var(--site-bg-opacity);
+  filter: blur(6px);
+  transform: scale(1.04); /* prevents blur from showing a white edge */
+  pointer-events: none;
+  z-index: 0;
+  transition: opacity 300ms ease;
+}
+
+/* ensure page content sits above the background image */
+.page-root > * { position: relative; z-index: 1 }
 .page-root .container{width:100%;max-width:var(--container);margin:0 auto;padding:0 1rem}
 
-.page-root .site-header{background:var(--flag-green);color:var(--flag-white);display:block;width:100%;box-sizing:border-box;position:relative;z-index:10}
+.page-root .site-header{background:var(--flag-green);background-color:var(--flag-green);background-image:none;color:var(--flag-white);display:block;width:100%;box-sizing:border-box;position:relative;z-index:250}
 .page-root .header-inner{display:flex;align-items:center;justify-content:flex-start;padding:0.75rem 0;position:relative}
 .page-root .logo{font-weight:700;color:var(--flag-white);text-decoration:none;font-size:1.25rem}
 .page-root .logo-wrap{display:flex;align-items:center;gap:0.5rem}
@@ -41,10 +64,65 @@ body{margin:0;font-family:system-ui,-apple-system,'Segoe UI',Roboto,Arial;backgr
 
 .page-root .section{padding:2rem 0}
 
+/* modern, subtle hero treatment for the top section */
+.page-root .section:first-of-type{
+  padding-top:2rem;
+  padding-bottom:1.25rem;
+}
+
+/* Hero */
+.page-root .hero{position:relative;display:flex;align-items:center;justify-content:center;padding:3.25rem 0;margin-bottom:1.25rem;border-radius:12px;background:transparent;overflow:hidden}
+.page-root .hero-inner{max-width:var(--container);width:100%;padding:0 1rem;display:flex;flex-direction:column;align-items:center;gap:1.25rem}
+.page-root .hero-copy{max-width:860px;text-align:center}
+.hero-title{font-size:2.6rem;margin:0 0 0.5rem;color:var(--text);letter-spacing:-0.5px}
+.hero-sub{color:var(--muted);margin:0 0 1rem;font-size:1.05rem}
+.hero-cta-link,
+.hero-cta-link:visited,
+.hero-cta-link:hover,
+.hero-cta-link:focus,
+.hero-cta-link:active{
+  color:#fff;
+  text-decoration:none;
+}
+.hero-visual{width:100%;max-width:900px;border-radius:10px;overflow:hidden;box-shadow:0 10px 30px rgba(2,6,23,0.06)}
+.hero-visual img{display:block;width:100%;height:auto;object-fit:cover}
+
+/* Animate-on-scroll helper */
+.animate-on-scroll{opacity:0;transform:translateY(18px) scale(0.995);transition:opacity 480ms cubic-bezier(.2,.9,.2,1),transform 480ms cubic-bezier(.2,.9,.2,1)}
+.animate-on-scroll.is-visible{opacity:1;transform:none}
+
+/* subtle elevation for sections */
+.page-root .section{transition:box-shadow 240ms ease, transform 240ms ease}
+.page-root .section:hover{box-shadow:0 10px 30px rgba(2,6,23,0.06);transform:translateY(-2px)}
+
 /* Gallery: five images in a row on wide screens, responsive wrap on small */
 .page-root .gallery-row{display:flex;gap:0.75rem;align-items:stretch;justify-content:space-between;flex-wrap:wrap}
 .page-root .gallery-row figure{margin:0;flex:1 1 18%;min-width:120px;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:8px;border:1px solid rgba(0,0,0,0.06);background:var(--flag-white)}
-.page-root .gallery-row img{display:block;width:100%;height:auto;object-fit:cover}
+.page-root .gallery-row img{display:block;width:100%;height:auto;object-fit:cover;transition:transform 420ms cubic-bezier(.2,.9,.2,1);transform-origin:center}
+
+/* gallery hover interaction */
+.page-root .gallery-row figure:hover img{transform:scale(1.06)}
+.page-root .gallery-row figure{cursor:zoom-in}
+
+/* Floating CTA */
+.page-root .cta-floating{position:fixed;right:22px;bottom:22px;background:var(--accent);color:white;padding:0.8rem 1rem;border-radius:999px;box-shadow:0 8px 24px rgba(42,157,244,0.18);z-index:120;display:inline-flex;align-items:center;gap:0.6rem;border:none}
+.page-root .cta-floating:hover{transform:translateY(-3px);box-shadow:0 12px 34px rgba(42,157,244,0.22)}
+
+/* make dynamic content cards pop a bit */
+.page-root .dynamic-section{transition:transform 360ms ease,box-shadow 360ms ease}
+.page-root .dynamic-section:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(2,6,23,0.08)}
+
+/* Footer polish */
+.page-root .site-footer{width:100%;padding:1.25rem 0;background:linear-gradient(90deg,#e21616,#c21313);color:#fff}
+.page-root .footer-inner{display:flex;gap:1rem;align-items:center;justify-content:space-between;max-width:var(--container);margin:0 auto;padding:0 1rem}
+.page-root .social-links{gap:1rem}
+.page-root .social-links a{width:96px;height:96px;border-radius:8px;background:rgba(255,255,255,0.12);display:inline-flex;align-items:center;justify-content:center}
+
+@media (max-width:900px){
+  .hero-visual{display:block;max-width:100%}
+  .hero-title{font-size:1.9rem}
+  .hero-sub{font-size:0.98rem}
+}
 
 .page-root .gallery h2{margin-bottom:0.5rem}
 
@@ -140,6 +218,10 @@ body{margin:0;font-family:system-ui,-apple-system,'Segoe UI',Roboto,Arial;backgr
   display: block;
 }
 
+.page-root .content-block.no-image p {
+  text-align: left;
+}
+
 .page-root .content-block p {
   flex: 1;
   margin: 0;
@@ -173,7 +255,7 @@ body{margin:0;font-family:system-ui,-apple-system,'Segoe UI',Roboto,Arial;backgr
 }
 
 .page-root .image-position-right p {
-  text-align: right;
+  text-align: left;
 }
 
 .page-root .image-position-above {
@@ -203,7 +285,7 @@ body{margin:0;font-family:system-ui,-apple-system,'Segoe UI',Roboto,Arial;backgr
   justify-content: center;
   height: 100vh;
   width: 100%;
-  background: linear-gradient(135deg, var(--flag-white) 0%, rgba(0, 146, 70, 0.05) 100%);
+  background: transparent;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
 }
 
@@ -264,5 +346,91 @@ body{margin:0;font-family:system-ui,-apple-system,'Segoe UI',Roboto,Arial;backgr
   .page-root .dynamic-section {
     padding: 1rem;
     margin-bottom: 2rem;
+  }
+}
+
+.image-rotator {
+  position: relative;
+  width: 100%;
+  height: 580px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.image-rotator img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 700ms ease-in-out, transform 5s ease;
+  transform: scale(1.02);
+}
+
+.image-rotator img.active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.image-rotator-controls {
+  position: absolute;
+  inset: auto 0 0.85rem 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 0.75rem;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.rotator-btn {
+  border: none;
+  border-radius: 999px;
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.rotator-btn:hover,
+.rotator-btn:focus-visible {
+  background: rgba(0, 0, 0, 0.65);
+  outline: none;
+}
+
+.image-rotator-dots {
+  position: absolute;
+  left: 50%;
+  bottom: 0.85rem;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.35rem;
+  z-index: 3;
+}
+
+.rotator-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  border: none;
+  background: rgba(255, 255, 255, 0.65);
+  cursor: pointer;
+  padding: 0;
+}
+
+.rotator-dot.active {
+  background: #fff;
+}
+
+@media (max-width: 768px) {
+  .image-rotator {
+    height: 400px;
   }
 }

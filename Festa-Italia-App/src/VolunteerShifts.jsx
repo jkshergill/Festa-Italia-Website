@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { supabase } from "./supabaseClient";
 
-function to12Hour(h) {
-  const hour = ((h + 11) % 12) + 1;
-  const ampm = h < 12 ? "AM" : "PM";
-  return `${hour}:00 ${ampm}`;
-}
+const DAY_ORDER = ["friday", "saturday", "sunday", "monday", "tuesday", "wednesday", "thursday"];
+const TIMEFRAME_ORDER = ["morning", "evening", "night"];
 
-function formatRange(h) {
-  return `${to12Hour(h)} - ${to12Hour(h + 1)}`;
+function prettyTimeframe(value) {
+  if (!value) return "Timeframe TBD";
+  const lower = String(value).toLowerCase();
+  if (lower === "morning") return "Morning";
+  if (lower === "evening") return "Evening";
+  if (lower === "night") return "Night";
+  return String(value);
 }
 
 export default function VolunteerShifts() {
@@ -44,14 +46,13 @@ export default function VolunteerShifts() {
           `
           id, 
           day, 
-          hour, 
+          timeframe,
           confirm, 
           booths!volunteer_signups_booth_id_fkey (name)
           `
         )
         .eq("user_id", user.id)
-        .order("day", { ascending: true })
-        .order("hour", { ascending: true });
+        .order("day", { ascending: true });
       
       
 
@@ -61,7 +62,23 @@ export default function VolunteerShifts() {
         return;
       }
 
-      if (!cancelled) setShifts(data ?? []);
+      if (!cancelled) {
+        const sorted = [...(data ?? [])].sort((a, b) => {
+          const dayA = DAY_ORDER.indexOf(String(a.day || "").toLowerCase());
+          const dayB = DAY_ORDER.indexOf(String(b.day || "").toLowerCase());
+          const safeDayA = dayA === -1 ? Number.MAX_SAFE_INTEGER : dayA;
+          const safeDayB = dayB === -1 ? Number.MAX_SAFE_INTEGER : dayB;
+          if (safeDayA !== safeDayB) return safeDayA - safeDayB;
+
+          const tfA = TIMEFRAME_ORDER.indexOf(String(a.timeframe || "").toLowerCase());
+          const tfB = TIMEFRAME_ORDER.indexOf(String(b.timeframe || "").toLowerCase());
+          const safeTfA = tfA === -1 ? Number.MAX_SAFE_INTEGER : tfA;
+          const safeTfB = tfB === -1 ? Number.MAX_SAFE_INTEGER : tfB;
+          return safeTfA - safeTfB;
+        });
+
+        setShifts(sorted);
+      }
       setLoading(false);
     }
 
@@ -112,7 +129,7 @@ export default function VolunteerShifts() {
 
           <div style={{ opacity: 0.8 }}>
             {s.day?.charAt(0).toUpperCase() + s.day?.slice(1)} •{" "}
-            {formatRange(Number(s.hour))}
+            {prettyTimeframe(s.timeframe)}
           </div>
 
           <div style={{ marginTop: 8, fontSize: 14 }}>

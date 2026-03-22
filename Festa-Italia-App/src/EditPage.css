@@ -193,6 +193,18 @@
   min-height: 120px;
 }
 
+.section-content-textarea[contenteditable='true'] {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+  cursor: text;
+}
+
+.section-content-textarea[contenteditable='true']:empty::before {
+  content: attr(data-placeholder);
+  color: #888;
+}
+
 .save-button {
   align-self: flex-start;
   padding: 0.75rem 1.5rem;

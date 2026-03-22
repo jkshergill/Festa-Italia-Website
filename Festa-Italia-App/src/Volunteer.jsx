@@ -1,171 +1,215 @@
-import { useEffect, useState } from 'react';
-import { supabase } from "./supabaseClient";
+import { useEffect, useMemo, useState } from 'react';
+import { supabase } from './supabaseClient';
 import './Volunteer.css';
 
-export default function Volunteer( {setPage} ) {
-    const [selectedBooth, setSelectedBooth] = useState('');
-    const [selectedSlots, setSelectedSlots] = useState([]);
+const DAYS = ['Friday', 'Saturday', 'Sunday'];
+const TIMEFRAMES = ['Morning', 'Evening', 'Night'];
 
-    const [booths, setBooths] = useState([]);
+function normalize(value) {
+  return String(value || '').trim().toLowerCase();
+}
 
-    useEffect(() => {
-        async function loadBooths() {
-            const { data, error } = await supabase
-                .from('booths')
-                .select('id, name')
-                .order('name');
-            
-            if (!error) setBooths(data);
-        }
+export default function Volunteer() {
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
 
-        loadBooths();
-    }, []);
+  const [userId, setUserId] = useState(null);
+  const [booths, setBooths] = useState([]);
+  const [selectedBooth, setSelectedBooth] = useState('');
 
-    
+  const [selectedDay, setSelectedDay] = useState('Friday');
+  const [selectedTimeframe, setSelectedTimeframe] = useState('Morning');
 
-    // Generate hourly slots starting from 9:00 AM (1-hour increments)
-    const startHour = 9
-    const endHour = 20 // last slot will be 8:00 PM - 9:00 PM
+  useEffect(() => {
+    let cancelled = false;
 
-    function formatRange(h) {
-        const to12 = (n) => {
-            const hour = ((n + 11) % 12) + 1
-            const ampm = n < 12 ? 'AM' : 'PM'
-            return `${hour}:00 ${ampm}`
-        }
-        return `${to12(h)} - ${to12(h + 1)}`
+    async function load() {
+      setLoading(true);
+      setError('');
+
+      const { data: authData, error: authError } = await supabase.auth.getUser();
+      if (authError) {
+        if (!cancelled) setError(authError.message);
+        setLoading(false);
+        return;
+      }
+
+      const user = authData?.user;
+      if (!user) {
+        if (!cancelled) setError('You must be logged in to sign up for volunteer shifts.');
+        setLoading(false);
+        return;
+      }
+
+      const { data: boothData, error: boothError } = await supabase
+        .from('booths')
+        .select('id, name')
+        .order('name', { ascending: true });
+
+      if (boothError) {
+        if (!cancelled) setError(boothError.message);
+        setLoading(false);
+        return;
+      }
+
+      if (!cancelled) {
+        setUserId(user.id);
+        setBooths(boothData || []);
+      }
+      setLoading(false);
     }
 
-    const scheduleData = []
-    for (let h = startHour; h <= endHour; h++) {
-        scheduleData.push({ id: h, friday: formatRange(h), saturday: formatRange(h), sunday: formatRange(h) })
-    }
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-    function toggleSlot(day, hour) {
-        const key = `${day}-${hour}`
-        setSelectedSlots(prev => {
-            const exists = prev.includes(key)
-            if (exists) return prev.filter(p => p !== key)
-            return [...prev, key]
-        })
-    }
+  const canSubmit = useMemo(() => {
+    return Boolean(userId && selectedDay && selectedTimeframe && !submitting);
+  }, [userId, selectedDay, selectedTimeframe, submitting]);
 
-    async function signUpForSelected() {
-    if (!selectedBooth) {
-        alert('Please select a booth')
-        return
-    }
-    if (selectedSlots.length === 0) {
-        alert('Please select at least one time slot')
-        return
-    }
+  async function handleSignup() {
+    setError('');
+    setMessage('');
 
-    // 1. Get logged-in user
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-        alert('You must be signed in')
-        return
-    }
+    if (!canSubmit) return;
 
-    // 2. Build signup rows (multi-slot)
-    const rows = selectedSlots.map(slot => {
-        const [day, hour] = slot.split('-')
-        return {
-            user_id: user.id,
-            booth_id: selectedBooth,
-            day,
-            hour: parseInt(hour, 10),
-            confirm: false
-        }
-    })
+    setSubmitting(true);
 
-    // 3. Insert all at once
-    const { error } = await supabase
+    try {
+      const day = normalize(selectedDay);
+      const timeframe = normalize(selectedTimeframe);
+
+      // Prevent duplicate signups for the same day and timeframe.
+      const { data: existing, error: existingError } = await supabase
         .from('volunteer_signups')
-        .insert(rows)
+        .select('id')
+        .eq('user_id', userId)
+        .eq('day', day)
+        .eq('timeframe', timeframe)
+        .limit(1);
 
-    if (error) {
-        alert(error.message)
-        return
+      if (existingError) throw existingError;
+
+      if (existing && existing.length > 0) {
+        setError('You are already signed up for that day and timeframe.');
+        setSubmitting(false);
+        return;
+      }
+
+      const payload = {
+        user_id: userId,
+        day,
+        timeframe,
+        confirm: false,
+        booth_id: selectedBooth || null,
+      };
+
+      const { error: insertError } = await supabase
+        .from('volunteer_signups')
+        .insert(payload);
+
+      if (insertError) throw insertError;
+
+      setMessage(`Signup submitted for ${selectedDay} ${selectedTimeframe}.`);
+    } catch (err) {
+      setError(err?.message || 'Unable to submit volunteer signup.');
+    } finally {
+      setSubmitting(false);
     }
+  }
 
-    alert('Signed up successfully')
-    setSelectedSlots([])
-    }
+  if (loading) {
+    return <div className="volunteer-container">Loading volunteer signup...</div>;
+  }
 
-    return (
-        <div className="volunteer-container">
-            <h1 className="volunteer-title">Volunteer Page</h1>
+  return (
+    <div className="volunteer-container">
+      <h1 className="volunteer-title">Volunteer Sign-Up</h1>
 
-            <div className="volunteer-section">
-                <select
-                    id="booth-dropdown"
-                    className="booth-dropdown"
-                    value={selectedBooth}
-                    onChange={(e) => setSelectedBooth(e.target.value)}
-                >
-                    <option value="">-- Select a booth --</option>
-                    {booths.map((b) => (
-                        <option key={b.id} value={b.id}>
-                            {b.name}
-                        </option>
-                    ))}
+      <div className="volunteer-section">
+        <label className="dropdown-label" htmlFor="booth-select">Preferred Booth (Optional)</label>
+        <select
+          id="booth-select"
+          className="role-dropdown"
+          value={selectedBooth}
+          onChange={(e) => setSelectedBooth(e.target.value)}
+        >
+          <option value="">No booth preference</option>
+          {booths.map((booth) => (
+            <option key={booth.id} value={booth.id}>
+              {booth.name}
+            </option>
+          ))}
+        </select>
+      </div>
 
-                    <option value="f9f602de-cf5a-44c1-a476-27744ae7647d">Tokens</option>
-                    {booths.map((b) => (
-                        <option key={b.id} value={b.id}>
-                            {b.name}
-                        </option>
-                    ))}
+      <div className="schedule-wrapper">
+        <table className="schedule-table">
+          <thead>
+            <tr>
+              <th>Day</th>
+              {TIMEFRAMES.map((timeframe) => (
+                <th key={timeframe}>{timeframe}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {DAYS.map((day) => (
+              <tr key={day}>
+                <td>{day}</td>
+                {TIMEFRAMES.map((timeframe) => {
+                  const selected = day === selectedDay && timeframe === selectedTimeframe;
+                  return (
+                    <td
+                      key={`${day}-${timeframe}`}
+                      className={selected ? 'selected' : ''}
+                      onClick={() => {
+                        setSelectedDay(day);
+                        setSelectedTimeframe(timeframe);
+                      }}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`Select ${day} ${timeframe}`}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          setSelectedDay(day);
+                          setSelectedTimeframe(timeframe);
+                        }
+                      }}
+                    >
+                      {selected ? 'Selected' : 'Select'}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-                    <option value="565a6dbe-0ccc-48f9-9245-8e07ebb498c3">Ice Cream</option>
-                    {booths.map((b) => (
-                        <option key={b.id} value={b.id}>
-                            {b.name}
-                        </option>
-                    ))}
+      <div className="volunteer-section" style={{ marginTop: '1rem' }}>
+        <button
+          type="button"
+          className="signup-button"
+          disabled={!canSubmit}
+          onClick={handleSignup}
+          style={{ opacity: canSubmit ? 1 : 0.7 }}
+        >
+          {submitting ? 'Submitting...' : `Sign Up: ${selectedDay} ${selectedTimeframe}`}
+        </button>
+      </div>
 
-                    <option value="4a228da4-a248-40a0-85ac-60cd6b60e624">Food</option>
-                    {booths.map((b) => (
-                        <option key={b.id} value={b.id}>
-                            {b.name}
-                        </option>
-                    ))}
-
-                    <option value="6e6ecaae-9e1e-4c4d-a9ed-88adf8a43fb9">Pizza</option>
-                    {booths.map((b) => (
-                        <option key={b.id} value={b.id}>
-                            {b.name}
-                        </option>
-                    ))}
-                </select>
-            </div>
-
-            <div className="schedule-wrapper">
-                <table className="schedule-table">
-                    <thead>
-                        <tr>
-                            <th>Friday</th>
-                            <th>Saturday</th>
-                            <th>Sunday</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {scheduleData.map((row) => (
-                            <tr key={row.id}>
-                                <td className={selectedSlots.includes(`friday-${row.id}`) ? 'selected' : ''} onClick={() => toggleSlot('friday', row.id)}>{row.friday}</td>
-                                <td className={selectedSlots.includes(`saturday-${row.id}`) ? 'selected' : ''} onClick={() => toggleSlot('saturday', row.id)}>{row.saturday}</td>
-                                <td className={selectedSlots.includes(`sunday-${row.id}`) ? 'selected' : ''} onClick={() => toggleSlot('sunday', row.id)}>{row.sunday}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-            
-            <div style={{display: 'flex', justifyContent: 'space-between', marginTop: '1rem'}}>
-                <button className="signup-button" onClick={() => setPage('festival')}> Back </button>
-                <button className="signup-button" onClick={signUpForSelected}>Sign up for selected times</button>
-            </div>
-        </div>
-    );
+      {message && (
+        <p style={{ color: '#0a7b34', textAlign: 'center', fontWeight: 600 }}>{message}</p>
+      )}
+      {error && (
+        <p style={{ color: 'crimson', textAlign: 'center', fontWeight: 600 }}>{error}</p>
+      )}
+    </div>
+  );
 }

@@ -1,44 +1,28 @@
-.festival-info-body {
-  background-color: #ffffff;
-  min-height: 100vh;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Fill the viewport so footer sits flush at the bottom */
-.festival-info-body main {
-  flex: 1 0 auto;
-  margin: 0;
-  padding: 0;
-}
-
-/* Container for consistent width and spacing */
-.festival-info-body .festival-container {
-  max-width: 1100px;
+/* ── Festival Schedule Section ─────────────────────────────── */
+.festival-schedule {
+  max-width: 860px;
   margin: 0 auto;
-  padding: 2rem 1rem;
-  display: flex;
-  gap: 2rem; /* space between sidebar and main section */
+  padding-top: 0.5rem;
+  padding-bottom: 3rem;
 }
 
-/* Headings */
-.festival-info-body h1,
-.festival-info-body h2 {
-  color: #009246; /* Italian green */
+.festival-day-heading {
+  color: #009246;
   text-align: center;
-  margin: 1rem 0;
+  margin: 2rem 0 1rem;
+  font-size: 1.5rem;
 }
 
 /* Schedule layout */
-.festival-info-body .schedule-grid {
+.schedule-grid {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  margin-bottom: 1rem;
 }
 
 /* Each event item */
-.festival-info-body .schedule-item {
+.schedule-item {
   background: #fafafa;
   border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 8px;
@@ -46,7 +30,7 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
-.festival-info-body .schedule-item .meta {
+.schedule-item .meta {
   text-align: center;
   margin-bottom: 0.5rem;
 }
@@ -55,17 +39,17 @@
   margin-top: 30px;
 }
 
-.festival-info-body .schedule-item .time {
+.schedule-item .time {
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: #ce2b37; /* Italian red */
+  color: #ce2b37;
 }
 
 /* Responsive band/booth images */
-.festival-info-body .schedule-item img {
+.schedule-item img {
   width: 100%;
   height: auto;
-  max-width: 600px;     /* cap on very large screens */
+  max-width: 600px;
   max-height: 350px;
   border-radius: 10px;
   object-fit: cover;
@@ -73,92 +57,41 @@
   margin: 0 auto;
 }
 
-/* Responsive scaling */
 @media (max-width: 900px) {
-  .festival-info-body .schedule-item img {
+  .schedule-item img {
     max-width: 90%;
     max-height: 260px;
   }
 }
 
 @media (max-width: 600px) {
-  .festival-info-body .schedule-item img {
+  .schedule-item img {
     max-width: 100%;
     max-height: 200px;
   }
 }
 
 /* Text blocks */
-.festival-info-body .desc {
+.desc {
   text-align: center;
   margin-top: 0.5rem;
 }
 
-/* sidebar styling - mimic band/booth container and adapt layout */
-.festival-info-body .festival-sidebar {
-  flex: 0 0 250px;
-}
-
-/* narrow screens: stack sidebar above main content */
-@media (max-width: 900px) {
-  .festival-info-body .festival-container {
-    flex-direction: column;
-  }
-  .festival-info-body .festival-sidebar {
-    width: auto;
-    flex: none;
-    margin-bottom: 2rem;
-  }
-}
-
-.festival-info-body .desc .act {
+.desc .act {
   font-weight: 700;
   font-size: 1.1rem;
   color: #009246;
 }
 
-.festival-info-body .desc .bio,
-.festival-info-body .desc .placeholder {
+.desc .bio,
+.desc .placeholder {
   font-size: 0.95rem;
   line-height: 1.5;
   color: #333;
 }
 
-/* Make sure footer sits flush against white background */
+/* Make sure footer sits flush */
 .site-footer {
   margin-top: 0 !important;
   padding-top: 0;
-}
-
-/* Volunteer button copied from admindash */
-.signup-btn {
-    appearance: none;
-    border: none;
-    background: #009246 !important;
-    color: #fff !important;
-    padding: 0.85rem 1rem;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-align: left;
-    white-space: normal;
-    word-wrap: break-word;
-}
-
-.signup-btn:hover {
-    background: rgba(0,0,0,1);
-    transform: translateX(4px);
-}
-
-.signup-btn:focus {
-    outline: 2px solid rgba(255,255,255,0.4);
-    outline-offset: 2px;
-}
-
-.signup-btn:active {
-    background: rgba(255,255,255,0.35);
-    border-left: 4px solid #fff;
-    padding-left: calc(1rem - 4px);
 }

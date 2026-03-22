@@ -242,19 +242,26 @@ function ConfirmVolunteers() {
   const [signups, setSignups] = useState([]);
   const [booths, setBooths] = useState([]);
   const [profiles, setProfiles] = useState([]);
+    const [newBoothName, setNewBoothName] = useState('');
+    const [boothMessage, setBoothMessage] = useState('');
 
   useEffect(() => {
     async function loadData() {
       // 1. Fetch booths
-      const { data: boothData } = await supabase.from('booths').select('id, name');
-      setBooths(boothData || []);
+            const { data: boothData } = await supabase
+                .from('booths')
+                .select('id, name')
+                .order('name', { ascending: true });
+            setBooths(boothData || []);
 
       // 2. Fetch profiles
       const { data: profileData } = await supabase.from('profiles').select('id, first_name, last_name');
       setProfiles(profileData || []);
 
       // 3. Fetch signups
-      const { data: signupData } = await supabase.from('volunteer_signups').select('id, confirm, booth_id, user_id');
+            const { data: signupData } = await supabase
+                .from('volunteer_signups')
+                .select('id, confirm, booth_id, user_id, day, timeframe');
       if (signupData) {
         // Merge booth & profile info
         const merged = signupData.map(s => ({
@@ -269,6 +276,21 @@ function ConfirmVolunteers() {
     loadData();
   }, []);
 
+    const prettyDay = (day) => {
+        if (!day) return 'Day TBD';
+        const lower = String(day).toLowerCase();
+        return lower.charAt(0).toUpperCase() + lower.slice(1);
+    };
+
+    const prettyTimeframe = (value) => {
+        if (!value) return 'Timeframe TBD';
+        const lower = String(value).toLowerCase();
+        if (lower === 'morning') return 'Morning';
+        if (lower === 'evening') return 'Evening';
+        if (lower === 'night') return 'Night';
+        return value;
+    };
+
   // Search logic
   const searchLower = query.toLowerCase();
 
@@ -282,6 +304,67 @@ function ConfirmVolunteers() {
 
   const getVolunteersForBooth = (boothId) =>
     signups.filter(s => s.booth?.id === boothId);
+
+    const createBooth = async () => {
+        const trimmed = newBoothName.trim();
+        if (!trimmed) {
+            setBoothMessage('Enter a booth name first.');
+            return;
+        }
+
+        const alreadyExists = booths.some(b => b.name.toLowerCase() === trimmed.toLowerCase());
+        if (alreadyExists) {
+            setBoothMessage('A booth with that name already exists.');
+            return;
+        }
+
+        const { data, error } = await supabase
+            .from('booths')
+            .insert({ name: trimmed })
+            .select('id, name')
+            .single();
+
+        if (error) {
+            setBoothMessage(error.message);
+            return;
+        }
+
+        setBooths(prev => [...prev, data].sort((a, b) => a.name.localeCompare(b.name)));
+        setNewBoothName('');
+        setBoothMessage(`Created booth: ${data.name}`);
+    };
+
+    const deleteBooth = async (boothId) => {
+        const booth = booths.find(b => b.id === boothId);
+        if (!booth) return;
+
+        const confirmed = window.confirm(`Delete booth "${booth.name}"? This will unassign volunteers from this booth.`);
+        if (!confirmed) return;
+
+        const { error: unassignError } = await supabase
+            .from('volunteer_signups')
+            .update({ booth_id: null })
+            .eq('booth_id', boothId);
+
+        if (unassignError) {
+            setBoothMessage(unassignError.message);
+            return;
+        }
+
+        const { error } = await supabase
+            .from('booths')
+            .delete()
+            .eq('id', boothId);
+
+        if (error) {
+            setBoothMessage(error.message);
+            return;
+        }
+
+        setBooths(prev => prev.filter(b => b.id !== boothId));
+        setSignups(prev => prev.map(s => (s.booth?.id === boothId ? { ...s, booth: null, booth_id: null } : s)));
+        setBoothMessage(`Deleted booth: ${booth.name}`);
+    };
 
   const assignToBooth = async (signupId, boothId) => {
     const { error } = await supabase.from('volunteer_signups')
@@ -325,13 +408,45 @@ function ConfirmVolunteers() {
         />
       </div>
 
+            <div className="list" style={{ marginBottom: '1.5rem', borderBottom: '1px solid #eee', paddingBottom: '1rem' }}>
+                <h4>Booth Management</h4>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+                    <input
+                        type="text"
+                        className="search-input"
+                        placeholder="New booth name"
+                        value={newBoothName}
+                        onChange={(e) => setNewBoothName(e.target.value)}
+                        style={{ maxWidth: '360px' }}
+                    />
+                    <button className="add-btn" onClick={createBooth}>Create Booth</button>
+                </div>
+
+                <div style={{ display: 'grid', gap: '0.4rem' }}>
+                    {booths.map((b) => (
+                        <div key={b.id} className="admin-item" style={{ borderBottom: 'none', padding: '0.35rem 0' }}>
+                            <div className="name">{b.name}</div>
+                            <div className="actions">
+                                <button className="remove-btn" onClick={() => deleteBooth(b.id)}>Delete</button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+                {boothMessage && <div className="muted">{boothMessage}</div>}
+            </div>
+
       {/* Requesting Volunteers */}
       <div className="admin-list">
         <h4>Requesting Volunteers</h4>
         {requestingVolunteers.length === 0 && <div className="muted">No volunteers requesting assignment.</div>}
         {requestingVolunteers.map(s => (
           <div key={s.id} className="admin-item">
-            <div className="name">{s.profile.first_name} {s.profile.last_name}</div>
+                        <div className="name">
+                            <div>{s.profile.first_name} {s.profile.last_name}</div>
+                            <div className="muted" style={{ padding: 0 }}>
+                                {prettyDay(s.day)} • {prettyTimeframe(s.timeframe)}
+                            </div>
+                        </div>
             <div className="actions">
               <select
                 style={{ padding: '0.4rem 0.5rem', borderRadius: '4px', border: '1px solid #ddd', fontSize: '0.9rem' }}
@@ -361,7 +476,12 @@ function ConfirmVolunteers() {
             {volunteersForBooth.map(s => (
               <div key={s.id} className="admin-item">
                 <div className="name">
-                  {s.profile.first_name} {s.profile.last_name} {s.confirm && <span style={{ color: '#007bff', marginLeft: '0.5rem', fontSize: '0.9rem' }}>Confirmed</span>}
+                                    <div>
+                                        {s.profile.first_name} {s.profile.last_name} {s.confirm && <span style={{ color: '#007bff', marginLeft: '0.5rem', fontSize: '0.9rem' }}>Confirmed</span>}
+                                    </div>
+                                    <div className="muted" style={{ padding: 0 }}>
+                                        {prettyDay(s.day)} • {prettyTimeframe(s.timeframe)}
+                                    </div>
                 </div>
                 <div className="actions">
                   <button className="remove-btn" onClick={() => unassign(s.id)}>✕</button>
