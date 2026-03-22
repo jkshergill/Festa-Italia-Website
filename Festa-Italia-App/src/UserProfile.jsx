@@ -13,7 +13,7 @@ export default function UserProfile({ eventId, setPage }) {
       case "tickets":
         return <PurchasedTickets eventId={eventId} />;
       case "info":
-        return <ProfileInfo setPage={setPage}/>;
+        return <ProfileInfo setPage={setPage} />;
       case "volunteer":
         return <VolunteerShifts eventId={eventId} />;
       case "bocce":
@@ -26,34 +26,49 @@ export default function UserProfile({ eventId, setPage }) {
   return (
     <div className="user-profile">
       <h2>My Profile Dashboard</h2>
-      <div className="tabs">
+
+      <div className="tabs" role="tablist" aria-label="Profile sections">
         <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "info"}
           className={activeTab === "info" ? "active" : ""}
           onClick={() => setActiveTab("info")}
         >
           Profile Info
         </button>
+
         <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "tickets"}
           className={activeTab === "tickets" ? "active" : ""}
-          onClick={() => {
-            setActiveTab("tickets");
-          }}
+          onClick={() => setActiveTab("tickets")}
         >
           Purchased Tickets
         </button>
+
         <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "volunteer"}
           className={activeTab === "volunteer" ? "active" : ""}
           onClick={() => setActiveTab("volunteer")}
         >
           Volunteer Shifts
         </button>
+
         <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "bocce"}
           className={activeTab === "bocce" ? "active" : ""}
           onClick={() => setActiveTab("bocce")}
         >
           Bocce Teams
         </button>
       </div>
+
       <div className="tab-content">{renderTab()}</div>
     </div>
   );
