@@ -1,25 +1,28 @@
-.donate-body {
-  /*background-color: rgb(228, 239, 151);*/
-  background-image: none;
-  min-height: 1080px;
+ .donate-body {
+  background-color: rgb(228, 239, 151);
+  /*background-image: none;*/
+  min-height: 108vh;
   display: flex;
+  justify-content:center;
+  align-items: flex-start;
+  padding: 20 px;
 }
 
 .donate-thank-you-message {
-  font-size: 32px;
+  font-size: 28px;
   color: black;
-  position: relative;
-  top: -70px;
-  margin-top: 50px;
+  margin: 20px 0;
+  text-align: center;
 }
 
 .donate-form {
   background-color: rgb(243, 132, 132);
-  width: 780px;
-  position:absolute;
-  height: 690px;
-  top: 150px;
-  left: 100px;
+  width: 100%;
+  max-width:800px;
+  padding:20px;
+  border-radius:10px;
+  box-sizing:border-box;
+  margin:0 auto;
 }
 
 .donate-donation-type-div {
@@ -27,17 +30,20 @@
 }
 
 .donate-donation-type-message {
-  font-size: 24px;
+  font-size: 20px;
   margin-left: 25px;
 }
 
 .donate-donation-type {
-  margin-left: 10px;
+  margin-left: 24px;
   height: 25px;
+   background-color: white;
+  color: black;
+  border: 1px solid black;
 }
 
 .donate-name-section {
-  font-size: 24px;
+  font-size: 20px;
   margin-left: 25px;
 }
 
@@ -45,7 +51,7 @@
   margin-left: 25px;
   width: 200px;
   height: 30px;
-  font-size: 18px;
+  font-size: 16px;
   background-color: white;
   color: black;
 }
@@ -55,7 +61,7 @@
 }
 
 .donate-amount-section {
-  font-size: 24px;
+  font-size: 20px;
   color: black;
   margin-left: 25px;
 }
@@ -64,17 +70,17 @@
   margin-left: 25px;
   width: 200px;
   height: 30px;
-  font-size: 18px;
+  font-size: 16px;
   background-color: white;
   color: black;
 }
 
 .donate-enter-amount-div { /* The only purpose of this div is to add margin-top to the input field */
-  margin-top: 10px;
+  margin-top: 3px;
 }
 
 .donate-note-section {
-  font-size: 24px;
+  font-size: 20px;
   color: black;
   margin-left: 25px;
 }
@@ -86,35 +92,55 @@
 .donate-note-box {
   color: black;
   background-color: white;
-  margin-left: 25px;
-  font-size: large;
-  width: 670px;
-  height: 200px; 
-  overflow: hidden;
+  
+  font-size: 16px;
+  width: 100%;
+  height: 150px; 
+  padding:10px;
+  border-radius: 5px;
+  resize:none;
 }
 
 .donate-character-counter-div {
-  margin-left: 618px;
-  width: fit-content;
-  background-color: white;
-}
+
+display:flex;
+justify-content: flex-end;
+margin-top:5px;
+  }
 
 .donate-character-counter {
-  font-size: 20px;
-  color: black;
+  font-size: 14px;
+
 }
 
 .donate-logo-section {
-  font-size: 22px;
+  font-size: 20px;
   color: black;
-  margin-left: 25px;
+  margin-left: 5px;
 }
 
 .donate-upload-logo {
-  margin-left: 25px;
-  font-size: 18px;
+  width:100%;
+  max-width:300px;
+  height:40px;
+  font-size:16px;
+  padding:5px 10px;
+  box-sizing: border-box;
+  /*---*/
+  margin-left: 5px;
+  /*font-size: 18px;*/
   background-color: white;
   color: rgb(0, 0, 0);
+
+}
+
+/*for mobile screens-new*/
+@media (max-width:600px){
+  .donate-upload-logo{
+    width:100%;
+    height:35px;
+    font-size:14px;
+  }
 }
 
 .donate-clover-button-div {
@@ -134,7 +160,39 @@
 
 .donate-clover-button:hover {
   cursor: pointer;
-  background-color: rgb(59, 149, 6);
-  opacity: 0.8;
-  box-shadow: 5px 5px 10px rgb(0, 0, 0, 0.15);
+ /* background-color: rgb(59, 149, 6);*/
+  opacity: 0.85;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.15);
+}
+
+
+/*for mobile screens*/
+@media (max-width:600px) {
+  .donate-thank-you-message {
+
+    font-size:22px;
+  }
+
+  .donate-form{
+    padding:15px;
+  }
+
+  .donate-note-box{
+    height:120px;
+  }
+}
+
+/*for tablet screens*/
+@media(min-width:601px) and (max-width:1024){
+
+  .donate-form{
+    max-width:600px;
+  }
+}
+
+/*for desktop screens*/
+@media (min-width:1025px) {
+  .donate-form{
+    max-width:800px;
+  }
 }
