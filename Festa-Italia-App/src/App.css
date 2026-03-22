@@ -20,7 +20,7 @@
 .card { padding: 2em; }
 .read-the-docs { color: #888; }
 
-button:hover { background-color: #b71c1c; }
+button:hover { background-color: #249548; }
 
 /* ================================================== */
 /* ===============  SITE HEADER  ==================== */
@@ -34,42 +34,48 @@ button:hover { background-color: #b71c1c; }
 .site-header-div {
   position: relative;
   width: 100%;
-  right: 0;
-  top: 0;
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:space-between;
+  /*right: 0;
+  top: 0;*/
 }
 
 .header-inner {
   max-width: 1280px;
   margin: 0 auto;
-  height: 84px;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0 16px;
+  display:flex;
+align-items:center;
+justify-content:space-between;
+flex-wrap:wrap;
+gap:1rem;
+padding:0 16px;
+/*min-height:84px;*/
+position:relative;
 }
 
 /* ---- Move logo farther left ---- */
 .logo-wrap {
   display: flex;
   align-items: center;
-  margin-left: -50px; /* shift slightly left from default padding */
-  margin-top: 36px; /* shift slightly up from default centering */
+ /* margin-left: -50px; /* shift slightly left from default padding */
+  /*margin-top: 36px; /* shift slightly up from default centering */
 }
 
 .logo {
-  position: static;
-  padding: 0;
+  text-decoration:none;
+color:var(--flag-white);
+font-weight:700;
+font-size:1.25rem;
 }
 
 .logo img {
   height: 56px;
+  max-width:100%;
+display:block;
 }
 
-/* nav button stays on the right */
-.nav-toggle {
-  position: relative;
-  margin-left: auto;
-}
+
 
 /* ================================================== */
 /* ===============  NAV STYLES  ===================== */
@@ -79,36 +85,72 @@ button:hover { background-color: #b71c1c; }
   background:#333333;
   border:none;
   color:var(--flag-white);
-  padding:0.25rem;
+  padding:0.35rem;
   border-radius:6px;
   align-items:center;
   justify-content:center;
-  position:absolute;
-  right:10rem;
-  top:50%;
-  transform:translateY(-50%);
+  margin-left:auto;
+  
   z-index:20;
+  cursor:pointer;
 }
 .nav-toggle svg{display:block}
+
 .nav-toggle svg .line-top{stroke:var(--flag-green)}
 .nav-toggle svg .line-mid{stroke:var(--flag-white)}
 .nav-toggle svg .line-bottom{stroke:var(--flag-red)}
+
 .nav-toggle svg path{stroke-width:2;stroke-linecap:round}
+
 .nav-toggle:focus{outline:2px solid rgba(255,255,255,0.25);outline-offset:3px}
-.top-menu{ width:min(88vw, 320px); }
-.header-inner{ gap:1rem; }
+
 .primary-nav{
   position:absolute;
-  top:64px;
+  top:100%;
   right:1rem;
   background:rgba(255,255,255,0.97);
   padding:0.75rem;
   border-radius:8px;
   box-shadow:0 6px 18px rgba(0,0,0,0.08);
   display:none;
+  width:min(90vw,320px);
 }
 .primary-nav.open{ display:block; }
-.nav-toggle{ display:inline-block; }
+/*
+.nav-toggle{ display:inline-block; }*/
+
+.primary-nav ul{
+list-style:none;
+margin:0;
+padding:0;
+}
+
+.primary-nav li a{
+display:block;
+padding:0.5rem 0.75rem;
+color:#333;
+text-decoration:none;
+border-radius:4px;
+}
+
+.primary-nav li a:hover,
+.primary-nav li a:focus{
+background:rgba(0,0,0,0.05);
+}
+
+/* ================================= */
+/* AUTH STATUS */
+/* ================================= */
+
+.auth-status-wrap{
+display:flex;
+align-items:center;
+gap:0.5rem;
+color:white;
+font-size:0.9rem;
+margin-left:auto;
+}
+/*------*/
 
 .sr-only {
   position: absolute;
@@ -122,52 +164,41 @@ button:hover { background-color: #b71c1c; }
   border: 0;
 }
 
-.nav-button {
-  appearance: none;
-  border: #000000;
-  background: #f5f5f5;
-  color: #000000;
-  padding: 0.85rem 1rem;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: left;
-  white-space: normal;
-  word-wrap: break-word;
+
+/*for mobile screens*/
+@media (max-width:768px){
+
+.header-inner{
+flex-direction:row;
+align-items:center;
+/*margin-bottom:40px;*/
+flex-wrap:nowrap;
+gap:0.5rem;
+padding:0 10px;
 }
 
-.nav-button:hover {
-  background: #009d49d3;
-  transform: translateX(4px);
+.logo img{
+height:44px;
 }
 
-.nav-button:focus {
-  outline: 2px solid rgba(255,255,255,0.4);
-  outline-offset: 2px;
+.auth-status-wrap{
+ 
+margin-left:0;
+flex-shrink:1;
+min-width:0;
+font-size:0.78rem;
 }
 
-.nav-button:active {
-  background: rgba(255,255,255,0.35);
-  border-left: 4px solid #fff;
-  padding-left: calc(1rem - 4px);
+.primary-nav{
+right:0;
+width:100%;
+border-radius:0;
 }
-
-/* ================================================== */
-/* =============== AUTH SIGN IN ===================== */
-/* ================================================== */
-
-.auth-status-wrap {
-  position: absolute;
-  right: 13rem;        /* just to the left of the hamburger (10rem + ~3rem gap) */
-  top: 50%;
-  transform: translateY(-50%);
-  color: white;        /* make text readable on your header */
-  font-size: 0.95rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.site-header-div{
+  display:flex;
+flex-direction:column;
+height:auto;
+}
 }
 
 /* ================================================== */
