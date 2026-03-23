@@ -197,6 +197,10 @@ export default function App(){
       case 'cancel': return <PaymentCancelled setPage={setPage} />;
       case 'failure': return <PaymentFailed setPage={setPage} />;
       case "queens-editor": return user && userRole === "admin" ? <QueensEditor /> : <SignInWall setPage={setPage}/>;
+      case 'donate': return <Donate setPage={setPage} />;
+      case 'donation-success': return <DonationSuccess setPage={setPage} />;
+      case 'donation-cancel': return <DonationCancelled setPage={setPage} />;
+      case 'donation-failure': return <DonationFailed setPage={setPage} />;
  
       default: return <Home />
     }
