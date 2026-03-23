@@ -30,7 +30,7 @@ import PageOff from './PageOff'
 import SignInWall from './SignInWall'
 import TokenEditor from './tokenEditor'
 import UserProfile from './UserProfile'
-
+import QueensEditor from './QueensEditor'
 
 export default function App(){
     const [page, setPage] = useState('home')
@@ -151,8 +151,8 @@ export default function App(){
   function renderPage(){
     if(loading)return <div>Loading Pages...</div>;
     switch(page){
-      case 'admin-dash': return user && userRole === "admin" ? <AdminDashboard /> : <SignInWall />;
-      case "admin-foods": return user && userRole === "admin" ? <AdminFoods /> : <SignInWall/>;
+      case 'admin-dash': return user && userRole === "admin" ? <AdminDashboard /> : <SignInWall setPage={setPage}/>;
+      case "admin-foods": return user && userRole === "admin" ? <AdminFoods /> : <SignInWall setPage={setPage}/>;
       case 'bocce-dash':
         if (pageVisibility["Bocce Dashboard"] === undefined) return null;
         return pageVisibility["Bocce Dashboard"] ? <BocceDash setPage={setPage}/> : <PageOff/>;
@@ -164,7 +164,7 @@ export default function App(){
         return pageVisibility["Coronation Ball Info"] ? <CoronationBall setPage={setPage}/> : <PageOff/>;
       case 'coronation-tix':
       if (pageVisibility["Coronation Ball Tickets"] === undefined) return null;
-        return pageVisibility["Coronation Ball Tickets"] ? <CoronationTix setPage={setPage}/> : <PageOff/>;
+        return !pageVisibility["Coronation Ball Tickets"] ? <PageOff/> : !user ? <SignInWall setPage={setPage}/> : <CoronationTix setPage={setPage}/>;
       case 'donate':
         if (pageVisibility["Donation"] === undefined) return null;
         return pageVisibility["Donation"] ? <Donate setPage={setPage}/> : <PageOff/>;
@@ -254,8 +254,9 @@ export default function App(){
           <button role="menuitem" onClick={() => { setPage('donation'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Previous Sponsors</button>
           
           {/* admin tools to be moved next sprint */}
-          <button role="menuitem" onClick={() => { setPage('admin-foods'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Admin Tool - Food Menu Editor</button>
-          <button role="menuitem" onClick={() => { setPage('token-editor'); setMenuOpen(false); }} style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Token Editor</button>
+          <button role="menuitem" onClick={() => { setPage('admin-foods'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Admin Tool - Food Menu Editor</button>
+          <button role="menuitem" onClick={() => { setPage('token-editor'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Token Editor</button>
+          <button role="menuitem" onClick={() => { setPage('queens-editor'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Queens Editor</button>
 
 
         </div>
