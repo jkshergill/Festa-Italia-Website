@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "./supabaseClient"; // <- adjust path to your project
+import { supabase } from "./supabaseClient";
 
 export default function PurchasedTickets() {
   const [tickets, setTickets] = useState([]);
