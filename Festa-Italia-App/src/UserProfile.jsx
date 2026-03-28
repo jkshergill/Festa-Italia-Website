@@ -4,9 +4,21 @@ import ProfileInfo from "./ProfileInfo";
 import PurchasedTickets from "./PurchasedTickets";
 import "./UserProfile.css";
 import VolunteerShifts from "./VolunteerShifts";
+import ShoppingCart from "./ShoppingCart";
 
-export default function UserProfile({ eventId, setPage }) {
-  const [activeTab, setActiveTab] = useState("info");
+export default function UserProfile({ eventId, setPage, initialTab }) {
+  const [activeTab, setActiveTab] = useState(initialTab ?? "info");
+  const [cartItems, setCartItems] = useState([]);
+
+  const totalCartTickets = cartItems.reduce((s, i) => s + (i.qty ?? 0), 0);
+
+  const handleSetPage = (target) => {
+    if (target === "profile:cart") {
+      setActiveTab("cart");
+      return;
+    }
+    setPage(target);
+  };
 
   const renderTab = () => {
     switch (activeTab) {
@@ -18,6 +30,14 @@ export default function UserProfile({ eventId, setPage }) {
         return <VolunteerShifts eventId={eventId} />;
       case "bocce":
         return <BocceProfile />;
+      case "cart":
+        return (
+          <ShoppingCart
+            cartItems={cartItems}
+            setCartItems={setCartItems}
+            setPage={handleSetPage}
+          />
+        );
       default:
         return null;
     }
@@ -66,6 +86,21 @@ export default function UserProfile({ eventId, setPage }) {
           onClick={() => setActiveTab("bocce")}
         >
           Bocce Teams
+        </button>
+
+        <button
+          type="button" role="tab"
+          aria-selected={activeTab === "cart"}
+          className={`tab-cart${activeTab === "cart" ? " active" : ""}`}
+          onClick={() => setActiveTab("cart")}
+          aria-label={`Shopping Cart${totalCartTickets > 0 ? `, ${totalCartTickets} items` : ""}`}
+        >
+          Cart
+          {totalCartTickets > 0 && (
+            <span className="tab-cart-badge" aria-hidden="true">
+              {totalCartTickets}
+            </span>
+          )}
         </button>
       </div>
 
