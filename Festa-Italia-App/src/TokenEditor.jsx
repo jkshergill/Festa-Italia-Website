@@ -114,6 +114,19 @@ export default function TokenEditor() {
     //retrieving remaining rows of the table
     fetchTokens() 
    }
+
+     // toggle active/inactive state for a token
+     const handleToggleActive = async (token) => {
+        try{
+            const newState = !token.is_active;
+            const {data,error} = await supabase.from('tokens').update({ is_active: newState }).eq('id', token.id);
+            if(error) console.log('toggle error', error);
+            if(data) console.log('toggled', data);
+            fetchTokens();
+        }catch(err){
+            console.error('toggle exception', err)
+        }
+     }
  return(
  <div className ="page">
           {/* Displaying header*/}    
@@ -132,21 +145,19 @@ export default function TokenEditor() {
         <div style={{margin:0}}>
           <form onSubmit = {handleSubmit} className= "form">
 
-            {/*display dropdown for token colors */}
-            <div>
-               <label className= "block text-gray-700 font-medium mb-1">Token
-               </label>
-                <select value={token} onChange= {(e)=> setToken(e.target.value)}
-                  className="w-full border rounded-md p-2 focus:ring-2 focus:ring-blue-400"
-                  required>
-
-                  <option value="">Select Token color</option>    
-                  <option value="Blue">Blue</option>
-                  <option value="Yellow">Yellow</option>
-                  <option value="Black">Black</option>
-                  <option value="Red">Red</option>
-                </select>
-            </div>
+                        {/* Token color - now a free-form input to allow custom names */}
+                        <div>
+                             <label className= "block text-gray-700 font-medium mb-1">Token Color
+                             </label>
+                             <input
+                                 type="text"
+                                 value={token}
+                                 onChange={(e) => setToken(e.target.value)}
+                                 placeholder="Enter token color or name (e.g. Blue, Sky-Blue, Gold)"
+                                 className="w-full border rounded-md p-2 focus:ring-2 focus:ring-blue-400"
+                                 required
+                             />
+                        </div>
              
              {/*entering token value */}
               <div>
@@ -192,24 +203,37 @@ export default function TokenEditor() {
             <th>Color</th>
             <th>Price</th>
             <th>Image Path</th>
+            <th>Active</th>
             <th>Actions</th>
         </tr>
     </thead>
     <tbody>
         {tokens.map(token=>(
             <tr key={token.id}>
-                <td>{token.color}</td>
-                <td>{token.price}</td>
-                <td>{token.image_path}</td>
-                <td>
-                    <div style ={{display:'flex',gap:'5px'}}> 
-                    <button className="delete-btn" onClick={()=>handleEdit(token)}>Edit</button>
-                    <button className="delete-btn"
-                onClick={()=>handleDelete(token)}>Delete</button>
-                    </div>
+                    <td>{token.color}</td>
+                    <td>{token.price}</td>
+                    <td>{token.image_path}</td>
+                                        <td style={{textAlign:'center'}}>
+                                            <input
+                                                type="checkbox"
+                                                checked={!!token.is_active}
+                                                onChange={() => {
+                                                    // optimistic UI update: flip local state immediately
+                                                    setTokens(prev => prev.map(t => t.id === token.id ? {...t, is_active: !t.is_active} : t));
+                                                    // persist change to Supabase
+                                                    handleToggleActive(token);
+                                                }}
+                                                aria-label={token.is_active? 'Deactivate token' : 'Activate token'}
+                                            />
+                                        </td>
+                    <td>
+                        <div style ={{display:'flex',gap:'5px'}}> 
+                        <button className="delete-btn" onClick={()=>handleEdit(token)}>Edit</button>
+                        <button className="delete-btn" onClick={()=>handleDelete(token)}>Delete</button>
+                        </div>
 
-                </td> 
-            </tr>
+                    </td> 
+                </tr>
         ))}
     </tbody>
  </table>
