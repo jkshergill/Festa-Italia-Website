@@ -440,3 +440,165 @@
 .save-btn:active {
     transform: scale(0.98);
 }
+
+/* Donor Manager Styles */
+.donor-manager-header {
+    margin-bottom: 1.5rem;
+}
+
+.donor-manager-grid {
+    display: grid;
+    grid-template-columns: minmax(320px, 420px) 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.donor-manager-panel {
+    background: #fff;
+    border: 1px solid #e8ecef;
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+}
+
+.donor-manager-panel h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #222;
+}
+
+.donor-form {
+    display: grid;
+    gap: 0.9rem;
+}
+
+.donor-form label {
+    display: grid;
+    gap: 0.35rem;
+    color: #222;
+    font-weight: 500;
+}
+
+.donor-form input,
+.donor-form select,
+.donor-form textarea {
+    width: 100%;
+    padding: 0.75rem 0.85rem;
+    border: 1px solid #d7dde3;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background: #fff;
+    color: #111;
+}
+
+.donor-form textarea {
+    resize: vertical;
+    min-height: 110px;
+}
+
+.donor-form-note {
+    font-size: 0.9rem;
+    color: #555;
+    background: #f7faf8;
+    border: 1px solid #e2eee7;
+    padding: 0.75rem 0.85rem;
+    border-radius: 8px;
+}
+
+.donor-form-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.secondary-btn,
+.edit-btn {
+    appearance: none;
+    border: 1px solid #cfd6dd;
+    background: #fff;
+    color: #222;
+    padding: 0.55rem 0.9rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.secondary-btn:hover,
+.edit-btn:hover {
+    background: #f6f8fa;
+}
+
+.donor-admin-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.donor-admin-item {
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.donor-admin-name {
+    font-weight: 700;
+    color: #111;
+}
+
+.donor-admin-note {
+    margin-top: 0.35rem;
+    color: #444;
+    font-size: 0.93rem;
+}
+
+.donor-admin-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.donor-delete-btn,
+.donor-delete-confirm-btn {
+    color: #b42318;
+    background: #fff;
+    border: 1px solid #f0c7c2;
+    border-radius: 8px;
+    padding: 0.55rem 0.9rem;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.donor-delete-btn:hover,
+.donor-delete-confirm-btn:hover {
+    background: #fff5f4;
+}
+
+.donor-image-preview-row {
+    display: grid;
+    gap: 0.35rem;
+    font-size: 0.88rem;
+    color: #444;
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    display: grid;
+    place-items: center;
+    z-index: 2000;
+    padding: 1rem;
+}
+
+.modal-content.donor-confirm-modal {
+    width: min(100%, 480px);
+    background: #fff;
+    border-radius: 14px;
+    padding: 1.25rem;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+
+@media (max-width: 900px) {
+    .donor-manager-grid {
+        grid-template-columns: 1fr;
+    }
+}
