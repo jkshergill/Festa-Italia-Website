@@ -1,15 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { supabase } from './supabaseClient';
 
-const DONOR_TYPES = ['Vendors', 'Bocce', 'Queens Court', 'Ads/Sponsors'];
+const DONOR_TYPES = ['Bocce', 'Advertising/Sponsorship'];
 
 const emptyForm = {
   donor_id: null,
   name: '',
   donor_note: '',
   amount_dollars: '',
-  clover_transaction_id: '',
-  donation_type: 'Ads/Sponsors',
+  donation_type: 'Advertising/Sponsorship',
   donor_pic_url: '',
 };
 
@@ -41,7 +40,6 @@ export default function DonorManager() {
         donor_note,
         donor_pic_url,
         amount_cents,
-        clover_transaction_id,
         donation_type,
         consent_to_share,
         is_anonymous,
@@ -69,13 +67,11 @@ export default function DonorManager() {
       const name = (donor.company_name || donor.donor_name || '').toLowerCase();
       const note = (donor.donor_note || '').toLowerCase();
       const type = (donor.donation_type || '').toLowerCase();
-      const clover = (donor.clover_transaction_id || '').toLowerCase();
 
       return (
         name.includes(q) ||
         note.includes(q) ||
-        type.includes(q) ||
-        clover.includes(q)
+        type.includes(q)
       );
     });
   }, [donors, query]);
@@ -84,6 +80,7 @@ export default function DonorManager() {
     setForm(emptyForm);
     setSelectedFile(null);
     setEditingId(null);
+    setMessage('');
   }
 
   function startEdit(donor) {
@@ -97,7 +94,6 @@ export default function DonorManager() {
         donor.amount_cents || donor.amount_cents === 0
           ? (donor.amount_cents / 100).toFixed(2)
           : '',
-      clover_transaction_id: donor.clover_transaction_id || '',
       donation_type: donor.donation_type || 'Ads/Sponsors',
       donor_pic_url: donor.donor_pic_url || '',
     });
@@ -108,39 +104,39 @@ export default function DonorManager() {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
 
-  async function uploadImageIfNeeded(existingPath = '') {
+    async function uploadImageIfNeeded(existingPath = '') {
     if (!selectedFile) return existingPath;
 
     const fileExt = selectedFile.name.split('.').pop();
     const safeBase = (form.name || 'donor')
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
 
-    const filePath = `private/${Date.now()}-${safeBase || 'donor'}.${fileExt}`;
+    const filePath = `${Date.now()}-${safeBase || 'donor'}.${fileExt}`;
 
     const { error: uploadError } = await supabase.storage
-      .from('donors')
-      .upload(filePath, selectedFile, {
+        .from('donors')
+        .upload(filePath, selectedFile, {
         upsert: false,
-      });
+        });
 
     if (uploadError) {
-      throw new Error(uploadError.message);
+        throw new Error(uploadError.message);
     }
 
-    return filePath;
-  }
+    const { data } = supabase.storage.from('donors').getPublicUrl(filePath);
+
+    return data.publicUrl;
+    }
 
   async function handleCreate(e) {
     e.preventDefault();
     setSaving(true);
     setMessage('');
-
     try {
       const trimmedName = form.name.trim();
       if (!trimmedName) throw new Error('Name is required.');
-      if (!form.clover_transaction_id.trim()) throw new Error('Clover transaction ID is required.');
 
       const uploadedPath = await uploadImageIfNeeded('');
 
@@ -159,7 +155,6 @@ export default function DonorManager() {
         donor_note: form.donor_note.trim() || null,
         donor_pic_url: uploadedPath || null,
         amount_cents: amountCents,
-        clover_transaction_id: form.clover_transaction_id.trim(),
         donation_type: form.donation_type,
         consent_to_share: true,
         is_anonymous: false,
@@ -168,7 +163,15 @@ export default function DonorManager() {
         last_name: null,
       };
 
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+        console.log('CURRENT APP USER:', userData?.user);
+        console.log('CURRENT APP USER ID:', userData?.user?.id);
+        console.log('CURRENT APP USER EMAIL:', userData?.user?.email);
+        console.log('INSERT PAYLOAD:', payload);
+        console.log('USER ERROR:', userError);
+
       const { error } = await supabase.from('donors').insert(payload);
+        console.log('INSERT ERROR:', error);
 
       if (error) throw new Error(error.message);
 
@@ -233,7 +236,11 @@ export default function DonorManager() {
 
       if (error) throw new Error(error.message);
 
-      setMessage(`Deleted donor: ${deleteTarget.company_name || deleteTarget.donor_name || 'Unnamed Donor'}`);
+      setMessage(
+        `Deleted donor: ${
+          deleteTarget.company_name || deleteTarget.donor_name || 'Unnamed Donor'
+        }`
+      );
       setDeleteTarget(null);
 
       if (editingId === deleteTarget.donor_id) {
@@ -266,7 +273,7 @@ export default function DonorManager() {
         <input
           className="search-input"
           type="text"
-          placeholder="Search donor name, note, type, or Clover transaction..."
+          placeholder="Search donor name, note, or type..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
@@ -295,7 +302,9 @@ export default function DonorManager() {
                 disabled={!!editingId}
               >
                 {DONOR_TYPES.map((type) => (
-                  <option key={type} value={type}>{type}</option>
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
                 ))}
               </select>
             </label>
@@ -311,29 +320,17 @@ export default function DonorManager() {
             </label>
 
             {!editingId && (
-              <>
-                <label>
-                  <span>Amount Donated</span>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={form.amount_dollars}
-                    onChange={(e) => updateForm('amount_dollars', e.target.value)}
-                    placeholder="0.00"
-                  />
-                </label>
-
-                <label>
-                  <span>Clover Transaction ID</span>
-                  <input
-                    type="text"
-                    value={form.clover_transaction_id}
-                    onChange={(e) => updateForm('clover_transaction_id', e.target.value)}
-                    placeholder="Required"
-                  />
-                </label>
-              </>
+              <label>
+                <span>Amount Donated</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={form.amount_dollars}
+                  onChange={(e) => updateForm('amount_dollars', e.target.value)}
+                  placeholder="0.00"
+                />
+              </label>
             )}
 
             <label>
@@ -353,7 +350,8 @@ export default function DonorManager() {
             )}
 
             <div className="donor-form-note">
-              New entries are saved with <strong>consent_to_share = true</strong> and <strong>is_anonymous = false</strong>.
+              New entries are saved with <strong>consent_to_share = true</strong> and{' '}
+              <strong>is_anonymous = false</strong>.
             </div>
 
             <div className="donor-form-actions">
@@ -361,7 +359,12 @@ export default function DonorManager() {
                 {saving ? 'Saving...' : editingId ? 'Save Changes' : 'Add Donor'}
               </button>
 
-              {(editingId || form.name || form.donor_note || form.amount_dollars || form.clover_transaction_id || form.donor_pic_url || selectedFile) && (
+              {(editingId ||
+                form.name ||
+                form.donor_note ||
+                form.amount_dollars ||
+                form.donor_pic_url ||
+                selectedFile) && (
                 <button
                   type="button"
                   className="secondary-btn"
@@ -391,7 +394,7 @@ export default function DonorManager() {
                   <div className="name">
                     <div className="donor-admin-name">{displayName(donor)}</div>
                     <div className="muted" style={{ padding: 0 }}>
-                      {donor.donation_type || 'Unknown type'} • {formatAmount(donor.amount_cents)} • {donor.clover_transaction_id || 'No Clover ID'}
+                      {donor.donation_type || 'Unknown type'} • {formatAmount(donor.amount_cents)}
                     </div>
                     {donor.donor_note && (
                       <div className="donor-admin-note">{donor.donor_note}</div>
@@ -400,6 +403,7 @@ export default function DonorManager() {
 
                   <div className="actions donor-admin-actions">
                     <button
+                      type="button"
                       className="edit-btn"
                       onClick={() => startEdit(donor)}
                       disabled={saving}
@@ -407,6 +411,7 @@ export default function DonorManager() {
                       Edit
                     </button>
                     <button
+                      type="button"
                       className="remove-btn donor-delete-btn"
                       onClick={() => setDeleteTarget(donor)}
                       disabled={saving}
@@ -423,21 +428,36 @@ export default function DonorManager() {
 
       {deleteTarget && (
         <div className="modal-overlay" onClick={() => setDeleteTarget(null)}>
-          <div className="modal-content donor-confirm-modal" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="modal-content donor-confirm-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
             <h3>Delete donor?</h3>
             <p>
               This will permanently remove{' '}
-              <strong>{deleteTarget.company_name || deleteTarget.donor_name || 'this donor'}</strong>{' '}
+              <strong>
+                {deleteTarget.company_name || deleteTarget.donor_name || 'this donor'}
+              </strong>{' '}
               from the page and from the donors table.
             </p>
             <p className="muted" style={{ padding: 0 }}>
               This only deletes the donor record. It does not create or trigger any refund flow.
             </p>
             <div className="donor-form-actions">
-              <button className="remove-btn donor-delete-confirm-btn" onClick={confirmDelete} disabled={saving}>
+              <button
+                type="button"
+                className="remove-btn donor-delete-confirm-btn"
+                onClick={confirmDelete}
+                disabled={saving}
+              >
                 {saving ? 'Deleting...' : 'Yes, Delete'}
               </button>
-              <button className="secondary-btn" onClick={() => setDeleteTarget(null)} disabled={saving}>
+              <button
+                type="button"
+                className="secondary-btn"
+                onClick={() => setDeleteTarget(null)}
+                disabled={saving}
+              >
                 Cancel
               </button>
             </div>
