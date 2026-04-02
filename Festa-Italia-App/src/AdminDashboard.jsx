@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import './AdminDashboard.css';
 import EditPageComponent from './EditPage';
 import { supabase } from "./supabaseClient";
-
+import DonorManager from './DonorManager';
 
 
 // Reusable PageDropdown component
@@ -876,6 +876,13 @@ function AdminDashboard() {
                     >
                         Toggle Page
                     </button>
+                    <button
+                    className={`sidebar-btn ${activeSection === 'manage-donors' ? 'active' : ''}`}
+                    onClick={() => handleSidebarClick('manage-donors')}
+                    title="Add, edit, and delete sponsors/private donors"
+                    >
+                        Manage Donors
+                    </button>
                 </nav>
             </aside>
 
@@ -891,6 +898,7 @@ function AdminDashboard() {
                         {activeSection === 'edit-page' && 'Edit Page'}
                         {activeSection === 'add-admin' && 'Add Admin'}
                         {activeSection === 'toggle-page' && 'Toggle Page'}
+                        {activeSection === 'manage-donors' && 'Manage Donors'}
                     </h1>
                 </div>
 
@@ -919,6 +927,7 @@ function AdminDashboard() {
                         saveChanges={savePageStates}
                     />
                 )}
+                {activeSection === 'manage-donors' && <DonorManager />}
             </main>
         </div>
     );
