@@ -126,10 +126,14 @@ export default function Volunteer() {
     return <div className="volunteer-container">Loading volunteer signup...</div>;
   }
 
+  const selectedBoothName =
+    booths.find((b) => b.id === selectedBooth)?.name || "No Preference";
+    f
   return (
-    <div className="volunteer-container">
-      <h1 className="volunteer-title">Volunteer Sign-Up</h1>
+  <div className="volunteer-container">
+    <h1 className="volunteer-title">Volunteer Sign-Up</h1>
 
+    <div className="volunteer-card-box">
       <div className="volunteer-section">
         <label className="dropdown-label" htmlFor="booth-select">Preferred Booth (Optional)</label>
         <select
@@ -192,7 +196,7 @@ export default function Volunteer() {
         </table>
       </div>
 
-      <div className="volunteer-section" style={{ marginTop: '1rem' }}>
+      <div className="volunteer-section volunteer-signup-actions">
         <button
           type="button"
           className="signup-button"
@@ -200,16 +204,19 @@ export default function Volunteer() {
           onClick={handleSignup}
           style={{ opacity: canSubmit ? 1 : 0.7 }}
         >
-          {submitting ? 'Submitting...' : `Sign Up: ${selectedDay} ${selectedTimeframe}`}
+          {submitting
+            ? 'Submitting...'
+            : `Sign Up: ${selectedDay} ${selectedTimeframe} – ${selectedBoothName}`}
         </button>
       </div>
 
       {message && (
-        <p style={{ color: '#0a7b34', textAlign: 'center', fontWeight: 600 }}>{message}</p>
+        <p className="volunteer-message volunteer-message-success">{message}</p>
       )}
       {error && (
-        <p style={{ color: 'crimson', textAlign: 'center', fontWeight: 600 }}>{error}</p>
+        <p className="volunteer-message volunteer-message-error">{error}</p>
       )}
     </div>
-  );
+  </div>
+);
 }
