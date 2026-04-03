@@ -125,10 +125,9 @@ export default function Volunteer() {
   if (loading) {
     return <div className="volunteer-container">Loading volunteer signup...</div>;
   }
-
+  
   const selectedBoothName =
     booths.find((b) => b.id === selectedBooth)?.name || "No Preference";
-    f
   return (
   <div className="volunteer-container">
     <h1 className="volunteer-title">Volunteer Sign-Up</h1>
