@@ -93,6 +93,8 @@ export default function Donation() {
 						first_name,
 						last_name,
 						company_name,
+						donor_name,
+						donor_note,
 						donor_pic_url,
 						amount_cents,
 						donated_at,
@@ -100,8 +102,6 @@ export default function Donation() {
 						consent_to_share,
 						donation_type
 					`)
-					.eq('consent_to_share', true)
-					.eq('donation_type', 'Basic')
 					.order('donated_at', { ascending: false });
 
 				const startISO = toISOStart(start);
@@ -130,8 +130,13 @@ export default function Donation() {
 		fetchDonors();
 	}, [start, end]);
 
-	const anonymousDonors = donors.filter(d => d.is_anonymous);
-	const publicDonors = donors.filter(d => !d.is_anonymous);
+	const publicDonors = donors.filter(
+		d => d.consent_to_share === true && d.is_anonymous === false
+	);
+
+	const privateDonors = donors.filter(
+		d => d.consent_to_share === false || d.is_anonymous === true
+	);
 
 	function formatAmount(amountCents) {
 		return new Intl.NumberFormat('en-US', {
@@ -147,6 +152,7 @@ export default function Donation() {
 
 	function donorDisplayName(donor) {
 		if (donor.company_name) return donor.company_name;
+		if (donor.donor_name) return donor.donor_name;
 
 		const fullName = `${donor.first_name || ''} ${donor.last_name || ''}`.trim();
 		return fullName || 'Unnamed Donor';
@@ -292,34 +298,12 @@ export default function Donation() {
 
 						{!loading && !error && (
 							<>
-								<section className="donor-subsection">
-									<h3>Anonymous Donors</h3>
-									{anonymousDonors.length === 0 ? (
-										<p>No anonymous donors found.</p>
-									) : (
-										<ul className="donor-list">
-											{anonymousDonors.map((donor) => (
-												<li key={donor.donor_id} className="donor-card">
-													<div className="donor-card-main">
-														<div className="donor-avatar fallback-avatar">A</div>
-														<div className="donor-meta">
-															<strong>Anonymous Donor</strong>
-															<span>{formatDate(donor.donated_at)}</span>
-														</div>
-													</div>
-													<div className="donor-amount">{formatAmount(donor.amount_cents)}</div>
-												</li>
-											))}
-										</ul>
-									)}
-								</section>
-
-								<section className="donor-subsection">
+								<section className="donor-subsection donor-section-box">
 									<h3>Public Donors</h3>
 									{publicDonors.length === 0 ? (
-										<p>No public donors found.</p>
+										<p>No public donors yet.</p>
 									) : (
-										<ul className="donor-list">
+										<ul className="donor-list donor-grid">
 											{publicDonors.map((donor) => (
 												<li key={donor.donor_id} className="donor-card">
 													<div className="donor-card-main">
@@ -338,6 +322,40 @@ export default function Donation() {
 														<div className="donor-meta">
 															<strong>{donorDisplayName(donor)}</strong>
 															<span>{formatDate(donor.donated_at)}</span>
+															{donor.donor_note && <p>{donor.donor_note}</p>}
+														</div>
+													</div>
+
+													<div className="donor-amount">
+														{formatAmount(donor.amount_cents)}
+													</div>
+												</li>
+											))}
+										</ul>
+									)}
+								</section>
+
+								<section className="donor-subsection donor-section-box">
+									<h3>Private Donors</h3>
+									{privateDonors.length === 0 ? (
+										<p>No private donors yet.</p>
+									) : (
+										<ul className="donor-list donor-grid">
+											{privateDonors.map((donor) => (
+												<li key={donor.donor_id} className="donor-card">
+													<div className="donor-card-main">
+														<div className="donor-avatar fallback-avatar">
+															{donor.is_anonymous ? 'A' : donorInitials(donor)}
+														</div>
+
+														<div className="donor-meta">
+															<strong>
+																{donor.is_anonymous
+																	? 'Anonymous Donor'
+																	: donorDisplayName(donor)}
+															</strong>
+															<span>{formatDate(donor.donated_at)}</span>
+															{donor.donor_note && <p>{donor.donor_note}</p>}
 														</div>
 													</div>
 
