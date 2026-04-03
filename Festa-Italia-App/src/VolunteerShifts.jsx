@@ -115,14 +115,7 @@ export default function VolunteerShifts() {
   return (
   <div style={{ display: "grid", gap: 12 }}>
       {shifts.map((s) => (
-        <div
-          key={s.id}
-          style={{
-            border: "1px solid #ddd",
-            borderRadius: 10,
-            padding: 12,
-          }}
-        >
+      <div key={s.id} className="volunteer-card">
           <div style={{ fontWeight: 700 }}>
             {s.booths?.name || "Booth"}
           </div>
