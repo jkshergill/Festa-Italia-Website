@@ -2,10 +2,12 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { useEffect, useState } from 'react';
 import './AdminDashboard.css';
-import EditPageComponent from './EditPage';
-import { supabase } from "./supabaseClient";
+import AdminFoods from './adminEditMenu';
 import DonorManager from './DonorManager';
-
+import EditPageComponent from './EditPage';
+import QueensEditor from './QueensEditor';
+import { supabase } from "./supabaseClient";
+import TokenEditor from './TokenEditor';
 
 // Reusable PageDropdown component
 function PageDropdown({ pageOptions = [], onSelect }) {
@@ -646,36 +648,129 @@ function ConfirmCoronationTickets() {
     );
 }
 
-// Add Admin Section
 function AddAdmin() {
     const [query, setQuery] = useState('');
 
-    // Placeholder data — replace with real API data when ready
-    const [admins, setAdmins] = useState([
-        { id: 1, name: 'John Doe' },
-        { id: 2, name: 'Jane Doe' }
-    ]);
+    const [admins, setAdmins] = useState([]);
+    const [users, setUsers] = useState([]);
 
-    const [users, setUsers] = useState([
-        { id: 11, name: 'John Schmidt' },
-        { id: 12, name: 'Jacob Schmidt' },
-        { id: 13, name: 'Jingleheimer Schmidt' }
-    ]);
+    const [pendingDemotions, setPendingDemotions] = useState([]);
+    const [pendingPromotions, setPendingPromotions] = useState([]);
+    const [saving, setSaving] = useState(false);
 
-    const filteredAdmins = admins.filter(a => a.name.toLowerCase().includes(query.toLowerCase()));
-    const filteredUsers = users.filter(u => u.name.toLowerCase().includes(query.toLowerCase()));
+    useEffect(() => {
+        const loadProfiles = async () => {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .order('id', { ascending: true });
 
-    const removeAdmin = (id) => {
-        const removed = admins.find(a => a.id === id);
-        setAdmins(prev => prev.filter(a => a.id !== id));
-        if (removed) setUsers(prev => [removed, ...prev]);
+            if (error) {
+                console.error('Error fetching profiles:', error);
+                return;
+            }
+
+            const adminRecords = [];
+            const userRecords = [];
+
+            data.forEach((p) => {
+                const display = {
+                    id: p.id,
+                    name: `${p.first_name || ''} ${p.last_name || ''}`.trim(),
+                    email: p.email || '',
+                    role: p.role || 'user',
+                };
+
+                if (p.role === 'admin') {
+                    adminRecords.push(display);
+                } else {
+                    userRecords.push(display);
+                }
+            });
+
+            const sortByName = (a, b) => a.name.localeCompare(b.name);
+            setAdmins(adminRecords.sort(sortByName));
+            setUsers(userRecords.sort(sortByName));
+        };
+
+            loadProfiles();
+        }, []);
+
+        const filteredAdmins = admins.filter(a =>
+            (`${a.name} ${a.email}`).toLowerCase().includes(query.toLowerCase())
+        );
+        const filteredUsers = users.filter(u =>
+            (`${u.name} ${u.email}`).toLowerCase().includes(query.toLowerCase())
+        );
+
+    const demoteAdmin = (id) => {
+        const admin = admins.find(a => a.id === id);
+        if (!admin || pendingDemotions.some(d => d.id === id)) return;
+        setPendingDemotions(prev => [...prev, admin]);
     };
 
-    const addAdmin = (id) => {
+    const promoteUser = (id) => {
         const user = users.find(u => u.id === id);
-        if (!user) return;
-        setUsers(prev => prev.filter(u => u.id !== id));
-        setAdmins(prev => [user, ...prev]);
+        if (!user || pendingPromotions.some(p => p.id === id)) return;
+        setPendingPromotions(prev => [...prev, user]);
+    };
+
+    const cancelDemotion = (id) => setPendingDemotions(prev => prev.filter(d => d.id !== id));
+    const cancelPromotion = (id) => setPendingPromotions(prev => prev.filter(p => p.id !== id));
+
+    const saveChanges = async () => {
+        setSaving(true);
+        const errors = [];
+
+        // Apply demotions
+        for (const admin of pendingDemotions) {
+            const { error } = await supabase.rpc('set_user_role', {
+                target_user_id: admin.id,
+                new_role: 'user'  // swap this for whatever your base role is
+            });
+            if (error) {
+                console.error('Demotion error for', admin.id, ':', error);
+                errors.push(admin.name);
+            }
+        }
+
+        // Apply promotions
+        for (const user of pendingPromotions) {
+            const { error } = await supabase.rpc('set_user_role', {
+                target_user_id: user.id,
+                new_role: 'admin'
+            });
+            if (error) {
+                console.error('Promotion error for', user.id, ':', error);
+                errors.push(user.name);
+            }
+        }
+
+        setSaving(false);
+
+        if (errors.length > 0) {
+            alert(`Some changes failed for: ${errors.join(', ')}. Please try again.`);
+            return;
+        }
+
+        // Update local state only on full success
+        const demotedIds = new Set(pendingDemotions.map(d => d.id));
+        const promotedIds = new Set(pendingPromotions.map(p => p.id));
+
+        setAdmins(prev => [
+            ...prev.filter(a => !demotedIds.has(a.id)),
+            ...pendingPromotions.map(u => ({ ...u, role: 'admin' }))
+        ].sort((a, b) => a.name.localeCompare(b.name)));
+
+        setUsers(prev => [
+            ...prev.filter(u => !promotedIds.has(u.id)),
+            ...pendingDemotions.map(a => ({ ...a, role: 'user' }))
+        ].sort((a, b) => a.name.localeCompare(b.name)));
+
+        setPendingDemotions([]);
+        setPendingPromotions([]);
+
+        alert('Role changes saved successfully!');
     };
 
     return (
@@ -695,9 +790,16 @@ function AddAdmin() {
                 {filteredAdmins.length === 0 && <div className="muted">No admins match your search.</div>}
                 {filteredAdmins.map(admin => (
                     <div key={admin.id} className="admin-item">
-                        <div className="name">{admin.name}</div>
+                        <div className="name">{admin.name} ({admin.email})</div>
                         <div className="actions">
-                            <button className="remove-btn" onClick={() => removeAdmin(admin.id)} aria-label={`Remove ${admin.name}`}>✕</button>
+                            <button
+                                className="remove-btn"
+                                onClick={() => demoteAdmin(admin.id)}
+                                disabled={pendingDemotions.some(d => d.id === admin.id)}
+                                aria-label={`Demote ${admin.name}`}
+                            >
+                                ✕
+                            </button>
                         </div>
                     </div>
                 ))}
@@ -708,13 +810,55 @@ function AddAdmin() {
                 {filteredUsers.length === 0 && <div className="muted">No users match your search.</div>}
                 {filteredUsers.map(user => (
                     <div key={user.id} className="admin-item">
-                        <div className="name">{user.name}</div>
+                        <div className="name">{user.name} ({user.email})</div>
                         <div className="actions">
-                            <button className="add-btn" onClick={() => addAdmin(user.id)}>Add Admin</button>
+                            <button
+                                className="add-btn"
+                                onClick={() => promoteUser(user.id)}
+                                disabled={pendingPromotions.some(p => p.id === user.id)}
+                            >
+                                Promote
+                            </button>
                         </div>
                     </div>
                 ))}
             </div>
+
+            {pendingDemotions.length > 0 && (
+                <div className="admin-list" style={{ marginTop: '1.5rem', border: '2px solid #ff6b6b' }}>
+                    <h4>Admins Being Demoted</h4>
+                    {pendingDemotions.map(admin => (
+                        <div key={admin.id} className="admin-item">
+                            <div className="name">{admin.name} ({admin.email})</div>
+                            <div className="actions">
+                                <button className="cancel-btn" onClick={() => cancelDemotion(admin.id)}>Cancel</button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {pendingPromotions.length > 0 && (
+                <div className="admin-list" style={{ marginTop: '1.5rem', border: '2px solid #51cf66' }}>
+                    <h4>Users Being Promoted</h4>
+                    {pendingPromotions.map(user => (
+                        <div key={user.id} className="admin-item">
+                            <div className="name">{user.name} ({user.email})</div>
+                            <div className="actions">
+                                <button className="cancel-btn" onClick={() => cancelPromotion(user.id)}>Cancel</button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {(pendingDemotions.length > 0 || pendingPromotions.length > 0) && (
+                <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+                    <button className="save-btn" onClick={saveChanges} disabled={saving}>
+                        {saving ? 'Saving...' : 'Save Role Changes'}
+                    </button>
+                </div>
+            )}
         </div>
     );
 }
@@ -877,6 +1021,27 @@ function AdminDashboard() {
                         Toggle Page
                     </button>
                     <button
+                        className={`sidebar-btn ${activeSection === 'admin-foods' ? 'active' : ''}`}
+                        onClick={() => handleSidebarClick('admin-foods')}
+                        title="Food Menu Editor"
+                    >
+                        Admin Tool - Food Editor
+                    </button>
+                    <button
+                        className={`sidebar-btn ${activeSection === 'token-editor' ? 'active' : ''}`}
+                        onClick={() => handleSidebarClick('token-editor')}
+                        title="Token Editor"
+                    >
+                        Token Editor
+                    </button>
+                    <button
+                        className={`sidebar-btn ${activeSection === 'queens-editor' ? 'active' : ''}`}
+                        onClick={() => handleSidebarClick('queens-editor')}
+                        title="Queens Editor"
+                    >
+                        Queens Editor
+                    </button>
+                    <button
                     className={`sidebar-btn ${activeSection === 'manage-donors' ? 'active' : ''}`}
                     onClick={() => handleSidebarClick('manage-donors')}
                     title="Add, edit, and delete sponsors/private donors"
@@ -898,6 +1063,9 @@ function AdminDashboard() {
                         {activeSection === 'edit-page' && 'Edit Page'}
                         {activeSection === 'add-admin' && 'Add Admin'}
                         {activeSection === 'toggle-page' && 'Toggle Page'}
+                        {activeSection === 'admin-foods' && 'Admin Tool - Food Editor'}
+                        {activeSection === 'token-editor' && 'Token Editor'}
+                        {activeSection === 'queens-editor' && 'Queens Editor'}
                         {activeSection === 'manage-donors' && 'Manage Donors'}
                     </h1>
                 </div>
@@ -927,6 +1095,12 @@ function AdminDashboard() {
                         saveChanges={savePageStates}
                     />
                 )}
+
+                {/* Admin Tool Pages */}
+                {activeSection === 'admin-foods' && <div className="section-content"><AdminFoods /></div>}
+                {activeSection === 'token-editor' && <div className="section-content"><TokenEditor /></div>}
+                {activeSection === 'queens-editor' && <div className="section-content"><QueensEditor /></div>}
+                {activeSection === 'manage-donors' && <DonorManager />}
                 {activeSection === 'manage-donors' && <DonorManager />}
             </main>
         </div>

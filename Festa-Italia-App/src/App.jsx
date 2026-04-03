@@ -6,32 +6,29 @@ import BocceDash from './Bocce-dashboard'
 import BocceSign from './Bocce-sign-up'
 import CoronationBall from './coronationball'
 import CoronationTix from './CoronationBallTickets'
+import DeleteAccount from './DeleteAccount'
 import Donate from './Donate'
 import Donation from './Donation'
 import FestivalInfo from './FestivalInfo'
 import Home from './HomePage'
 import Login from './Login'
+import PaymentCancelled from './PaymentCancelled'
+import PaymentFailed from './PaymentFailed'
+import PaymentSuccess from './PaymentSuccess'
 import ResetPass from './resetPassword'
 import Scholarship from './Scholarship'
-import DeleteAccount from './DeleteAccount'
 import Shopping from './Shopping'
 import Signup from './Signup'
 import Volunteer from './Volunteer'
-import PaymentSuccess from './PaymentSuccess';
-import PaymentCancelled from './PaymentCancelled';
-import PaymentFailed from './PaymentFailed';
 
 import { useEffect } from 'react'
 import AdminDashboard from './AdminDashboard'
-import AdminFoods from './adminEditMenu'
 import AuthStatus from './AuthStatus'
 import ForgotPass from './forgotpassword'
 import MockCheckout from "./MockCheckout"
 import PageOff from './PageOff'
 import SignInWall from './SignInWall'
-import TokenEditor from './TokenEditor'
 import UserProfile from './UserProfile'
-import QueensEditor from './QueensEditor'
 
 export default function App(){
     const [page, setPage] = useState('home')
@@ -153,7 +150,7 @@ export default function App(){
     if(loading)return <div>Loading Pages...</div>;
     switch(page){
       case 'admin-dash': return user && userRole === "admin" ? <AdminDashboard /> : <SignInWall setPage={setPage}/>;
-      case "admin-foods": return user && userRole === "admin" ? <AdminFoods /> : <SignInWall setPage={setPage}/>;
+      //case "admin-foods": return user && userRole === "admin" ? <AdminFoods /> : <SignInWall setPage={setPage}/>;
       case 'bocce-dash':
         if (pageVisibility["Bocce Dashboard"] === undefined) return null;
         return pageVisibility["Bocce Dashboard"] ? <BocceDash setPage={setPage}/> : <PageOff/>;
@@ -184,7 +181,7 @@ export default function App(){
         return pageVisibility["Festa Menu"] ? <Shopping setPage={setPage}/> : <PageOff/>;
       case 'volunteer':
         if (pageVisibility["Volunteer Sign-Up"] === undefined) return null;
-        return !pageVisibility["Volunteer Sign-Up"] ? <PageOff/>: !user ? <SignInWall /> : <Volunteer user={user}/>;
+        return !pageVisibility["Volunteer Sign-Up"] ? <PageOff/>: !user ? <SignInWall setPage={setPage}/> : <Volunteer setPage={setPage}/>;
       case 'forgot-pass': return <ForgotPass />
       case 'user-profile': return <UserProfile setPage={setPage} /> // Added by JK
       
@@ -193,11 +190,11 @@ export default function App(){
 
       case 'sign-in-wall': return <SignInWall setPage={setPage} />
       case 'page-off': return <PageOff setPage={setPage} />
-      case 'token-editor': return <TokenEditor />
+      //case 'token-editor': return user && userRole === "admin" ? <TokenEditor /> : <SignInWall setPage={setPage}/>
       case 'success': return <PaymentSuccess setPage={setPage} />;
       case 'cancel': return <PaymentCancelled setPage={setPage} />;
       case 'failure': return <PaymentFailed setPage={setPage} />;
-      case "queens-editor": return user && userRole === "admin" ? <QueensEditor /> : <SignInWall setPage={setPage}/>;
+      //case "queens-editor": return user && userRole === "admin" ? <QueensEditor /> : <SignInWall setPage={setPage}/>;
       case 'donate': return <Donate setPage={setPage} />;
       case 'donation-success': return <DonationSuccess setPage={setPage} />;
       case 'donation-cancel': return <DonationCancelled setPage={setPage} />;
@@ -254,12 +251,6 @@ export default function App(){
           <button role="menuitem" onClick={() => { setPage('donate'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Donate</button>
           <button role="menuitem" onClick={() => { setPage('donation'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Previous Sponsors</button>
           
-          {/* admin tools to be moved next sprint */}
-          <button role="menuitem" onClick={() => { setPage('admin-foods'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Admin Tool - Food Menu Editor</button>
-          <button role="menuitem" onClick={() => { setPage('token-editor'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Token Editor</button>
-          <button role="menuitem" onClick={() => { setPage('queens-editor'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Queens Editor</button>
-
-
         </div>
       )
     )

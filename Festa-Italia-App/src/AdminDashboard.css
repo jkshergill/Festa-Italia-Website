@@ -14,7 +14,7 @@
     background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
     padding: 1.5rem 0;
     box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-    z-index: 0;
+    z-index: 100;
     overflow-y: auto;
 }
 
@@ -441,7 +441,21 @@
     transform: scale(0.98);
 }
 
-/* Donor Manager Styles */
+.cancel-btn {
+    padding: 0.4rem 0.8rem;
+    background: #6c757d;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.cancel-btn:hover {
+    background: #5a6268;
+}
+
 .donor-manager-header {
     margin-bottom: 1.5rem;
 }
