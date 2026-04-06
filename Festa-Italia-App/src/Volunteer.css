@@ -87,7 +87,7 @@
 
 .schedule-wrapper {
     max-height: 360px;
-    overflow: auto; /* allow vertical and horizontal scrolling */
+    overflow: auto;
     border: 1px solid #ddd;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -131,15 +131,41 @@
     padding: 1rem;
     color: #555;
     font-size: 0.95rem;
-}
-
-.schedule-table td {
     cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .schedule-table td.selected {
-    background: rgba(0, 146, 70, 0.12);
-    outline: 2px solid rgba(0,146,70,0.12);
+    background: #009246;
+    color: #fff;
+    font-weight: 600;
+}
+
+.selected-shifts-box {
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+.selected-shifts-title {
+    margin-bottom: 0.75rem;
+    color: #333;
+}
+
+.selected-shifts-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.selected-shift-item {
+    margin-bottom: 0.4rem;
+    color: #555;
+    font-weight: 500;
+}
+
+.selected-shifts-empty {
+    margin: 0;
+    color: #777;
 }
 
 .signup-button {
@@ -147,11 +173,11 @@
     background: #009246;
     color: #fff;
     border: none;
-    padding: 12px 18px;;
+    padding: 12px 18px;
     border-radius: 10px;
     font-size: 1rem;
     cursor: pointer;
-    transform: translateX(-100px);
+    transform: translateX(-110px);
 }
 
 .signup-button:hover {
@@ -181,5 +207,9 @@
     .schedule-table td {
         padding: 0.75rem;
         font-size: 0.9rem;
+    }
+
+    .signup-button {
+        min-width: 100%;
     }
 }

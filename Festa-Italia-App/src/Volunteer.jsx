@@ -9,6 +9,10 @@ function normalize(value) {
   return String(value || '').trim().toLowerCase();
 }
 
+function makeShiftKey(day, timeframe) {
+  return `${day}__${timeframe}`;
+}
+
 export default function Volunteer() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -18,9 +22,7 @@ export default function Volunteer() {
   const [userId, setUserId] = useState(null);
   const [booths, setBooths] = useState([]);
   const [selectedBooth, setSelectedBooth] = useState('');
-
-  const [selectedDay, setSelectedDay] = useState('Friday');
-  const [selectedTimeframe, setSelectedTimeframe] = useState('Morning');
+  const [selectedShifts, setSelectedShifts] = useState([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -68,8 +70,26 @@ export default function Volunteer() {
   }, []);
 
   const canSubmit = useMemo(() => {
-    return Boolean(userId && selectedDay && selectedTimeframe && !submitting);
-  }, [userId, selectedDay, selectedTimeframe, submitting]);
+    return Boolean(userId && selectedShifts.length > 0 && !submitting);
+  }, [userId, selectedShifts, submitting]);
+
+  function toggleShift(day, timeframe) {
+    const key = makeShiftKey(day, timeframe);
+
+    setSelectedShifts((current) => {
+      const exists = current.some(
+        (shift) => shift.day === day && shift.timeframe === timeframe
+      );
+
+      if (exists) {
+        return current.filter(
+          (shift) => makeShiftKey(shift.day, shift.timeframe) !== key
+        );
+      }
+
+      return [...current, { day, timeframe }];
+    });
+  }
 
   async function handleSignup() {
     setError('');
@@ -80,33 +100,55 @@ export default function Volunteer() {
     setSubmitting(true);
 
     try {
-      const day = normalize(selectedDay);
-      const timeframe = normalize(selectedTimeframe);
+      const normalizedSelections = selectedShifts.map((shift) => ({
+        day: normalize(shift.day),
+        timeframe: normalize(shift.timeframe),
+      }));
 
-      // Prevent duplicate signups for the same day and timeframe.
-      const { data: existing, error: existingError } = await supabase
-        .from('volunteer_signups')
-        .select('id')
-        .eq('user_id', userId)
-        .eq('day', day)
-        .eq('timeframe', timeframe)
-        .limit(1);
+      const duplicateChecks = await Promise.all(
+        normalizedSelections.map(async (shift) => {
+          const { data, error: existingError } = await supabase
+            .from('volunteer_signups')
+            .select('id')
+            .eq('user_id', userId)
+            .eq('day', shift.day)
+            .eq('timeframe', shift.timeframe)
+            .limit(1);
 
-      if (existingError) throw existingError;
+          if (existingError) throw existingError;
 
-      if (existing && existing.length > 0) {
-        setError('You are already signed up for that day and timeframe.');
+          return {
+            ...shift,
+            exists: Boolean(data && data.length > 0),
+          };
+        })
+      );
+
+      const duplicates = duplicateChecks.filter((shift) => shift.exists);
+      if (duplicates.length > 0) {
+        const duplicateLabels = selectedShifts
+          .filter((selectedShift) =>
+            duplicates.some(
+              (duplicate) =>
+                duplicate.day === normalize(selectedShift.day) &&
+                duplicate.timeframe === normalize(selectedShift.timeframe)
+            )
+          )
+          .map((shift) => `${shift.day} ${shift.timeframe}`)
+          .join(', ');
+
+        setError(`You are already signed up for: ${duplicateLabels}.`);
         setSubmitting(false);
         return;
       }
 
-      const payload = {
+      const payload = selectedShifts.map((shift) => ({
         user_id: userId,
-        day,
-        timeframe,
+        day: normalize(shift.day),
+        timeframe: normalize(shift.timeframe),
         confirm: false,
         booth_id: selectedBooth || null,
-      };
+      }));
 
       const { error: insertError } = await supabase
         .from('volunteer_signups')
@@ -114,7 +156,12 @@ export default function Volunteer() {
 
       if (insertError) throw insertError;
 
-      setMessage(`Signup submitted for ${selectedDay} ${selectedTimeframe}.`);
+      const submittedShiftLabels = selectedShifts
+        .map((shift) => `${shift.day} ${shift.timeframe}`)
+        .join(', ');
+
+      setMessage(`Signup submitted for: ${submittedShiftLabels}.`);
+      setSelectedShifts([]);
     } catch (err) {
       setError(err?.message || 'Unable to submit volunteer signup.');
     } finally {
@@ -125,97 +172,112 @@ export default function Volunteer() {
   if (loading) {
     return <div className="volunteer-container">Loading volunteer signup...</div>;
   }
-  
-  const selectedBoothName =
-    booths.find((b) => b.id === selectedBooth)?.name || "No Preference";
+
   return (
-  <div className="volunteer-container page-root">
-    <h1 className="volunteer-title">Volunteer Sign-Up</h1>
+    <div className="volunteer-container page-root">
+      <h1 className="volunteer-title">Volunteer Sign-Up</h1>
 
-    <div className="volunteer-card-box">
-      <div className="volunteer-section">
-        <label className="dropdown-label" htmlFor="booth-select">Preferred Booth (Optional)</label>
-        <select
-          id="booth-select"
-          className="role-dropdown"
-          value={selectedBooth}
-          onChange={(e) => setSelectedBooth(e.target.value)}
-        >
-          <option value="">No booth preference</option>
-          {booths.map((booth) => (
-            <option key={booth.id} value={booth.id}>
-              {booth.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="schedule-wrapper">
-        <table className="schedule-table">
-          <thead>
-            <tr>
-              <th>Day</th>
-              {TIMEFRAMES.map((timeframe) => (
-                <th key={timeframe}>{timeframe}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {DAYS.map((day) => (
-              <tr key={day}>
-                <td>{day}</td>
-                {TIMEFRAMES.map((timeframe) => {
-                  const selected = day === selectedDay && timeframe === selectedTimeframe;
-                  return (
-                    <td
-                      key={`${day}-${timeframe}`}
-                      className={selected ? 'selected' : ''}
-                      onClick={() => {
-                        setSelectedDay(day);
-                        setSelectedTimeframe(timeframe);
-                      }}
-                      role="button"
-                      tabIndex={0}
-                      aria-label={`Select ${day} ${timeframe}`}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          setSelectedDay(day);
-                          setSelectedTimeframe(timeframe);
-                        }
-                      }}
-                    >
-                      {selected ? 'Selected' : 'Select'}
-                    </td>
-                  );
-                })}
-              </tr>
+      <div className="volunteer-card-box">
+        <div className="volunteer-section">
+          <label className="dropdown-label" htmlFor="booth-select">
+            Preferred Booth (Optional)
+          </label>
+          <select
+            id="booth-select"
+            className="role-dropdown"
+            value={selectedBooth}
+            onChange={(e) => setSelectedBooth(e.target.value)}
+          >
+            <option value="">No booth preference</option>
+            {booths.map((booth) => (
+              <option key={booth.id} value={booth.id}>
+                {booth.name}
+              </option>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </select>
+        </div>
 
-      <div className="volunteer-section volunteer-signup-actions">
-        <button
-          type="button"
-          className="signup-button"
-          disabled={!canSubmit}
-          onClick={handleSignup}
-          style={{ opacity: canSubmit ? 1 : 0.7 }}
-        >
-          {submitting
-            ? 'Submitting...'
-            : `Sign Up: ${selectedDay} ${selectedTimeframe} – ${selectedBoothName}`}
-        </button>
-      </div>
+        <div className="schedule-wrapper">
+          <table className="schedule-table">
+            <thead>
+              <tr>
+                <th>Day</th>
+                {TIMEFRAMES.map((timeframe) => (
+                  <th key={timeframe}>{timeframe}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {DAYS.map((day) => (
+                <tr key={day}>
+                  <td>{day}</td>
+                  {TIMEFRAMES.map((timeframe) => {
+                    const selected = selectedShifts.some(
+                      (shift) => shift.day === day && shift.timeframe === timeframe
+                    );
 
-      {message && (
-        <p className="volunteer-message volunteer-message-success">{message}</p>
-      )}
-      {error && (
-        <p className="volunteer-message volunteer-message-error">{error}</p>
-      )}
+                    return (
+                      <td
+                        key={`${day}-${timeframe}`}
+                        className={selected ? 'selected' : ''}
+                        onClick={() => toggleShift(day, timeframe)}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`${selected ? 'Deselect' : 'Select'} ${day} ${timeframe}`}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            toggleShift(day, timeframe);
+                          }
+                        }}
+                      >
+                        {selected ? 'Selected' : 'Select'}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="selected-shifts-box">
+          <h3 className="selected-shifts-title">Selected Shifts:</h3>
+          {selectedShifts.length > 0 ? (
+            <ul className="selected-shifts-list">
+              {selectedShifts.map((shift) => (
+                <li
+                  key={makeShiftKey(shift.day, shift.timeframe)}
+                  className="selected-shift-item"
+                >
+                  {shift.day} - {shift.timeframe}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="selected-shifts-empty">No shifts selected.</p>
+          )}
+        </div>
+
+        <div className="volunteer-section volunteer-signup-actions">
+          <button
+            type="button"
+            className="signup-button"
+            disabled={!canSubmit}
+            onClick={handleSignup}
+            style={{ opacity: canSubmit ? 1 : 0.7 }}
+          >
+            {submitting ? 'Submitting...' : 'Sign up for Selected Shifts'}
+          </button>
+        </div>
+
+        {message && (
+          <p className="volunteer-message volunteer-message-success">{message}</p>
+        )}
+        {error && (
+          <p className="volunteer-message volunteer-message-error">{error}</p>
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
 }
