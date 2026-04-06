@@ -212,16 +212,26 @@
   .form__container {
     min-height: calc(100vh - 84px);
     padding: 1.25rem 0.9rem 2rem;
+    display: flex;
   }
 
   .form {
     max-width: 100%;
     padding: 1.5rem 1rem;
     border-radius: 18px;
+    display: flex;
+    flex-direction: column;
   }
 
   .form__group {
     grid-template-columns: 1fr;
+  }
+
+  .show-password-button {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: auto;
   }
 }
 

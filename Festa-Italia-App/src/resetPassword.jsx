@@ -82,18 +82,6 @@ function App() {
   <main className="main-reset-content">
     <p className="reset-text">Festa Italia Password Reset:</p>
 
-    <p> 
-      <strong>
-        Disclaimer: You must be logged in to reset your password. 
-      </strong>
-    </p>
-    
-    <p>
-      <strong>
-        If you have forgotten your password, please use the "Request Reset Password Email" link from the top-right menu to receive a password reset email link and then return to this page.
-      </strong>
-    </p>
-
     <div className="form-group">
       <form className="reset-form" onSubmit={handleUpdatePassword}>
         <label htmlFor="festa-email" className="form-label">Email Address</label>
