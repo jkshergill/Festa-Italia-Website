@@ -226,8 +226,7 @@ function Donate() {
             </div>
 
             <div className="donate-help-text">
-              Please get in contact with Festa if you made a mistake entering your info.
-              Donations will be displayed on the previous donors webpage.
+              Corperate and general donations will be displayed on the previous donors webpage unless the . Please get in contact with Festa if you made a mistake entering your info.
             </div>
           </form>
         </section>

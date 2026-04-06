@@ -521,3 +521,15 @@
   font-size: 1.1rem;
   color: #009246;
 }
+
+.donate-help-text {
+  margin-top: 1.25rem;
+  color: #6b7280;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  text-align: center;
+
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
