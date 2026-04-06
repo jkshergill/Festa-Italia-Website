@@ -11,6 +11,7 @@ export default function Donation() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedDonorId, setSelectedDonorId] = useState(null);
+  const [displayFilter, setDisplayFilter] = useState('all');
 
   const currentYear = new Date().getFullYear();
   const minYear = 2000;
@@ -88,13 +89,18 @@ export default function Donation() {
     return `https://${trimmed}`;
   }
 
-  function donorDisplayName(donor) {
-    if (donor.company_name) return donor.company_name;
-    if (donor.donor_name) return donor.donor_name;
+	function donorDisplayName(donor) {
+	// Treat ALL private donors as anonymous
+	if (donor.is_anonymous === true || donor.consent_to_share === false) {
+		return 'Anonymous';
+	}
 
-    const fullName = `${donor.first_name || ''} ${donor.last_name || ''}`.trim();
-    return fullName || 'Unnamed Donor';
-  }
+	if (donor.company_name) return donor.company_name;
+	if (donor.donor_name) return donor.donor_name;
+
+	const fullName = `${donor.first_name || ''} ${donor.last_name || ''}`.trim();
+	return fullName || 'Unnamed Donor';
+	}
 
   function donorInitials(donor) {
     const name = donorDisplayName(donor);
@@ -108,6 +114,18 @@ export default function Donation() {
   function formatDate(dateString) {
     if (!dateString) return '';
     return new Date(dateString).toLocaleDateString();
+  }
+
+  function isCorporateSponsor(donor) {
+    return donor.donation_type === 'Advertising/Sponsorship';
+  }
+
+  function isPrivateDonor(donor) {
+    return donor.is_anonymous === true || donor.consent_to_share === false;
+  }
+
+  function isPublicDonor(donor) {
+    return !isCorporateSponsor(donor) && !isPrivateDonor(donor);
   }
 
   useEffect(() => {
@@ -160,26 +178,39 @@ export default function Donation() {
     fetchDonors();
   }, [start, end]);
 
-  const visibleDonors = useMemo(() => {
-    return donors.filter(
-      (d) => d.consent_to_share === true && d.is_anonymous === false
-    );
+  const corporateDonors = useMemo(() => {
+    return donors.filter(isCorporateSponsor);
   }, [donors]);
 
+  const publicDonors = useMemo(() => {
+    return donors.filter(isPublicDonor);
+  }, [donors]);
+
+  const privateDonors = useMemo(() => {
+    return donors.filter(isPrivateDonor);
+  }, [donors]);
+
+  const selectableDonors = useMemo(() => {
+    if (displayFilter === 'corporate') return corporateDonors;
+    if (displayFilter === 'public') return publicDonors;
+    if (displayFilter === 'private') return privateDonors;
+    return [...corporateDonors, ...publicDonors, ...privateDonors];
+  }, [displayFilter, corporateDonors, publicDonors, privateDonors]);
+
   useEffect(() => {
-    if (!visibleDonors.length) {
+    if (!selectableDonors.length) {
       setSelectedDonorId(null);
       return;
     }
 
-    const stillExists = visibleDonors.some((d) => d.donor_id === selectedDonorId);
+    const stillExists = selectableDonors.some((d) => d.donor_id === selectedDonorId);
     if (!stillExists) {
-      setSelectedDonorId(visibleDonors[0].donor_id);
+      setSelectedDonorId(selectableDonors[0].donor_id);
     }
-  }, [visibleDonors, selectedDonorId]);
+  }, [selectableDonors, selectedDonorId]);
 
   const selectedDonor =
-    visibleDonors.find((d) => d.donor_id === selectedDonorId) || null;
+    selectableDonors.find((d) => d.donor_id === selectedDonorId) || null;
 
   function renderDetailImage(donor) {
     if (!donor) {
@@ -217,6 +248,50 @@ export default function Donation() {
     }
 
     return imageContent;
+  }
+
+  function renderDonorList(sectionTitle, donorList) {
+    if (!donorList.length) return null;
+
+    return (
+      <div className="donor-list-section">
+        <h3 className="donor-list-section-title">{sectionTitle}</h3>
+        <ul className="donor-select-list">
+          {donorList.map((donor) => {
+            const isSelected = donor.donor_id === selectedDonorId;
+
+            return (
+              <li key={donor.donor_id}>
+                <button
+                  type="button"
+                  className={`donor-select-item ${isSelected ? 'selected' : ''}`}
+                  onClick={() => setSelectedDonorId(donor.donor_id)}
+                >
+                  <div className="donor-select-avatar-wrap">
+                    {donor.image_url ? (
+                      <img
+                        src={donor.image_url}
+                        alt={donorDisplayName(donor)}
+                        className="donor-select-avatar"
+                      />
+                    ) : (
+                      <div className="donor-select-avatar donor-select-avatar-fallback">
+                        {donorInitials(donor)}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="donor-select-text">
+                    <strong>{donorDisplayName(donor)}</strong>
+                    <span>{formatDate(donor.donated_at)}</span>
+                  </div>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    );
   }
 
   return (
@@ -341,11 +416,28 @@ export default function Donation() {
             </fieldset>
           </div>
 
+          <div className="donor-filter-row">
+            <label htmlFor="donor-display-filter" className="donor-filter-label">
+              Display:
+            </label>
+            <select
+              id="donor-display-filter"
+              className="donor-display-filter"
+              value={displayFilter}
+              onChange={(e) => setDisplayFilter(e.target.value)}
+            >
+              <option value="all">All</option>
+              <option value="corporate">Corporate Sponsors</option>
+              <option value="public">Public Donors</option>
+              <option value="private">Private Donors</option>
+            </select>
+          </div>
+
           <section className="donors section">
             <div className="donors-header">
               <h2>Donors</h2>
               <p className="donor-count">
-                {visibleDonors.length} donor{visibleDonors.length === 1 ? '' : 's'} recognized
+                {selectableDonors.length} donor{selectableDonors.length === 1 ? '' : 's'} recognized
               </p>
             </div>
 
@@ -354,49 +446,26 @@ export default function Donation() {
 
             {!loading && !error && (
               <>
-                {visibleDonors.length === 0 ? (
+                {selectableDonors.length === 0 ? (
                   <div className="donor-section-box">
-                    <p>No public donors yet.</p>
+                    <p>No donors found for this filter.</p>
                   </div>
                 ) : (
                   <div className="donor-browser">
                     <div className="donor-browser-list donor-section-box">
-                      <h3>Donor List</h3>
-
-                      <ul className="donor-select-list">
-                        {visibleDonors.map((donor) => {
-                          const isSelected = donor.donor_id === selectedDonorId;
-
-                          return (
-                            <li key={donor.donor_id}>
-                              <button
-                                type="button"
-                                className={`donor-select-item ${isSelected ? 'selected' : ''}`}
-                                onClick={() => setSelectedDonorId(donor.donor_id)}
-                              >
-                                <div className="donor-select-avatar-wrap">
-                                  {donor.image_url ? (
-                                    <img
-                                      src={donor.image_url}
-                                      alt={donorDisplayName(donor)}
-                                      className="donor-select-avatar"
-                                    />
-                                  ) : (
-                                    <div className="donor-select-avatar donor-select-avatar-fallback">
-                                      {donorInitials(donor)}
-                                    </div>
-                                  )}
-                                </div>
-
-                                <div className="donor-select-text">
-                                  <strong>{donorDisplayName(donor)}</strong>
-                                  <span>{formatDate(donor.donated_at)}</span>
-                                </div>
-                              </button>
-                            </li>
-                          );
-                        })}
-                      </ul>
+                      {displayFilter === 'all' ? (
+                        <>
+                          {renderDonorList('Corporate Sponsors', corporateDonors)}
+                          {renderDonorList('Public Donors', publicDonors)}
+                          {renderDonorList('Private Donors', privateDonors)}
+                        </>
+                      ) : displayFilter === 'corporate' ? (
+                        renderDonorList('Corporate Sponsors', corporateDonors)
+                      ) : displayFilter === 'public' ? (
+                        renderDonorList('Public Donors', publicDonors)
+                      ) : (
+                        renderDonorList('Private Donors', privateDonors)
+                      )}
                     </div>
 
                     <div className="donor-browser-detail donor-section-box">
@@ -407,7 +476,9 @@ export default function Donation() {
                           </div>
 
                           <h3 className="donor-detail-title">
-                            {donorDisplayName(selectedDonor)}
+                            {selectedDonor.is_anonymous
+                              ? 'Private Donor'
+                              : donorDisplayName(selectedDonor)}
                           </h3>
 
                           <div className="donor-detail-description">
