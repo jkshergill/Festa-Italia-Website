@@ -24,6 +24,13 @@ function Login({ setPage }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [status, setStatus] = useState(null); // { type: 'error'|'success', text: string }
+  const [showPassword, setShowPassword] = useState(false);
+  const passwordType = showPassword ? 'text' : 'password';
+
+  const handleTogglePassword = (e) => {
+    e.preventDefault();
+    setShowPassword((prev) => !prev);
+  };
 
   // [SUPABASE] Submit handler that checks credentials with Supabase
   const handleSubmit = async (e) => {
@@ -88,7 +95,7 @@ function Login({ setPage }) {
         {/* [SUPABASE] Password: controlled input; comment out `required` */}
         <label>
           <input
-            type="password"
+            type={passwordType}
             name="Password"
             placeholder="Password"
             // required  // [SUPABASE] disabled native validation; handled by Supabase + our own checks
@@ -97,6 +104,10 @@ function Login({ setPage }) {
             autoComplete="current-password"
           />
         </label>
+
+        <button className='show-password-button' onClick={handleTogglePassword} aria-pressed={showPassword} type='button'>
+          {showPassword ? 'Hide' : 'Show'} Password
+        </button>
 
         <div className="form__actions">
           <button type="submit" className="form__submit">Log In</button>

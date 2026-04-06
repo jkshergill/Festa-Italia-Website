@@ -81,6 +81,10 @@ export default function Donation() {
 	}
 
 	useEffect(() => {
+
+		document.body.id = 'donation-body-id';
+    document.body.className = 'donation-body';
+
 		async function fetchDonors() {
 			setLoading(true);
 			setError('');
@@ -131,6 +135,15 @@ export default function Donation() {
 	}, [start, end]);
 
 	const publicDonors = donors.filter(
+		d => d.consent_to_share === true && d.is_anonymous === false && d.donation_type === 'Basic'
+	);
+
+	const sponsorDonors = donors.filter(
+		d => d.consent_to_share === true && d.is_anonymous === false && d.donation_type === 'Advertising/Sponsorship'
+	);
+
+	const privateDonors = donors.filter(
+		d => d.consent_to_share === true && d.is_anonymous === true && (d.donation_type === 'Basic' || d.donation_type === 'Advertising/Sponsorship')
 		d => d.consent_to_share === true && d.is_anonymous === false
 	);
 
@@ -298,6 +311,41 @@ export default function Donation() {
 
 						{!loading && !error && (
 							<>
+
+								<section className="donor-subsection donor-section-box">
+									<h3>Corporate Sponsors</h3>
+									{sponsorDonors.length === 0 ? (
+										<p>No corporate donors yet.</p>
+									) : (
+										<ul className="donor-list donor-grid">
+											{sponsorDonors.map((donor) => (
+												<li key={donor.donor_id} className="donor-card">
+													<div className="donor-card-main">
+														{donor.image_url ? (
+															<img
+																src={donor.image_url}
+																alt={donorDisplayName(donor)}
+																className="donor-avatar"
+															/>
+														) : (
+															<div className="donor-avatar fallback-avatar">
+																{donorInitials(donor)}
+															</div>
+														)}
+
+														<div className="donor-meta">
+															<strong>{donorDisplayName(donor)}</strong>
+															<span>{formatDate(donor.donated_at)}</span>
+															{donor.donor_note && <p>{donor.donor_note}</p>}
+														</div>
+													</div>
+
+												</li>
+											))}
+										</ul>
+									)}
+								</section>
+
 								<section className="donor-subsection donor-section-box">
 									<h3>Public Donors</h3>
 									{publicDonors.length === 0 ? (
@@ -359,9 +407,37 @@ export default function Donation() {
 														</div>
 													</div>
 
-													<div className="donor-amount">
-														{formatAmount(donor.amount_cents)}
+	
+												</li>
+											))}
+										</ul>
+									)}
+								</section>
+
+								<section className="donor-subsection donor-section-box">
+									<h3>Anonymous Donors</h3>
+									{privateDonors.length === 0 ? (
+										<p>No anonymous donors yet.</p>
+									) : (
+										<ul className="donor-list donor-grid">
+											{privateDonors.map((donor) => (
+												<li key={donor.donor_id} className="donor-card">
+													<div className="donor-card-main">
+														<div className="donor-avatar fallback-avatar">
+															{donor.is_anonymous ? 'A' : donorInitials(donor)}
+														</div>
+
+														<div className="donor-meta">
+															<strong>
+																{donor.is_anonymous
+																	? 'Anonymous Donor'
+																	: donorDisplayName(donor)}
+															</strong>
+															<span>{formatDate(donor.donated_at)}</span>
+															{donor.donor_note && <p>{donor.donor_note}</p>}
+														</div>
 													</div>
+
 												</li>
 											))}
 										</ul>
