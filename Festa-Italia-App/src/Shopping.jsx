@@ -26,6 +26,9 @@ function Shopping( {setPage} ) {
     const [tokens, setTokens] = useState([]);
     const [loading, setLoading] = useState(true);
     const [errorMsg, setErrorMsg] = useState("");
+    const foodFiltered = food.filter(f => f.is_active === true && f.food_type === "food");
+    const drinkFiltered = food.filter(f => f.is_active === true && f.food_type === "drink");
+
     // Committed order quantities
     const [foodQuantities, setFoodQuantities] = useState({}); 
     const [tokenQuantities, setTokenQuantities] = useState({});
@@ -176,12 +179,12 @@ function Shopping( {setPage} ) {
             </p>
 
             <div className='food-section'>
-                {food.length === 0 ? (
+                {foodFiltered.length === 0 ? (
                     <p>Menu coming soon!</p>
                 ) : (
-                    food.filter(f => f.food_type === "food").map(f => (
-                        <>
-                            <div className='food-container'>
+                    foodFiltered.map(f => (
+                        
+                            <div key={f.id} className='food-container'>
                                 <p className='food-name'>{f.name}</p>
                                 <p>{f.description}</p>
                                 <p className='food-price'>Price: ${f.price}</p>
@@ -198,7 +201,7 @@ function Shopping( {setPage} ) {
                                                                     ))}
                                                                 </select>
                             </div>
-                        </>
+                        
                     ))
                 )
                 }
@@ -210,29 +213,29 @@ function Shopping( {setPage} ) {
 
             <div className='food-section'>
 
-                {food.length === 0 ? (
+                {drinkFiltered.length === 0 ? (
                     <p>Menu coming soon!</p>
                 ) : (
-                    food.filter(f => f.food_type === "drink").map(f => (
-                        <>
-                            <div className='food-container'>
-                                <p className='food-name'>{f.name}</p>
-                                <p>{f.description}</p>
-                                <p className='food-price'>Price: ${f.price}</p>
-                                <p className='food-calories'>Calories: {f.calories}</p>
-                                <img className='food-image' src={getFoodImageUrl(f.image_path)} alt={f.name} />
-                                                                <p>Quantity:</p>
-                                                                <select
-                                                                    value={pendingFoodQuantities[f.id] || 0}
-                                                                    onChange={e => handlePendingFoodQuantityChange(f.id, parseInt(e.target.value, 10))}
-                                                                    style={{ padding: '0.3rem', fontSize: '1rem' }}
-                                                                >
-                                                                    {[0,1,2,3,4,5].map(q => (
-                                                                        <option key={q} value={q}>{q}</option>
-                                                                    ))}
-                                                                </select>
+                    drinkFiltered.map(f => (
+                    
+                        <div key={f.id} className='food-container'>
+                            <p className='food-name'>{f.name}</p>
+                            <p>{f.description}</p>
+                            <p className='food-price'>Price: ${f.price}</p>
+                            <p className='food-calories'>Calories: {f.calories}</p>
+                            <img className='food-image' src={getFoodImageUrl(f.image_path)} alt={f.name} />
+                                <p>Quantity:</p>
+                                    <select
+                                    value={pendingFoodQuantities[f.id] || 0}
+                                    onChange={e => handlePendingFoodQuantityChange(f.id, parseInt(e.target.value, 10))}
+                                    style={{ padding: '0.3rem', fontSize: '1rem' }}
+                                    >
+                                        {[0,1,2,3,4,5].map(q => (
+                                        <option key={q} value={q}>{q}</option>
+                                        ))}
+                                    </select>
                             </div>
-                        </>
+                        
                     ))
                 )
                 }
@@ -247,23 +250,13 @@ function Shopping( {setPage} ) {
                     <p>Tokens coming soon!</p>
                     ) : (
                     tokens.map(t => (
-                        <>  
-                            <div className='token-container'>
-                                <p className='token-name'>{t.color} tokens</p>
+                 
+                        <div key={t.id} className='token-container'>
+                            <p className='token-name'>{t.color} tokens</p>
                                 <img className='token-image' src={getTokenImageUrl(t.image_path)} alt={t.color} />
-                                <p className='token-price'>Price: ${t.price}</p>
-                                                                <p>Quantity:</p>
-                                                                <select
-                                                                    value={pendingTokenQuantities[t.id] || 0}
-                                                                    onChange={e => handlePendingTokenQuantityChange(t.id, parseInt(e.target.value, 10))}
-                                                                    style={{ padding: '0.3rem', fontSize: '1rem' }}
-                                                                >
-                                                                    {[0,1,2,3,4,5].map(q => (
-                                                                        <option key={q} value={q}>{q}</option>
-                                                                    ))}
-                                                                </select>
-                            </div>
-                        </>                        
+                            <p className='token-price'>Price: ${t.price}</p>
+                        </div>
+                                               
                     ))
                  )
                 }

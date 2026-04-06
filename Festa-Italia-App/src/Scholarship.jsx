@@ -1,7 +1,15 @@
 import "./index.css";
+import { useEffect } from "react";
 
 
 function Scholarship() {
+
+    useEffect(() => {
+      document.body.id = 'scholarship-body-id';
+      document.body.className = 'scholarship-body';
+    }, []);
+
+
 
     return ( 
             <div className="page-root min-h-screen flex flex-col font-sans">
