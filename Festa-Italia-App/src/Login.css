@@ -127,7 +127,7 @@
   transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
   box-shadow: 0 16px 30px rgba(0, 146, 70, 0.3);
 }
-}
+
 
 .form__submit:hover {
   transform: translateY(-1px);
@@ -260,5 +260,12 @@
   .form__submit {
     min-height: 48px;
     font-size: 0.96rem;
+  }
+
+  .show-password-button {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: auto;
   }
 }
