@@ -4,400 +4,440 @@ import './HomePage.css';
 import { supabase } from './supabaseClient';
 
 export default function Donation() {
-	const [start, setStart] = useState({ month: '', day: '', year: '' });
-	const [end, setEnd] = useState({ month: '', day: '', year: '' });
+  const [start, setStart] = useState({ month: '', day: '', year: '' });
+  const [end, setEnd] = useState({ month: '', day: '', year: '' });
 
-	const [donors, setDonors] = useState([]);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState('');
+  const [donors, setDonors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [selectedDonorId, setSelectedDonorId] = useState(null);
 
-	const currentYear = new Date().getFullYear();
-	const minYear = 2000;
+  const currentYear = new Date().getFullYear();
+  const minYear = 2000;
 
-	const years = useMemo(() => {
-		const arr = [];
-		for (let y = minYear; y <= currentYear; y++) arr.push(y);
-		return arr;
-	}, [currentYear]);
+  const years = useMemo(() => {
+    const arr = [];
+    for (let y = minYear; y <= currentYear; y++) arr.push(y);
+    return arr;
+  }, [currentYear]);
 
-	function daysInMonth(year, month) {
-		if (!year || !month) return 31;
-		return new Date(Number(year), Number(month), 0).getDate();
-	}
+  function daysInMonth(year, month) {
+    if (!year || !month) return 31;
+    return new Date(Number(year), Number(month), 0).getDate();
+  }
 
-	function pad(n) {
-		return String(n).padStart(2, '0');
-	}
+  function pad(n) {
+    return String(n).padStart(2, '0');
+  }
 
-	function formatParts(parts) {
-		const { month, day, year } = parts || {};
-		if (!month || !day || !year) return 'xx/xx/xxxx';
-		return `${pad(month)}/${pad(day)}/${year}`;
-	}
+  function formatParts(parts) {
+    const { month, day, year } = parts || {};
+    if (!month || !day || !year) return 'xx/xx/xxxx';
+    return `${pad(month)}/${pad(day)}/${year}`;
+  }
 
-	function toISOStart(parts) {
-		const { month, day, year } = parts || {};
-		if (!month || !day || !year) return null;
-		return `${year}-${pad(month)}-${pad(day)}T00:00:00.000Z`;
-	}
+  function toISOStart(parts) {
+    const { month, day, year } = parts || {};
+    if (!month || !day || !year) return null;
+    return `${year}-${pad(month)}-${pad(day)}T00:00:00.000Z`;
+  }
 
-	function toISOEnd(parts) {
-		const { month, day, year } = parts || {};
-		if (!month || !day || !year) return null;
-		return `${year}-${pad(month)}-${pad(day)}T23:59:59.999Z`;
-	}
+  function toISOEnd(parts) {
+    const { month, day, year } = parts || {};
+    if (!month || !day || !year) return null;
+    return `${year}-${pad(month)}-${pad(day)}T23:59:59.999Z`;
+  }
 
-	function onStartChange(field, value) {
-		setStart(prev => {
-			const next = { ...prev, [field]: value };
-			if ((field === 'month' || field === 'year') && next.day) {
-				const max = daysInMonth(next.year || currentYear, next.month || 1);
-				if (Number(next.day) > max) next.day = '';
-			}
-			return next;
-		});
-	}
+  function onStartChange(field, value) {
+    setStart((prev) => {
+      const next = { ...prev, [field]: value };
+      if ((field === 'month' || field === 'year') && next.day) {
+        const max = daysInMonth(next.year || currentYear, next.month || 1);
+        if (Number(next.day) > max) next.day = '';
+      }
+      return next;
+    });
+  }
 
-	function onEndChange(field, value) {
-		setEnd(prev => {
-			const next = { ...prev, [field]: value };
-			if ((field === 'month' || field === 'year') && next.day) {
-				const max = daysInMonth(next.year || currentYear, next.month || 1);
-				if (Number(next.day) > max) next.day = '';
-			}
-			return next;
-		});
-	}
+  function onEndChange(field, value) {
+    setEnd((prev) => {
+      const next = { ...prev, [field]: value };
+      if ((field === 'month' || field === 'year') && next.day) {
+        const max = daysInMonth(next.year || currentYear, next.month || 1);
+        if (Number(next.day) > max) next.day = '';
+      }
+      return next;
+    });
+  }
 
-	function getDonorImageUrl(donorPicUrl) {
-		if (!donorPicUrl) return '';
+  function getDonorImageUrl(donorPicUrl) {
+    if (!donorPicUrl) return '';
 
-		if (donorPicUrl.startsWith('http://') || donorPicUrl.startsWith('https://')) {
-			return donorPicUrl;
-		}
+    if (donorPicUrl.startsWith('http://') || donorPicUrl.startsWith('https://')) {
+      return donorPicUrl;
+    }
 
-		const { data } = supabase.storage.from('donors').getPublicUrl(donorPicUrl);
-		return data?.publicUrl || '';
-	}
+    const { data } = supabase.storage.from('donors').getPublicUrl(donorPicUrl);
+    return data?.publicUrl || '';
+  }
 
-	useEffect(() => {
-		async function fetchDonors() {
-			setLoading(true);
-			setError('');
+  function normalizeUrl(url) {
+    const trimmed = (url || '').trim();
+    if (!trimmed) return '';
+    if (/^https?:\/\//i.test(trimmed)) return trimmed;
+    return `https://${trimmed}`;
+  }
 
-			try {
-				let query = supabase
-					.from('donors')
-					.select(`
-						donor_id,
-						first_name,
-						last_name,
-						company_name,
-						donor_name,
-						donor_note,
-						donor_pic_url,
-						amount_cents,
-						donated_at,
-						is_anonymous,
-						consent_to_share,
-						donation_type
-					`)
-					.order('donated_at', { ascending: false });
+  function donorDisplayName(donor) {
+    if (donor.company_name) return donor.company_name;
+    if (donor.donor_name) return donor.donor_name;
 
-				const startISO = toISOStart(start);
-				const endISO = toISOEnd(end);
+    const fullName = `${donor.first_name || ''} ${donor.last_name || ''}`.trim();
+    return fullName || 'Unnamed Donor';
+  }
 
-				if (startISO) query = query.gte('donated_at', startISO);
-				if (endISO) query = query.lte('donated_at', endISO);
+  function donorInitials(donor) {
+    const name = donorDisplayName(donor);
+    return name
+      .split(' ')
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase() || '')
+      .join('');
+  }
 
-				const { data, error } = await query;
+  function formatDate(dateString) {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString();
+  }
 
-				if (error) throw error;
+  useEffect(() => {
+    async function fetchDonors() {
+      setLoading(true);
+      setError('');
 
-				const normalized = (data || []).map(donor => ({
-					...donor,
-					image_url: getDonorImageUrl(donor.donor_pic_url)
-				}));
+      try {
+        let query = supabase
+          .from('donors')
+          .select(`
+            donor_id,
+            first_name,
+            last_name,
+            company_name,
+            donor_name,
+            donor_note,
+            donor_pic_url,
+            donor_link_url,
+            donated_at,
+            is_anonymous,
+            consent_to_share,
+            donation_type
+          `)
+          .order('donated_at', { ascending: false });
 
-				setDonors(normalized);
-			} catch (err) {
-				setError(err.message || 'Failed to load donors.');
-			} finally {
-				setLoading(false);
-			}
-		}
+        const startISO = toISOStart(start);
+        const endISO = toISOEnd(end);
 
-		fetchDonors();
-	}, [start, end]);
+        if (startISO) query = query.gte('donated_at', startISO);
+        if (endISO) query = query.lte('donated_at', endISO);
 
-	const publicDonors = donors.filter(
-		d => d.consent_to_share === true && d.is_anonymous === false
-	);
+        const { data, error } = await query;
+        if (error) throw error;
 
-	const privateDonors = donors.filter(
-		d => d.consent_to_share === false || d.is_anonymous === true
-	);
+        const normalized = (data || []).map((donor) => ({
+          ...donor,
+          image_url: getDonorImageUrl(donor.donor_pic_url),
+          donor_link_url: normalizeUrl(donor.donor_link_url),
+        }));
 
-	function formatAmount(amountCents) {
-		return new Intl.NumberFormat('en-US', {
-			style: 'currency',
-			currency: 'USD'
-		}).format((amountCents || 0) / 100);
-	}
+        setDonors(normalized);
+      } catch (err) {
+        setError(err.message || 'Failed to load donors.');
+      } finally {
+        setLoading(false);
+      }
+    }
 
-	function formatDate(dateString) {
-		if (!dateString) return '';
-		return new Date(dateString).toLocaleDateString();
-	}
+    fetchDonors();
+  }, [start, end]);
 
-	function donorDisplayName(donor) {
-		if (donor.company_name) return donor.company_name;
-		if (donor.donor_name) return donor.donor_name;
+  const visibleDonors = useMemo(() => {
+    return donors.filter(
+      (d) => d.consent_to_share === true && d.is_anonymous === false
+    );
+  }, [donors]);
 
-		const fullName = `${donor.first_name || ''} ${donor.last_name || ''}`.trim();
-		return fullName || 'Unnamed Donor';
-	}
+  useEffect(() => {
+    if (!visibleDonors.length) {
+      setSelectedDonorId(null);
+      return;
+    }
 
-	function donorInitials(donor) {
-		const name = donorDisplayName(donor);
-		return name
-			.split(' ')
-			.slice(0, 2)
-			.map(part => part[0]?.toUpperCase() || '')
-			.join('');
-	}
+    const stillExists = visibleDonors.some((d) => d.donor_id === selectedDonorId);
+    if (!stillExists) {
+      setSelectedDonorId(visibleDonors[0].donor_id);
+    }
+  }, [visibleDonors, selectedDonorId]);
 
-	return (
-		<div className="page-root">
-			<main>
-				<section className="container section">
-					<h1 className="page-title">Recognizing Our Donors</h1>
+  const selectedDonor =
+    visibleDonors.find((d) => d.donor_id === selectedDonorId) || null;
 
-					<p className="donation-intro">
-						Celebrating our generous supporters and the impact of every gift.
-					</p>
+  function renderDetailImage(donor) {
+    if (!donor) {
+      return (
+        <div className="donor-detail-image donor-detail-fallback">
+          Select a donor
+        </div>
+      );
+    }
 
-					<p className="donation-range">
-						Showing donations from {formatParts(start)} - {formatParts(end)}
-					</p>
+    const imageContent = donor.image_url ? (
+      <img
+        src={donor.image_url}
+        alt={donorDisplayName(donor)}
+        className="donor-detail-image"
+      />
+    ) : (
+      <div className="donor-detail-image donor-detail-fallback">
+        {donorInitials(donor)}
+      </div>
+    );
 
-					<div className="date-controls" aria-label="Filter donations by date">
-						<fieldset className="date-group" aria-labelledby="start-label">
-							<legend id="start-label" className="sr-only">Start date</legend>
+    if (donor.image_url && donor.donor_link_url) {
+      return (
+        <a
+          href={donor.donor_link_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="donor-detail-image-link"
+          aria-label={`Visit link for ${donorDisplayName(donor)}`}
+        >
+          {imageContent}
+        </a>
+      );
+    }
 
-							<div className="date-field">
-								<label className="sr-only" htmlFor="start-month">Start month</label>
-								<select
-									id="start-month"
-									value={start.month}
-									onChange={(e) => onStartChange('month', e.target.value)}
-									aria-label="Start month"
-								>
-									<option value="">Month</option>
-									{Array.from({ length: 12 }, (_, i) => i + 1).map(m => (
-										<option key={m} value={m}>{m}</option>
-									))}
-								</select>
-							</div>
+    return imageContent;
+  }
 
-							<div className="date-field">
-								<label className="sr-only" htmlFor="start-day">Start day</label>
-								<select
-									id="start-day"
-									value={start.day}
-									onChange={(e) => onStartChange('day', e.target.value)}
-									aria-label="Start day"
-									disabled={!start.month || !start.year}
-								>
-									<option value="">Day</option>
-									{Array.from(
-										{ length: daysInMonth(start.year || currentYear, start.month || 1) },
-										(_, i) => i + 1
-									).map(d => (
-										<option key={d} value={d}>{d}</option>
-									))}
-								</select>
-							</div>
+  return (
+    <div className="page-root">
+      <main>
+        <section className="container section">
+          <h1 className="page-title">Recognizing Our Donors</h1>
 
-							<div className="date-field">
-								<label className="sr-only" htmlFor="start-year">Start year</label>
-								<select
-									id="start-year"
-									value={start.year}
-									onChange={(e) => onStartChange('year', e.target.value)}
-									aria-label="Start year"
-								>
-									<option value="">Year</option>
-									{years.map(y => <option key={y} value={y}>{y}</option>)}
-								</select>
-							</div>
-						</fieldset>
+          <p className="donation-intro">
+            Celebrating our generous supporters and the impact of every gift.
+          </p>
 
-						<fieldset className="date-group" aria-labelledby="end-label">
-							<legend id="end-label" className="sr-only">End date</legend>
+          <p className="donation-range">
+            Showing donations from {formatParts(start)} - {formatParts(end)}
+          </p>
 
-							<div className="date-field">
-								<label className="sr-only" htmlFor="end-month">End month</label>
-								<select
-									id="end-month"
-									value={end.month}
-									onChange={(e) => onEndChange('month', e.target.value)}
-									aria-label="End month"
-								>
-									<option value="">Month</option>
-									{Array.from({ length: 12 }, (_, i) => i + 1).map(m => (
-										<option key={m} value={m}>{m}</option>
-									))}
-								</select>
-							</div>
+          <div className="date-controls" aria-label="Filter donations by date">
+            <fieldset className="date-group" aria-labelledby="start-label">
+              <legend id="start-label" className="sr-only">Start date</legend>
 
-							<div className="date-field">
-								<label className="sr-only" htmlFor="end-day">End day</label>
-								<select
-									id="end-day"
-									value={end.day}
-									onChange={(e) => onEndChange('day', e.target.value)}
-									aria-label="End day"
-									disabled={!end.month || !end.year}
-								>
-									<option value="">Day</option>
-									{Array.from(
-										{ length: daysInMonth(end.year || currentYear, end.month || 1) },
-										(_, i) => i + 1
-									).map(d => (
-										<option key={d} value={d}>{d}</option>
-									))}
-								</select>
-							</div>
+              <div className="date-field">
+                <label className="sr-only" htmlFor="start-month">Start month</label>
+                <select
+                  id="start-month"
+                  value={start.month}
+                  onChange={(e) => onStartChange('month', e.target.value)}
+                  aria-label="Start month"
+                >
+                  <option value="">Month</option>
+                  {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+              </div>
 
-							<div className="date-field">
-								<label className="sr-only" htmlFor="end-year">End year</label>
-								<select
-									id="end-year"
-									value={end.year}
-									onChange={(e) => onEndChange('year', e.target.value)}
-									aria-label="End year"
-								>
-									<option value="">Year</option>
-									{years.map(y => <option key={y} value={y}>{y}</option>)}
-								</select>
-							</div>
-						</fieldset>
-					</div>
+              <div className="date-field">
+                <label className="sr-only" htmlFor="start-day">Start day</label>
+                <select
+                  id="start-day"
+                  value={start.day}
+                  onChange={(e) => onStartChange('day', e.target.value)}
+                  aria-label="Start day"
+                  disabled={!start.month || !start.year}
+                >
+                  <option value="">Day</option>
+                  {Array.from(
+                    { length: daysInMonth(start.year || currentYear, start.month || 1) },
+                    (_, i) => i + 1
+                  ).map((d) => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+              </div>
 
-					<section className="donors section">
-						<div className="donors-header">
-							<h2>Donors</h2>
-							<p className="donor-count">
-								{donors.length} donor{donors.length === 1 ? '' : 's'} recognized
-							</p>
-						</div>
+              <div className="date-field">
+                <label className="sr-only" htmlFor="start-year">Start year</label>
+                <select
+                  id="start-year"
+                  value={start.year}
+                  onChange={(e) => onStartChange('year', e.target.value)}
+                  aria-label="Start year"
+                >
+                  <option value="">Year</option>
+                  {years.map((y) => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
+              </div>
+            </fieldset>
 
-						{loading && <p>Loading donors...</p>}
-						{error && <p className="error-text">{error}</p>}
+            <fieldset className="date-group" aria-labelledby="end-label">
+              <legend id="end-label" className="sr-only">End date</legend>
 
-						{!loading && !error && (
-							<>
-								<section className="donor-subsection donor-section-box">
-									<h3>Public Donors</h3>
-									{publicDonors.length === 0 ? (
-										<p>No public donors yet.</p>
-									) : (
-										<ul className="donor-list donor-grid">
-											{publicDonors.map((donor) => (
-												<li key={donor.donor_id} className="donor-card">
-													<div className="donor-card-main">
-														{donor.image_url ? (
-															<img
-																src={donor.image_url}
-																alt={donorDisplayName(donor)}
-																className="donor-avatar"
-															/>
-														) : (
-															<div className="donor-avatar fallback-avatar">
-																{donorInitials(donor)}
-															</div>
-														)}
+              <div className="date-field">
+                <label className="sr-only" htmlFor="end-month">End month</label>
+                <select
+                  id="end-month"
+                  value={end.month}
+                  onChange={(e) => onEndChange('month', e.target.value)}
+                  aria-label="End month"
+                >
+                  <option value="">Month</option>
+                  {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+              </div>
 
-														<div className="donor-meta">
-															<strong>{donorDisplayName(donor)}</strong>
-															<span>{formatDate(donor.donated_at)}</span>
-															{donor.donor_note && <p>{donor.donor_note}</p>}
-														</div>
-													</div>
+              <div className="date-field">
+                <label className="sr-only" htmlFor="end-day">End day</label>
+                <select
+                  id="end-day"
+                  value={end.day}
+                  onChange={(e) => onEndChange('day', e.target.value)}
+                  aria-label="End day"
+                  disabled={!end.month || !end.year}
+                >
+                  <option value="">Day</option>
+                  {Array.from(
+                    { length: daysInMonth(end.year || currentYear, end.month || 1) },
+                    (_, i) => i + 1
+                  ).map((d) => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+              </div>
 
-													<div className="donor-amount">
-														{formatAmount(donor.amount_cents)}
-													</div>
-												</li>
-											))}
-										</ul>
-									)}
-								</section>
+              <div className="date-field">
+                <label className="sr-only" htmlFor="end-year">End year</label>
+                <select
+                  id="end-year"
+                  value={end.year}
+                  onChange={(e) => onEndChange('year', e.target.value)}
+                  aria-label="End year"
+                >
+                  <option value="">Year</option>
+                  {years.map((y) => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
+              </div>
+            </fieldset>
+          </div>
 
-								<section className="donor-subsection donor-section-box">
-									<h3>Private Donors</h3>
-									{privateDonors.length === 0 ? (
-										<p>No private donors yet.</p>
-									) : (
-										<ul className="donor-list donor-grid">
-											{privateDonors.map((donor) => (
-												<li key={donor.donor_id} className="donor-card">
-													<div className="donor-card-main">
-														<div className="donor-avatar fallback-avatar">
-															{donor.is_anonymous ? 'A' : donorInitials(donor)}
-														</div>
+          <section className="donors section">
+            <div className="donors-header">
+              <h2>Donors</h2>
+              <p className="donor-count">
+                {visibleDonors.length} donor{visibleDonors.length === 1 ? '' : 's'} recognized
+              </p>
+            </div>
 
-														<div className="donor-meta">
-															<strong>
-																{donor.is_anonymous
-																	? 'Anonymous Donor'
-																	: donorDisplayName(donor)}
-															</strong>
-															<span>{formatDate(donor.donated_at)}</span>
-															{donor.donor_note && <p>{donor.donor_note}</p>}
-														</div>
-													</div>
+            {loading && <p>Loading donors...</p>}
+            {error && <p className="error-text">{error}</p>}
 
-													<div className="donor-amount">
-														{formatAmount(donor.amount_cents)}
-													</div>
-												</li>
-											))}
-										</ul>
-									)}
-								</section>
-							</>
-						)}
-					</section>
-				</section>
-			</main>
+            {!loading && !error && (
+              <>
+                {visibleDonors.length === 0 ? (
+                  <div className="donor-section-box">
+                    <p>No public donors yet.</p>
+                  </div>
+                ) : (
+                  <div className="donor-browser">
+                    <div className="donor-browser-list donor-section-box">
+                      <h3>Donor List</h3>
 
-			<a href="/donate" className="floating-donate" aria-label="Donate">
-				<svg className="heart" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-					<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-				</svg>
-				<span className="donate-badge">Donate</span>
-			</a>
+                      <ul className="donor-select-list">
+                        {visibleDonors.map((donor) => {
+                          const isSelected = donor.donor_id === selectedDonorId;
 
-			<footer className="site-footer">
-				<div className="container footer-inner">
-					<div className="social-links" aria-label="Social links">
-						<a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Festa Italia on Facebook">
-							<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-								<path d="M22 12a10 10 0 10-11.5 9.9v-7h-2.2v-2.9h2.2V9.3c0-2.2 1.3-3.4 3.3-3.4.96 0 1.97.17 1.97.17v2.2h-1.12c-1.1 0-1.44.68-1.44 1.38v1.66h2.45l-.39 2.9h-2.06v7A10 10 0 0022 12z" />
-							</svg>
-						</a>
-						<a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Festa Italia on Instagram">
-							<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-								<path d="M7 2h10a5 5 0 015 5v10a5 5 0 01-5 5H7a5 5 0 01-5-5V7a5 5 0 015-5zm5 6.1A4.9 4.9 0 1016.9 13 4.9 4.9 0 0012 8.1zm6.4-3.6a1.2 1.2 0 11-1.2 1.2 1.2 1.2 0 011.2-1.2z" />
-							</svg>
-						</a>
-					</div>
+                          return (
+                            <li key={donor.donor_id}>
+                              <button
+                                type="button"
+                                className={`donor-select-item ${isSelected ? 'selected' : ''}`}
+                                onClick={() => setSelectedDonorId(donor.donor_id)}
+                              >
+                                <div className="donor-select-avatar-wrap">
+                                  {donor.image_url ? (
+                                    <img
+                                      src={donor.image_url}
+                                      alt={donorDisplayName(donor)}
+                                      className="donor-select-avatar"
+                                    />
+                                  ) : (
+                                    <div className="donor-select-avatar donor-select-avatar-fallback">
+                                      {donorInitials(donor)}
+                                    </div>
+                                  )}
+                                </div>
 
-					<p>Festa Italia Foundation, Inc. All rights reserved.</p>
-				</div>
-			</footer>
-		</div>
-	);
+                                <div className="donor-select-text">
+                                  <strong>{donorDisplayName(donor)}</strong>
+                                  <span>{formatDate(donor.donated_at)}</span>
+                                </div>
+                              </button>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+
+                    <div className="donor-browser-detail donor-section-box">
+                      {selectedDonor ? (
+                        <>
+                          <div className="donor-detail-image-wrap">
+                            {renderDetailImage(selectedDonor)}
+                          </div>
+
+                          <h3 className="donor-detail-title">
+                            {donorDisplayName(selectedDonor)}
+                          </h3>
+
+                          <div className="donor-detail-description">
+                            {selectedDonor.donor_note ? (
+                              <p>{selectedDonor.donor_note}</p>
+                            ) : (
+                              <p>No description available.</p>
+                            )}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="donor-empty-state">
+                          <p>Select a donor to see their details.</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </section>
+        </section>
+      </main>
+
+      <a href="/donate" className="floating-donate" aria-label="Donate">
+        <svg className="heart" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+        </svg>
+        <span className="donate-badge">Donate</span>
+      </a>
+    </div>
+  );
 }

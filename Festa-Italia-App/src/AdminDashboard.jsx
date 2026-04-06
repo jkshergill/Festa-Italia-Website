@@ -1077,7 +1077,7 @@ function AdminDashboard() {
                 {activeSection === 'confirm-volunteers' && <ConfirmVolunteers pageOptions={pageOptions} />}
 
                 {/* Confirm Bocce Team Section */}
-                {activeSection == 'confirm-bocce-teams' && <ConfirmBocceTeams pageOptions={pageOptions} />}
+                {activeSection === 'confirm-bocce-teams' && <ConfirmBocceTeams pageOptions={pageOptions} />}
 
                 {/* Confirm Coronation Tickets Section */}
                 {activeSection === 'confirm-coronation-tickets' && <ConfirmCoronationTickets />}
@@ -1100,7 +1100,6 @@ function AdminDashboard() {
                 {activeSection === 'admin-foods' && <div className="section-content"><AdminFoods /></div>}
                 {activeSection === 'token-editor' && <div className="section-content"><TokenEditor /></div>}
                 {activeSection === 'queens-editor' && <div className="section-content"><QueensEditor /></div>}
-                {activeSection === 'manage-donors' && <DonorManager />}
                 {activeSection === 'manage-donors' && <DonorManager />}
             </main>
         </div>

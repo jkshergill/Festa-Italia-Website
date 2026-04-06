@@ -337,3 +337,150 @@
   transform: translateY(-2px);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
 }
+
+.donor-browser {
+  display: flex;
+  gap: 1.5rem;
+  align-items: stretch;
+  margin-top: 1rem;
+}
+
+.donor-browser-list,
+.donor-browser-detail {
+  flex: 1;
+  min-width: 0;
+}
+
+.donor-select-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.donor-select-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.9rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.donor-select-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+}
+
+.donor-select-item.selected {
+  border-color: #009246;
+  box-shadow: 0 0 0 2px rgba(0, 146, 70, 0.12);
+}
+
+.donor-select-avatar-wrap {
+  flex-shrink: 0;
+}
+
+.donor-select-avatar {
+  width: 58px;
+  height: 58px;
+  border-radius: 12px;
+  object-fit: cover;
+  display: block;
+}
+
+.donor-select-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #009246;
+  color: #fff;
+  font-weight: 700;
+}
+
+.donor-select-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.donor-select-text strong {
+  font-size: 1rem;
+  color: #111827;
+}
+
+.donor-select-text span {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.donor-detail-image-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.donor-detail-image-link {
+  display: inline-block;
+}
+
+.donor-detail-image {
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 18px;
+  display: block;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+}
+
+.donor-detail-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #009246;
+  color: #fff;
+  font-size: 3rem;
+  font-weight: 700;
+}
+
+.donor-detail-title {
+  margin: 0 0 0.9rem;
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+.donor-detail-description {
+  max-width: 500px;
+  margin: 0 auto;
+  text-align: center;
+  color: #374151;
+  line-height: 1.6;
+}
+
+.donor-empty-state {
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .donor-browser {
+    flex-direction: column;
+  }
+
+  .donor-detail-image {
+    max-width: 260px;
+  }
+}
