@@ -7,6 +7,9 @@ function Signup() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const hasLowerCase = /[a-z]/; // This is a regular expression that checks if the password contains at least one lowercase letter
+  const hasUpperCase = /[A-Z]/; // This is a regular expression that checks if the password contains at least one uppercase letter
+  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/; // This is a regular expression that checks if the password contains at least one special 
 
   // form fields
   const [firstName, setFirstName] = useState('');
@@ -54,6 +57,21 @@ function Signup() {
 
     if (!formValid) {
       setErrorMsg('Please complete all fields correctly before continuing.');
+      return;
+    }
+
+    if(!hasLowerCase.test(password)) { // This is to check if the password contains at least one lowercase letter
+      setErrorMsg('Password must contain at least one lowercase letter.');
+      return;
+    }
+
+    if(!hasUpperCase.test(password)) { // This is to check if the password contains at least one uppercase letter
+      setErrorMsg('Password must contain at least one uppercase letter.');
+      return;
+    }
+
+    if(!hasSpecialChar.test(password)) { // This is to check if the password contains at least one special character
+      setErrorMsg('Password must contain at least one special character.');
       return;
     }
 
