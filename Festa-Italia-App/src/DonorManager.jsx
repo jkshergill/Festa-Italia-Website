@@ -10,6 +10,7 @@ const emptyForm = {
   amount_dollars: '',
   donation_type: 'Advertising/Sponsorship',
   donor_pic_url: '',
+  donor_link_url: '',
 };
 
 export default function DonorManager() {
@@ -39,6 +40,7 @@ export default function DonorManager() {
         donor_name,
         donor_note,
         donor_pic_url,
+        donor_link_url,
         amount_cents,
         donation_type,
         consent_to_share,
@@ -67,12 +69,9 @@ export default function DonorManager() {
       const name = (donor.company_name || donor.donor_name || '').toLowerCase();
       const note = (donor.donor_note || '').toLowerCase();
       const type = (donor.donation_type || '').toLowerCase();
+      const link = (donor.donor_link_url || '').toLowerCase();
 
-      return (
-        name.includes(q) ||
-        note.includes(q) ||
-        type.includes(q)
-      );
+      return name.includes(q) || note.includes(q) || type.includes(q) || link.includes(q);
     });
   }, [donors, query]);
 
@@ -94,8 +93,9 @@ export default function DonorManager() {
         donor.amount_cents || donor.amount_cents === 0
           ? (donor.amount_cents / 100).toFixed(2)
           : '',
-      donation_type: donor.donation_type || 'Ads/Sponsors',
+      donation_type: donor.donation_type || 'Advertising/Sponsorship',
       donor_pic_url: donor.donor_pic_url || '',
+      donor_link_url: donor.donor_link_url || '',
     });
     setMessage('');
   }
@@ -104,40 +104,48 @@ export default function DonorManager() {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
 
-    async function uploadImageIfNeeded(existingPath = '') {
+  function normalizeUrl(url) {
+    const trimmed = (url || '').trim();
+    if (!trimmed) return null;
+    if (/^https?:\/\//i.test(trimmed)) return trimmed;
+    return `https://${trimmed}`;
+  }
+
+  async function uploadImageIfNeeded(existingPath = '') {
     if (!selectedFile) return existingPath;
 
     const fileExt = selectedFile.name.split('.').pop();
     const safeBase = (form.name || 'donor')
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
 
     const filePath = `${Date.now()}-${safeBase || 'donor'}.${fileExt}`;
 
     const { error: uploadError } = await supabase.storage
-        .from('donors')
-        .upload(filePath, selectedFile, {
+      .from('donors')
+      .upload(filePath, selectedFile, {
         upsert: false,
-        });
+      });
 
     if (uploadError) {
-        throw new Error(uploadError.message);
+      throw new Error(uploadError.message);
     }
 
     const { data } = supabase.storage.from('donors').getPublicUrl(filePath);
-
     return data.publicUrl;
-    }
+  }
 
   async function handleCreate(e) {
     e.preventDefault();
     setSaving(true);
     setMessage('');
+
     try {
       const trimmedName = form.name.trim();
       if (!trimmedName) throw new Error('Name is required.');
 
+      const normalizedLink = normalizeUrl(form.donor_link_url);
       const uploadedPath = await uploadImageIfNeeded('');
 
       const amountCents =
@@ -154,6 +162,7 @@ export default function DonorManager() {
         donor_name: trimmedName,
         donor_note: form.donor_note.trim() || null,
         donor_pic_url: uploadedPath || null,
+        donor_link_url: normalizedLink,
         amount_cents: amountCents,
         donation_type: form.donation_type,
         consent_to_share: true,
@@ -163,16 +172,7 @@ export default function DonorManager() {
         last_name: null,
       };
 
-      const { data: userData, error: userError } = await supabase.auth.getUser();
-        console.log('CURRENT APP USER:', userData?.user);
-        console.log('CURRENT APP USER ID:', userData?.user?.id);
-        console.log('CURRENT APP USER EMAIL:', userData?.user?.email);
-        console.log('INSERT PAYLOAD:', payload);
-        console.log('USER ERROR:', userError);
-
       const { error } = await supabase.from('donors').insert(payload);
-        console.log('INSERT ERROR:', error);
-
       if (error) throw new Error(error.message);
 
       setMessage('Donor added.');
@@ -197,12 +197,14 @@ export default function DonorManager() {
       if (!trimmedName) throw new Error('Name is required.');
 
       const uploadedPath = await uploadImageIfNeeded(form.donor_pic_url);
+      const normalizedLink = normalizeUrl(form.donor_link_url);
 
       const payload = {
         company_name: trimmedName,
         donor_name: trimmedName,
         donor_note: form.donor_note.trim() || null,
         donor_pic_url: uploadedPath || null,
+        donor_link_url: normalizedLink,
       };
 
       const { error } = await supabase
@@ -273,7 +275,7 @@ export default function DonorManager() {
         <input
           className="search-input"
           type="text"
-          placeholder="Search donor name, note, or type..."
+          placeholder="Search donor name, note, type, or URL..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
@@ -342,6 +344,16 @@ export default function DonorManager() {
               />
             </label>
 
+            <label>
+              <span>Image hyperlink (optional)</span>
+              <input
+                type="url"
+                value={form.donor_link_url}
+                onChange={(e) => updateForm('donor_link_url', e.target.value)}
+                placeholder="https://example.com"
+              />
+            </label>
+
             {form.donor_pic_url && !selectedFile && (
               <div className="donor-image-preview-row">
                 <span>Current image:</span>
@@ -364,6 +376,7 @@ export default function DonorManager() {
                 form.donor_note ||
                 form.amount_dollars ||
                 form.donor_pic_url ||
+                form.donor_link_url ||
                 selectedFile) && (
                 <button
                   type="button"
@@ -398,6 +411,11 @@ export default function DonorManager() {
                     </div>
                     {donor.donor_note && (
                       <div className="donor-admin-note">{donor.donor_note}</div>
+                    )}
+                    {donor.donor_link_url && (
+                      <div className="muted" style={{ padding: 0 }}>
+                        Link: <a href={donor.donor_link_url} target="_blank" rel="noreferrer">{donor.donor_link_url}</a>
+                      </div>
                     )}
                   </div>
 
