@@ -68,27 +68,30 @@ export default function ProfileInfo( {setPage} ) {
   if (err) return <div style={{ color: "crimson" }}>Error: {err}</div>;
 
   return (
-    <div style={{ display: "grid", gap: 10 }}>
-      <div>
-        <div style={{ fontWeight: 700 }}>Email</div>
-        <div>{userEmail || "—"}</div>
+    <div className="profile-info-grid">
+      <div className="profile-info-card">
+        <div className="profile-info-label">Email</div>
+        <div className="profile-info-value">{userEmail || "—"}</div>
       </div>
 
-      <div>
-        <div style={{ fontWeight: 700 }}>First name</div>
-        <div>{profile.first_name || "—"}</div>
+      <div className="profile-info-card">
+        <div className="profile-info-label">First Name</div>
+        <div className="profile-info-value">{profile.first_name || "—"}</div>
       </div>
 
-      <div>
-        <div style={{ fontWeight: 700 }}>Last name</div>
-        <div>{profile.last_name || "—"}</div>
+      <div className="profile-info-card">
+        <div className="profile-info-label">Last Name</div>
+        <div className="profile-info-value">{profile.last_name || "—"}</div>
       </div>
-      <button onClick={() => setPage('reset-pass')}>
-        Reset Password
-      </button>
-      <button onClick={() => setPage('delete-account')}>
-        Delete Account
-      </button>
+
+      <div className="profile-info-actions">
+        <button onClick={() => setPage('reset-pass')}>
+          Reset Password
+        </button>
+        <button onClick={() => setPage('delete-account')}>
+          Delete Account
+        </button>
+      </div>
     </div>
   );
 }
