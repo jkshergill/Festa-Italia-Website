@@ -2,6 +2,15 @@ import React, { useState } from "react";
 import "./coronationball.css";
 import { useEffect } from "react";
 import { supabase } from "./supabaseClient";
+import { formatRichTextForRender } from './richTextUtils';
+
+const normalizeKey = (value = '') => value.toLowerCase().replace(/[^a-z0-9]/g, '');
+/* ----for url edit: filters the other pages and returns queen's page details---*/
+const isQueenPage = (page) => {
+  const id = normalizeKey(page.page_id);
+  const title = normalizeKey(page.title);
+  return id.includes('queen') || title.includes('queen') || title.includes('court');
+};
 
 
 const getQueenImageURL = (imagePath) => { // This function is used to get the public URL of the Coronation image from the Supabase storage bucket
@@ -40,7 +49,132 @@ function Coronationball({setPage}) {
     const [errorMsg, setErrorMsg] = useState("");
     const currentCoronation = coronation.filter(c => c.is_current === true); // Filter the coronation information to only display the current coronation information
     const previousCoronation = coronation.filter(c => c.is_previous === true); // Filter the coronation information to only display the previous coronation information
+/********************** */
+/*load and display sections of queen page*/
+ const [dynamicContent, setDynamicContent] = useState(null);
+  useEffect(() => {
+    const els = Array.from(document.querySelectorAll('.animate-on-scroll'));
+    if (!els.length) return;
 
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('is-visible');
+      });
+    }, { threshold: 0.12 });
+
+    els.forEach(el => obs.observe(el));
+    return () => obs.disconnect();
+  }, [dynamicContent, loading]);
+
+  useEffect(() => {
+      const loadContent = async () => {
+        try {
+          setLoading(true);
+  
+          const { data: pageRows, error: pageRowsError } = await supabase
+            .from('pages')
+            .select('id, page_id, title');
+  
+          if (pageRowsError) throw pageRowsError;
+  
+          const candidatePages = (pageRows || []).filter(isQueenPage);
+  
+          if (candidatePages.length === 0) {
+            console.warn("No queen's court page found in pages table.", pageRows);
+            setDynamicContent([]);
+            return;
+          }
+  
+          let matchedPage = null;
+          let sectionsData = [];
+         /*loads the dynamic sections for the queen's page from supabase*/
+          for (const candidate of candidatePages) {
+            const { data: candidateSections, error: sectionsError } = await supabase
+              .from('sections')
+              .select('*')
+              .eq('page_id', candidate.id)
+              .order('position', { ascending: true });
+  
+            if (sectionsError) throw sectionsError;
+  
+            if (candidateSections?.length) {
+              matchedPage = candidate;
+              sectionsData = candidateSections;
+              break;
+            }
+          }
+  
+          if (!matchedPage) {
+            matchedPage = candidatePages[0];
+            const { data: selectedSections, error: selectedSectionsError } = await supabase
+              .from('sections')
+              .select('*')
+              .eq('page_id', matchedPage.id)
+              .order('position', { ascending: true });
+  
+            if (selectedSectionsError) throw selectedSectionsError;
+            sectionsData = selectedSections || [];
+          }
+  
+          if (!sectionsData?.length) {
+            setDynamicContent([]);
+            return;
+          }
+  
+          const { data: blocksData, error: blocksError } = await supabase
+            .from('content_blocks')
+            .select('*')
+            .in('section_id', sectionsData.map((section) => section.id));
+  
+          if (blocksError) throw blocksError;
+  
+          const sectionsWithBlocks = sectionsData.map((section) => ({
+            id: section.id,
+            title: section.title,
+            contentBlocks: (blocksData || [])
+              .filter((block) => block.section_id === section.id)
+              .sort((a, b) => a.block_index - b.block_index)
+              .map((block) => ({
+                text: block.text || '',
+                image: block.image_url || null,
+                imagePosition: block.image_position || 'left'
+              }))
+          }));
+  
+          setDynamicContent(sectionsWithBlocks);
+        } catch (error) {
+          console.error('Error loading queen content:', error);
+          setDynamicContent([]);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      loadContent();
+      const subscription = supabase
+      .channel('queen-content-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'content_blocks' }, loadContent)
+      .subscribe();
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+/***********************  wait for contents to load from supabase*/
+    if (loading) {
+      return (
+      <div className="page-root">
+        <main>
+          <div className="loading-screen">
+            <div className="loading-screen-content">
+              <div className="loading-spinner"></div>
+              <p className="loading-text">Loading Content</p>
+              <p className="loading-subtext">Please wait while we prepare the page...</p>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }   /**------ */
     return (
         
         <div >
@@ -143,11 +277,37 @@ function Coronationball({setPage}) {
                 </a> to download and fill the application.
               </p>
 
-              <p className="email">
+              {/* <p className="email">
                 For more information on becoming a representative on the Queen's Court or a Coronation Ball committee member, send a request to: queenscourt@festaitaliamonterey.org
-              </p>
+              </p> */}
             </div>
+            {/***** */}
+              {/**html for dynamic content for dis[play*/}
+            {dynamicContent && dynamicContent.length > 0 && (
+                      <section id="dynamic-content" className="container section dynamic-sections">
+                        {dynamicContent.map((section) => (
+                          <div key={section.id} className="dynamic-section animate-on-scroll">
+                            <h2>{section.title}</h2>
+                            {section.contentBlocks && section.contentBlocks.map((block, blockIndex) => (
+                              <div key={blockIndex} className={`content-block image-position-${block.imagePosition || 'left'} ${block.image ? 'has-image' : 'no-image'} animate-on-scroll`}>
+                                {block.image && block.imagePosition === 'above' && (
+                                  <img src={block.image} alt={`Content block ${blockIndex + 1}`} className="content-image" />
+                                )}
+                                {block.image && (block.imagePosition === 'left' || block.imagePosition === 'right') && (
+                                  <img src={block.image} alt={`Content block ${blockIndex + 1}`} className="content-image" />
+                                )}
+                                {block.text && <p dangerouslySetInnerHTML={{ __html: formatRichTextForRender(block.text) }}></p>}
+                                {block.image && block.imagePosition === 'below' && (
+                                  <img src={block.image} alt={`Content block ${blockIndex + 1}`} className="content-image" />
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        ))}
+                      </section>
+                    )}
 
+            {/*-----*/}
         </main>
       </div>      
     );
