@@ -12,9 +12,13 @@ const isFestivalPage = (page) => {
   return id.includes('festival') || id.includes('fisherman') || title.includes('festival') || title.includes('fisherman');
 };
 
+const getSectionAnchorId = (sectionId) => `section-${sectionId}`;
+
 export default function FestivalInfo({ setPage }) {
   const [dynamicContent, setDynamicContent] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activeSectionId, setActiveSectionId] = useState('');
+  const [showSideJumpNav, setShowSideJumpNav] = useState(false);
 
   useEffect(() => {
     document.body.id = 'homepage-body-id';
@@ -129,6 +133,60 @@ export default function FestivalInfo({ setPage }) {
     return () => subscription.unsubscribe();
   }, []);
 
+  useEffect(() => {
+    if (!dynamicContent || dynamicContent.length === 0) {
+      setShowSideJumpNav(false);
+      setActiveSectionId('');
+      return;
+    }
+
+    const sectionIds = dynamicContent.map((section) => getSectionAnchorId(section.id));
+    setActiveSectionId((current) => (current && sectionIds.includes(current) ? current : sectionIds[0]));
+
+    const sectionEls = sectionIds
+      .map((id) => document.getElementById(id))
+      .filter(Boolean);
+
+    const jumpNav = document.querySelector('.page-root .section-jump-nav-wrap');
+    const updateActiveSectionAndSideNav = () => {
+      if (sectionEls.length > 0) {
+        const viewportOffset = 120;
+        let currentId = sectionEls[0].id;
+
+        for (const sectionEl of sectionEls) {
+          const rect = sectionEl.getBoundingClientRect();
+          if (rect.top - viewportOffset <= 0) {
+            currentId = sectionEl.id;
+          } else {
+            break;
+          }
+        }
+
+        const atPageBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+        if (atPageBottom) {
+          currentId = sectionEls[sectionEls.length - 1].id;
+        }
+
+        setActiveSectionId((prev) => (prev === currentId ? prev : currentId));
+      }
+
+      if (!jumpNav) {
+        setShowSideJumpNav(false);
+        return;
+      }
+      setShowSideJumpNav(jumpNav.getBoundingClientRect().bottom < 76);
+    };
+
+    updateActiveSectionAndSideNav();
+    window.addEventListener('scroll', updateActiveSectionAndSideNav, { passive: true });
+    window.addEventListener('resize', updateActiveSectionAndSideNav);
+
+    return () => {
+      window.removeEventListener('scroll', updateActiveSectionAndSideNav);
+      window.removeEventListener('resize', updateActiveSectionAndSideNav);
+    };
+  }, [dynamicContent]);
+
   if (loading) {
     return (
       <div className="page-root">
@@ -177,9 +235,46 @@ export default function FestivalInfo({ setPage }) {
         </section>
 
         {dynamicContent && dynamicContent.length > 0 && (
+          <>
+          <section className="container section section-jump-nav-wrap animate-on-scroll" aria-label="Section navigation">
+            <h2 className="section-jump-nav-title">Jump To A Section</h2>
+            <div className="section-jump-nav">
+              {dynamicContent.map((section) => (
+                <a
+                  key={`jump-${section.id}`}
+                  className="section-jump-btn"
+                  href={`#${getSectionAnchorId(section.id)}`}
+                >
+                  <span className="section-jump-label">{section.title || 'Untitled Section'}</span>
+                </a>
+              ))}
+            </div>
+          </section>
+
+          {showSideJumpNav && (
+            <nav className="section-jump-side" aria-label="Section navigation side panel">
+              <p className="section-jump-side-title">On This Page</p>
+              <div className="section-jump-side-list">
+                {dynamicContent.map((section) => (
+                  <a
+                    key={`side-jump-${section.id}`}
+                    className={`section-jump-btn section-jump-side-btn ${activeSectionId === getSectionAnchorId(section.id) ? 'is-active' : ''}`}
+                    href={`#${getSectionAnchorId(section.id)}`}
+                  >
+                    <span className="section-jump-label">{section.title || 'Untitled Section'}</span>
+                  </a>
+                ))}
+              </div>
+            </nav>
+          )}
+
           <section id="dynamic-content" className="container section dynamic-sections">
             {dynamicContent.map((section) => (
-              <div key={section.id} className="dynamic-section animate-on-scroll">
+              <div
+                key={section.id}
+                id={getSectionAnchorId(section.id)}
+                className="dynamic-section animate-on-scroll jump-target"
+              >
                 <h2>{section.title}</h2>
                 {section.contentBlocks && section.contentBlocks.map((block, blockIndex) => (
                   <div key={blockIndex} className={`content-block image-position-${block.imagePosition || 'left'} ${block.image ? 'has-image' : 'no-image'} animate-on-scroll`}>
@@ -198,6 +293,7 @@ export default function FestivalInfo({ setPage }) {
               </div>
             ))}
           </section>
+          </>
         )}
       </main>
     </div>

@@ -67,7 +67,20 @@ Deno.serve(async (req: Request) => {
   const purchaserEmail = payload.purchaserEmail;
   const purchaserName = payload.purchaserName || purchaserEmail;
   // Orders table requires an event name and currency; accept from payload or derive from tickets
-  const eventName = payload.event || (tickets[0] && tickets[0].event) || 'Festa Italia Coronation Ball 2026';
+  let eventName = payload.event || (tickets[0] && tickets[0].event) || '';
+  if (!eventName) {
+    // Fetch current event name from settings table
+    try {
+      const settingsResp = await fetch(`${supabaseUrl}/rest/v1/settings?key=eq.current_event&select=value`, {
+        headers: { Authorization: `Bearer ${serviceRoleKey}`, apikey: serviceRoleKey || '' },
+      });
+      if (settingsResp.ok) {
+        const settingsData = await settingsResp.json();
+        if (settingsData?.[0]?.value) eventName = settingsData[0].value;
+      }
+    } catch { /* ignore */ }
+    if (!eventName) eventName = 'Festa Italia Coronation Ball 2026';
+  }
   const currency = payload.currency || 'USD';
 
     // Verify token -> get user id
