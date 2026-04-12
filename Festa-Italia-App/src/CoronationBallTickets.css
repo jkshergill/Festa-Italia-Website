@@ -168,3 +168,43 @@ h4 {
     box-sizing: border-box;
   }
 }
+
+/* ── Checkout / Add-to-Cart button row (names step) ─────────────────────── */
+.cbt-action-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  gap: 12px;
+}
+ 
+.cbt-checkout-btn,
+.cbt-add-to-cart-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+}
+ 
+.cbt-checkout-btn {
+  background: #b71c1c;
+  color: #fff;
+}
+ 
+.cbt-checkout-btn:hover:not(:disabled) { background: #8e1414; }
+ 
+.cbt-add-to-cart-btn {
+  background: #009246;
+  color: #fff;
+}
+ 
+.cbt-add-to-cart-btn:hover:not(:disabled) { background: #007a38; }
+ 
+.cbt-checkout-btn:disabled,
+.cbt-add-to-cart-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

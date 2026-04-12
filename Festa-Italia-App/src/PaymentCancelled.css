@@ -1,0 +1,93 @@
+/* PaymentCancelled.css */
+
+.success-container {
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
+  color: #333;
+  padding: 40px;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.success-card {
+  background: white;
+  padding: 40px;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 100%;
+  margin: 20px auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.success-card h1 {
+  font-family: "Great Vibes", cursive;
+  letter-spacing: 0.05em;
+  font-size: 3rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #b71c1c;
+}
+
+.success-card h2 {
+  color: #444; /* Neutral tone for cancellation */
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+}
+
+.error-icon {
+  font-size: 64px;
+  margin: 20px 0;
+  color: #7f8c8d; /* Grey tone for 'Paused/Cancelled' */
+}
+
+.success-actions {
+  margin-top: 30px;
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.btn-primary {
+  background-color: #b71c1c;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-size: 1rem;
+}
+
+.btn-primary:hover {
+  background-color: #8e1515;
+}
+
+.btn-secondary {
+  background-color: #666;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-size: 1rem;
+}
+
+/* Tablet Responsiveness */
+@media (max-width: 768px) {
+  .success-card { padding: 30px 20px; }
+  .success-card h1 { font-size: 2.5rem; }
+  .success-card h2 { font-size: 1.5rem; }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 480px) {
+  .success-card h1 { font-size: 2rem; }
+  .success-actions { flex-direction: column; }
+  .btn-primary, .btn-secondary { width: 100%; }
+}

@@ -2,9 +2,9 @@ import { useState } from "react";
 import BocceProfile from "./BocceProfile";
 import ProfileInfo from "./ProfileInfo";
 import PurchasedTickets from "./PurchasedTickets";
-import "./UserProfile.css";
 import VolunteerShifts from "./VolunteerShifts";
 import ShoppingCart from "./ShoppingCart";
+import "./UserProfile.css";
 
 export default function UserProfile({ eventId, setPage, initialTab }) {
   const [activeTab, setActiveTab] = useState(initialTab ?? "info");

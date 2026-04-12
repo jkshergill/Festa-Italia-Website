@@ -40,61 +40,98 @@ export default function ShoppingCart({ cartItems = [], setCartItems, setPage }) 
   const [removed,     setRemoved]     = useState([]);
   const [authBanner,  setAuthBanner]  = useState("");
 
-  // ── Auth sync ─────────────────────────────────────────────────────────────
-  useEffect(() => {
-    let unsubscribe;
-    (async () => {
-      const { data } = await supabase.auth.getSession();
-      const sess = data?.session ?? null;
-      setSession(sess);
-
-      const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
-        setSession(newSession);
-        if (newSession) setAuthBanner("");
-      });
-      unsubscribe = () => listener?.subscription?.unsubscribe?.();
-    })();
-    return () => { if (unsubscribe) unsubscribe(); };
-  }, []);
-
-  // Load unpaid cart_items from Supabase on mount 
-  // This is the key piece that makes the cart survive page refreshes and
-  // reflects any items the user added during a previous session.
-  useEffect(() => {
-    if (!session) { setLoading(false); return; }
-
-    (async () => {
-      setLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from("cart_items")
-          .select("item")
-          .eq("user_id", session.user.id)
-          .order("created_at", { ascending: true });
-
-        if (error) {
-          console.error("cart_items fetch error:", error);
-          return;
-        }
-
-        if (data && data.length > 0) {
-          const dbItems = data.map((row) => row.item);
-          // Merge: keep in-memory items that aren't already in DB (e.g. just
-          // added this session and optimistically pushed to state already),
-          // then append DB items that aren't in memory.
+  // ── Auth + data loading ──────────────────────────────────────────────────
+    // Both are combined into one effect so the pending_orders fetch is
+    // guaranteed to run after the session is confirmed, and re-runs whenever
+    // the logged-in user changes (e.g. sign-in / sign-out).
+    useEffect(() => {
+      let cancelled = false;
+      let unsubscribe;
+   
+      async function loadCart(sess) {
+        if (!sess) { setLoading(false); return; }
+   
+        setLoading(true);
+        try {
+          const { data, error } = await supabase
+            .from("pending_orders")
+            .select(
+              `
+                id,
+                order_id,
+                user_id,
+                buyer_email,
+                attendee_names,
+                ticket_types,
+                food_choices,
+                amount,
+                created_at,
+                expires_at,
+                order_type
+              `
+            )
+            .eq("user_id", sess.user.id)
+            .order("created_at", { ascending: true });
+   
+          if (error) { console.error("pending_orders fetch error:", error); return; }
+          if (cancelled) return;
+   
+          // Map each row's real columns to the cart item shape ShoppingCart expects.
+          const dbItems = (data ?? []).map((row) => ({
+            id:          row.id,
+            order_id:    row.order_id,
+            price:       (row.amount ?? 0) / 100,
+            ticketTypes: row.ticket_types ?? [],
+            quantities: {
+              adult: (row.ticket_types ?? []).filter((t) => t === "adult").length,
+              child: (row.ticket_types ?? []).filter((t) => t === "child").length,
+            },
+            names:       row.attendee_names ?? [],
+            foodChoices: row.food_choices   ?? [],
+            buyer_email: row.buyer_email,
+            order_type:  row.order_type,
+            created_at:  row.created_at,
+            expires_at:  row.expires_at,
+            category:    "ticket",
+            name:        row.order_type ?? "Event Ticket",
+            prices:      TICKET_PRICES,
+          }));
+   
           setCartItems((prev) => {
             const existingIds = new Set(prev.map((i) => i.id));
             const newFromDb   = dbItems.filter((i) => !existingIds.has(i.id));
             return [...prev, ...newFromDb];
           });
+        } finally {
+          if (!cancelled) setLoading(false);
         }
-      } finally {
-        setLoading(false);
       }
-    })();
-    // Run once per session change
+   
+      (async () => {
+        // 1. Get the current session immediately on mount
+        const { data } = await supabase.auth.getSession();
+        const sess = data?.session ?? null;
+        if (!cancelled) setSession(sess);
+        await loadCart(sess);
+   
+        // 2. Re-run whenever auth state changes (sign-in, sign-out, token refresh)
+        const { data: listener } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
+          if (cancelled) return;
+          setSession(newSession);
+          if (newSession) setAuthBanner("");
+          // Clear stale cart items from the previous user before loading new ones
+          setCartItems([]);
+          await loadCart(newSession);
+        });
+        unsubscribe = () => listener?.subscription?.unsubscribe?.();
+      })();
+   
+      return () => {
+        cancelled = true;
+        if (unsubscribe) unsubscribe();
+      };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session?.user?.id]);
+    }, []);
 
   // ── Derived totals ───────────────────────────────────────────────────────
   // Each cart item stores a `prices` map from the ticket page; fall back to
@@ -148,10 +185,10 @@ export default function ShoppingCart({ cartItems = [], setCartItems, setPage }) 
   // ── Sync a single updated cart item back to Supabase ────────────────────
   const syncCartItem = async (updatedItem) => {
     const { error } = await supabase
-      .from("cart_items")
+      .from("pending_orders")
       .update({ item: updatedItem })
       .eq("id", updatedItem.id);
-    if (error) console.error("cart_items sync error:", error);
+    if (error) console.error("pending_orders sync error:", error);
   };
 
   // ── Remove item from cart (both state + DB) ───────────────────────────────
@@ -160,18 +197,29 @@ export default function ShoppingCart({ cartItems = [], setCartItems, setPage }) 
     setRemoved((prev) => [...prev, item]);
     setCartItems((prev) => prev.filter((i) => i.id !== id));
 
-    const { error } = await supabase.from("cart_items").delete().eq("id", id);
-    if (error) console.error("cart_items delete error:", error);
+    const { error } = await supabase.from("pending_orders").delete().eq("id", id);
+    if (error) console.error("pending_orders delete error:", error);
   };
 
   const undoRemove = async () => {
-    const last = removed[removed.length - 1];
-    if (!last) return;
-    setCartItems((prev) => [...prev, last]);
-    setRemoved((prev) => prev.slice(0, -1));
-    // Re-insert to DB
-    await supabase.from("cart_items").insert({ id: last.id, user_id: session?.user?.id, item: last });
-  };
+      const last = removed[removed.length - 1];
+      if (!last) return;
+      setCartItems((prev) => [...prev, last]);
+      setRemoved((prev) => prev.slice(0, -1));
+      // Re-insert to DB
+      await supabase.from("pending_orders").insert({
+        id:             last.id,
+        order_id:       last.order_id,
+        user_id:        session?.user?.id,
+        buyer_email:    last.buyer_email  ?? session?.user?.email,
+        attendee_names: last.names        ?? [],
+        ticket_types:   last.ticketTypes  ?? [],
+        food_choices:   last.foodChoices  ?? [],
+        amount:         Math.round((last.price ?? 0) * 100),
+        order_type:     last.order_type,
+        expires_at:     last.expires_at,
+      });
+    };
 
   // ── Checkout ─────────────────────────────────────────────────────────────
   // Mirrors CoronationBallTickets.jsx handleCheckout exactly:
@@ -182,94 +230,93 @@ export default function ShoppingCart({ cartItems = [], setCartItems, setPage }) 
   //   5. Redirect to Clover
   //   6. On any failure after step 2: delete the pending_orders row
   const handleCheckout = async () => {
-    if (!session) { setAuthBanner("Please sign in to complete your purchase."); return; }
-    if (cartItems.length === 0) return;
+  if (!session) {
+    setAuthBanner("Please sign in to complete your purchase.");
+    return;
+  }
+  if (cartItems.length === 0) return;
 
-    // Validate names
-    if (cartItems.some((item) => (item.names ?? []).some((n) => !n?.trim()))) {
-      alert("Please fill in all ticket holder names before checking out.");
-      return;
+  // Validation: Ensure all fields are filled
+  if (cartItems.some((item) => (item.names ?? []).some((n) => !n?.trim()))) {
+    alert("Please fill in all ticket holder names.");
+    return;
+  }
+
+  setCheckingOut(true);
+  const orderId = crypto.randomUUID();
+
+  try {
+    // 1. Prepare data - must match CoronationBallTickets.jsx structure
+    const allTicketTypes = cartItems.flatMap((item) => item.ticketTypes || []);
+    const allNames = cartItems.flatMap((item) => item.names || []);
+    const allFood = cartItems.flatMap((item) => item.foodChoices || []);
+    const amount_cents = Math.round(subtotal * 100);
+
+    console.log("Starting checkout for order:", orderId);
+
+    // 2. Insert into pending_orders (required by index.ts)
+    const { error: pendingError } = await supabase
+      .from("pending_orders")
+      .insert({
+        order_id: orderId,
+        user_id: session.user.id,
+        buyer_email: session.user.email,
+        attendee_names: allNames,
+        ticket_types: allTicketTypes,
+        food_choices: allFood,
+        amount: amount_cents,
+        order_type: "Cart",
+        metadata: {
+          purchaserName: session.user.user_metadata?.full_name || session.user.email,
+        },
+        expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+      });
+
+    if (pendingError) {
+      console.error("DB Error:", pendingError);
+      throw new Error("Could not initialize order in database.");
     }
-    // Validate food choices
-    if (cartItems.some((item) => (item.foodChoices ?? []).some((f) => !f))) {
-      alert("Please select a dish for every ticket before checking out.");
-      return;
+
+    // 3. Invoke Edge Function
+    // Ensure the function name "create-CoronationBallTicketsCheckout" is exactly what you deployed
+    const { data, error: invokeError } = await supabase.functions.invoke(
+      "create-CoronationBallTicketsCheckout", 
+      {
+        body: { 
+          amount: amount_cents, 
+          orderId: orderId 
+        },
+      }
+    );
+
+    if (invokeError) {
+      console.error("Edge Function Error:", invokeError);
+      throw new Error(`Edge Function failed: ${invokeError.message}`);
     }
 
-    setCheckingOut(true);
-    try {
-      // Flatten all ticket info across every cart item into parallel arrays,
-      // exactly matching what CoronationBallTickets.jsx writes to pending_orders.
-      const allTicketTypes = cartItems.flatMap((item) => item.ticketTypes ?? []);
-      const allNames       = cartItems.flatMap((item) => item.names       ?? []);
-      const allFood        = cartItems.flatMap((item) => item.foodChoices  ?? []);
-      const amount_cents   = Math.round(subtotal * 100);
-      const orderId        = crypto.randomUUID();
-
-      // Write pending_orders row
-      const { error: pendingError } = await supabase
-        .from("pending_orders")
-        .insert({
-          order_id:       orderId,
-          user_id:        session.user.id,
-          buyer_email:    session.user.email,
-          attendee_names: allNames,
-          ticket_types:   allTicketTypes,
-          food_choices:   allFood,
-          amount:         amount_cents,
-          metadata: {
-            purchaserName: session.user.user_metadata?.full_name,
-            cartSnapshot:  cartItems,
-          },
-          expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
-        });
-
-      if (pendingError) {
-        console.error("Pending order error:", pendingError);
-        alert("Failed to create order. Please try again.");
-        return;
-      }
-
-      // Refresh JWT
-      const { data: { session: freshSession }, error: refreshError } =
-        await supabase.auth.refreshSession();
-
-      if (refreshError || !freshSession?.access_token) {
-        console.error("Token refresh failed:", refreshError);
-        await supabase.from("pending_orders").delete().eq("order_id", orderId);
-        alert("Your session has expired. Please log in again.");
-        return;
-      }
-
-      // Invoke edge function (same function as CoronationBallTickets)
-      const { data, error: invokeError } = await supabase.functions.invoke(
-        "create-CoronationBallTicketsCheckout",
-        { body: { amount: amount_cents, orderId } }
-      );
-
-      if (invokeError) {
-        console.error("Edge function error:", invokeError);
-        await supabase.from("pending_orders").delete().eq("order_id", orderId);
-        alert(`Checkout failed: ${invokeError.message}`);
-        return;
-      }
-
-      // Clear cart_items from DB now that we have a Clover session
-      // (items will be confirmed/deleted by the webhook after payment)
-      const cartIds = cartItems.map((i) => i.id);
-      await supabase.from("cart_items").delete().in("id", cartIds);
-
-      // Redirect to Clover
-      console.log("✅ Redirecting to Clover:", data.checkoutUrl);
-      window.location.href = data.checkoutUrl;
-
-    } catch (err) {
-      console.error("Checkout error:", err);
-      alert("Unexpected error. Please try again.");
-    } finally {
-      setCheckingOut(false);
+    if (!data?.checkoutUrl) {
+      console.error("No URL in response:", data);
+      throw new Error("Clover did not return a checkout URL.");
     }
-  };
+
+    // 4. Cleanup cart items BEFORE redirecting
+    const cartDbIds = cartItems.map((i) => i.id);
+    await supabase.from("cart_items").delete().in("id", cartDbIds);
+
+    // 5. REDIRECT
+    console.log("Redirecting to Clover:", data.checkoutUrl);
+    window.location.href = data.checkoutUrl;
+
+  } catch (err) {
+    console.error("Checkout process failed:", err);
+    alert(err.message || "An unexpected error occurred.");
+    
+    // Cleanup the failed pending order so the ID isn't reused
+    await supabase.from("pending_orders").delete().eq("order_id", orderId);
+  } finally {
+    setCheckingOut(false);
+  }
+};
 
   // ── Helpers ───────────────────────────────────────────────────────────────
   const totalTicketCount = cartItems.reduce((s, i) => s + (i.qty ?? 0), 0);

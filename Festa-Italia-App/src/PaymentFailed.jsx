@@ -1,4 +1,5 @@
 import React from 'react';
+import "./PaymentCancelled.css";
 
 export default function PaymentFailed({ setPage }) {
   return (
