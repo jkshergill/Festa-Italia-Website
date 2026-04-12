@@ -641,9 +641,144 @@ function ConfirmBocceTeams() {
 
 // Confirm Coronation Tickets Section
 function ConfirmCoronationTickets() {
+    const [eventName, setEventName] = useState('');
+    const [newEventName, setNewEventName] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [message, setMessage] = useState(null);
+
+    // Load current event name from settings table
+    useEffect(() => {
+        const loadEventName = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from('settings')
+                    .select('value')
+                    .eq('key', 'current_event')
+                    .single();
+
+                if (error) throw error;
+                setEventName(data.value);
+                setNewEventName(data.value);
+            } catch (err) {
+                console.error('Error loading event name:', err);
+                setMessage({ type: 'error', text: 'Failed to load current event name.' });
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadEventName();
+    }, []);
+
+    // Save new event name to settings
+    const handleSaveEventName = async () => {
+        const trimmed = newEventName.trim();
+        if (!trimmed) {
+            setMessage({ type: 'error', text: 'Event name cannot be empty.' });
+            return;
+        }
+        if (trimmed === eventName) {
+            setMessage({ type: 'info', text: 'No changes to save.' });
+            return;
+        }
+
+        // Extract year from new name and check for duplicates in orders
+        const yearMatch = trimmed.match(/\d{4}/);
+        if (yearMatch) {
+            const year = yearMatch[0];
+            const { data: existingOrders } = await supabase
+                .from('orders')
+                .select('id')
+                .ilike('event', `%${year}%`)
+                .neq('event', eventName)
+                .limit(1);
+
+            if (existingOrders && existingOrders.length > 0) {
+                const proceed = window.confirm(
+                    `There are already orders for a different event in ${year}. Are you sure you want to continue?`
+                );
+                if (!proceed) return;
+            }
+        }
+
+        setSaving(true);
+        setMessage(null);
+        try {
+            const { error } = await supabase
+                .from('settings')
+                .update({ value: trimmed })
+                .eq('key', 'current_event');
+
+            if (error) throw error;
+            setEventName(trimmed);
+            setMessage({ type: 'success', text: 'Event name updated successfully! All new orders will use this name.' });
+        } catch (err) {
+            console.error('Error saving event name:', err);
+            setMessage({ type: 'error', text: 'Failed to save event name: ' + err.message });
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="section-content">
+                <p>Loading event settings...</p>
+            </div>
+        );
+    }
+
     return (
         <div className="section-content">
-            <p>Coronation ticket confirmation panel coming soon...</p>
+            <h3>Event Name Management</h3>
+            <p style={{ color: '#666', marginBottom: '1rem' }}>
+                Change the event name used for new Coronation Ball ticket orders.
+                Current event: <strong>{eventName}</strong>
+            </p>
+
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'stretch', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                <input
+                    type="text"
+                    value={newEventName}
+                    onChange={(e) => setNewEventName(e.target.value)}
+                    placeholder="Enter new event name"
+                    style={{
+                        padding: '0.6rem 0.8rem',
+                        border: '1px solid #ccc',
+                        borderRadius: '6px',
+                        fontSize: '1rem',
+                        minWidth: '300px',
+                        height: '40px',
+                        boxSizing: 'border-box'
+                    }}
+                    disabled={saving}
+                />
+                <button
+                    onClick={handleSaveEventName}
+                    disabled={saving}
+                    className="save-btn"
+                    style={{ whiteSpace: 'nowrap', height: '40px', boxSizing: 'border-box', marginTop: 0, padding: '0 1.5rem', display: 'flex', alignItems: 'center' }}
+                >
+                    {saving ? 'Saving...' : 'Save Event Name'}
+                </button>
+            </div>
+
+            <p style={{ fontSize: '0.85rem', color: '#888', marginBottom: '1rem' }}>
+                Existing orders will keep their original event name. Only new purchases will use the updated name.
+            </p>
+
+            {message && (
+                <div style={{
+                    padding: '0.75rem 1rem',
+                    borderRadius: '6px',
+                    marginTop: '0.5rem',
+                    backgroundColor: message.type === 'success' ? '#e8f5e9' : message.type === 'error' ? '#ffebee' : '#e3f2fd',
+                    color: message.type === 'success' ? '#2e7d32' : message.type === 'error' ? '#c62828' : '#1565c0',
+                    border: `1px solid ${message.type === 'success' ? '#a5d6a7' : message.type === 'error' ? '#ef9a9a' : '#90caf9'}`
+                }}>
+                    {message.text}
+                </div>
+            )}
         </div>
     );
 }

@@ -7,6 +7,7 @@ export default function PaymentSuccess({ setPage }) {
   const [ticketCount, setTicketCount] = useState(0);
   const [error, setError] = useState('');
   const [pendingOrder, setPendingOrder] = useState(null);
+  const [eventName, setEventName] = useState('Coronation Ball');
 
   useEffect(() => {
     // 🔍 DEBUG: Log the full URL and all parameters
@@ -25,6 +26,16 @@ export default function PaymentSuccess({ setPage }) {
       setPage('home');
       return;
     }
+
+    // Fetch current event name from settings
+    supabase
+      .from('settings')
+      .select('value')
+      .eq('key', 'current_event')
+      .single()
+      .then(({ data }) => {
+        if (data?.value) setEventName(data.value);
+      });
 
     const processSuccessfulPayment = async () => {
       try {
@@ -61,8 +72,19 @@ export default function PaymentSuccess({ setPage }) {
         console.log('✅ Found pending order:', pendingOrderData);
         setPendingOrder(pendingOrderData);
 
+        // Fetch event name for ticket creation
+        let currentEvent = 'Festa Italia Coronation Ball 2026';
+        try {
+          const { data: settingsData } = await supabase
+            .from('settings')
+            .select('value')
+            .eq('key', 'current_event')
+            .single();
+          if (settingsData?.value) currentEvent = settingsData.value;
+        } catch { /* use fallback */ }
+
         const ticketsPayload = pendingOrderData.attendee_names.map((name, index) => ({
-          event: 'Festa Italia Coronation Ball 2026',
+          event: currentEvent,
           holder_name: name,
           holder_email: pendingOrderData.buyer_email,
           ticket_type: pendingOrderData.ticket_types[index],
@@ -121,7 +143,7 @@ export default function PaymentSuccess({ setPage }) {
     return (
       <div className="success-container">
         <div className="success-card">
-          <h1>🎟️ Coronation Ball 🎟️</h1>
+          <h1>🎟️ {eventName} 🎟️</h1>
           <div className="loading-spinner"></div>
           <h2>Processing Your Payment</h2>
           <p>Please wait while we create your tickets...</p>
@@ -134,7 +156,7 @@ export default function PaymentSuccess({ setPage }) {
     return (
       <div className="success-container">
         <div className="success-card">
-          <h1>🎟️ Coronation Ball 🎟️</h1>
+          <h1>🎟️ {eventName} 🎟️</h1>
           <div className="success-icon">✅</div>
           <h2>Payment Successful!</h2>
           <p className="success-message">
@@ -166,7 +188,7 @@ export default function PaymentSuccess({ setPage }) {
     return (
       <div className="success-container">
         <div className="success-card">
-          <h1>🎟️ Coronation Ball 🎟️</h1>
+          <h1>🎟️ {eventName} 🎟️</h1>
           <div className="error-icon">❌</div>
           <h2>Something Went Wrong</h2>
           <p className="error-message">{error}</p>

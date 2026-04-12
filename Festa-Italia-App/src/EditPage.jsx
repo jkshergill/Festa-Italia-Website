@@ -14,6 +14,11 @@ export default function EditPage() {
   const [pages, setPages] = useState([]);
   const editorRefs = useRef({});
 
+  // Homepage rotator image state
+  const [rotatorImages, setRotatorImages] = useState([]);
+  const [rotatorLoading, setRotatorLoading] = useState(false);
+  const MAX_ROTATOR_IMAGES = 7;
+
   // Load available pages from Supabase on mount
   useEffect(() => {
     const loadPages = async () => {
@@ -33,6 +38,134 @@ export default function EditPage() {
 
     loadPages();
   }, []);
+
+  // Load rotator images when "home" page is selected
+  const loadRotatorImages = async () => {
+    setRotatorLoading(true);
+    try {
+      const { data, error: err } = await supabase
+        .from('homepage_images')
+        .select('*')
+        .order('display_order', { ascending: true });
+
+      if (err) throw err;
+      setRotatorImages(data || []);
+    } catch (err) {
+      console.error('Error loading rotator images:', err);
+    } finally {
+      setRotatorLoading(false);
+    }
+  };
+
+  const handleRotatorImageUpload = async (file) => {
+    if (!file) return;
+    if (rotatorImages.filter(img => img.is_active).length >= MAX_ROTATOR_IMAGES) {
+      alert(`Maximum of ${MAX_ROTATOR_IMAGES} active images allowed.`);
+      return;
+    }
+
+    setRotatorLoading(true);
+    try {
+      // Convert file to base64 data URL (same approach as content block images)
+      const dataUrl = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsDataURL(file);
+      });
+
+      const nextOrder = rotatorImages.length > 0
+        ? Math.max(...rotatorImages.map(img => img.display_order)) + 1
+        : 0;
+
+      const { error: insertError } = await supabase
+        .from('homepage_images')
+        .insert({
+          image_url: dataUrl,
+          display_order: nextOrder,
+          is_active: true
+        });
+
+      if (insertError) throw insertError;
+
+      await loadRotatorImages();
+    } catch (err) {
+      console.error('Error uploading rotator image:', err);
+      alert(`Error uploading image: ${err.message}`);
+    } finally {
+      setRotatorLoading(false);
+    }
+  };
+
+  const handleRotatorImageDelete = async (imageId) => {
+    if (!window.confirm('Are you sure you want to delete this image?')) return;
+
+    setRotatorLoading(true);
+    try {
+      const { error: err } = await supabase
+        .from('homepage_images')
+        .delete()
+        .eq('id', imageId);
+
+      if (err) throw err;
+      await loadRotatorImages();
+    } catch (err) {
+      console.error('Error deleting rotator image:', err);
+      alert(`Error deleting image: ${err.message}`);
+    } finally {
+      setRotatorLoading(false);
+    }
+  };
+
+  const handleRotatorToggleActive = async (imageId, currentActive) => {
+    if (!currentActive && rotatorImages.filter(img => img.is_active).length >= MAX_ROTATOR_IMAGES) {
+      alert(`Maximum of ${MAX_ROTATOR_IMAGES} active images allowed.`);
+      return;
+    }
+
+    setRotatorLoading(true);
+    try {
+      const { error: err } = await supabase
+        .from('homepage_images')
+        .update({ is_active: !currentActive })
+        .eq('id', imageId);
+
+      if (err) throw err;
+      await loadRotatorImages();
+    } catch (err) {
+      console.error('Error toggling image active state:', err);
+    } finally {
+      setRotatorLoading(false);
+    }
+  };
+
+  const handleRotatorReorder = async (imageId, direction) => {
+    const idx = rotatorImages.findIndex(img => img.id === imageId);
+    const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= rotatorImages.length) return;
+
+    setRotatorLoading(true);
+    try {
+      const orderA = rotatorImages[idx].display_order;
+      const orderB = rotatorImages[swapIdx].display_order;
+
+      await supabase
+        .from('homepage_images')
+        .update({ display_order: orderB })
+        .eq('id', rotatorImages[idx].id);
+
+      await supabase
+        .from('homepage_images')
+        .update({ display_order: orderA })
+        .eq('id', rotatorImages[swapIdx].id);
+
+      await loadRotatorImages();
+    } catch (err) {
+      console.error('Error reordering rotator images:', err);
+    } finally {
+      setRotatorLoading(false);
+    }
+  };
 
   // Handle page selection - fetch from Supabase
   const handlePageSelect = async (pageId) => {
@@ -103,6 +236,11 @@ export default function EditPage() {
       setCollapsedSections(newCollapsedStates);
 
       console.log('Loaded sections from Supabase:', sectionsWithBlocks);
+
+      // Load rotator images when home page is selected
+      if (pageId === 'home') {
+        loadRotatorImages();
+      }
     } catch (err) {
       console.error('Error loading page:', err);
       setError(err.message);
@@ -489,6 +627,80 @@ export default function EditPage() {
       {selectedPageId && (
         <div className="edit-page-content">
           <h2>Editing: {selectedPageName}</h2>
+
+          {/* Homepage Rotator Image Manager */}
+          {selectedPageId === 'home' && (
+            <div className="rotator-manager">
+              <h3>Homepage Image Rotator (max {MAX_ROTATOR_IMAGES} images)</h3>
+              <p className="rotator-manager-info">
+                Active images: {rotatorImages.filter(img => img.is_active).length} / {MAX_ROTATOR_IMAGES}
+              </p>
+
+              <div className="rotator-upload-row">
+                <label className="rotator-upload-label">
+                  <span className="rotator-upload-btn">+ Upload Image</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      handleRotatorImageUpload(e.target.files[0]);
+                      e.target.value = '';
+                    }}
+                    className="rotator-upload-input"
+                    disabled={rotatorLoading}
+                  />
+                </label>
+              </div>
+
+              {rotatorLoading && <p className="rotator-loading">Loading...</p>}
+
+              <div className="rotator-image-list">
+                {rotatorImages.map((img, idx) => (
+                  <div key={img.id} className={`rotator-image-item ${!img.is_active ? 'inactive' : ''}`}>
+                    <img src={img.image_url} alt={`Rotator ${idx + 1}`} className="rotator-image-thumb" />
+                    <div className="rotator-image-actions">
+                      <span className="rotator-image-order">#{idx + 1}</span>
+                      <button
+                        onClick={() => handleRotatorReorder(img.id, 'up')}
+                        disabled={idx === 0 || rotatorLoading}
+                        className="rotator-action-btn"
+                        title="Move up"
+                      >
+                        ▲
+                      </button>
+                      <button
+                        onClick={() => handleRotatorReorder(img.id, 'down')}
+                        disabled={idx === rotatorImages.length - 1 || rotatorLoading}
+                        className="rotator-action-btn"
+                        title="Move down"
+                      >
+                        ▼
+                      </button>
+                      <button
+                        onClick={() => handleRotatorToggleActive(img.id, img.is_active)}
+                        disabled={rotatorLoading}
+                        className={`rotator-action-btn ${img.is_active ? 'active-toggle' : 'inactive-toggle'}`}
+                        title={img.is_active ? 'Deactivate' : 'Activate'}
+                      >
+                        {img.is_active ? 'Active' : 'Inactive'}
+                      </button>
+                      <button
+                        onClick={() => handleRotatorImageDelete(img.id)}
+                        disabled={rotatorLoading}
+                        className="rotator-action-btn delete-btn"
+                        title="Delete image"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                {rotatorImages.length === 0 && !rotatorLoading && (
+                  <p className="rotator-empty">No rotator images uploaded yet. The default gallery images will be used.</p>
+                )}
+              </div>
+            </div>
+          )}
 
           {sections.length > 0 ? (
             <div className="sections-list">

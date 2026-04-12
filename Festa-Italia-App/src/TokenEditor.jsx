@@ -12,6 +12,8 @@ export default function TokenEditor() {
     const [tokens,setTokens] = useState([]);
     const [editToken,setEditToken] =useState(null);
     const [currentImage,setCurrentImage] =useState("");
+    const [pendingDeleteToken, setPendingDeleteToken] = useState(null);
+    const [isDeletingToken, setIsDeletingToken] = useState(false);
 
      {/* fetchTokens() -function to retrieve tokens */}
          const fetchTokens=async()=>{
@@ -92,28 +94,41 @@ export default function TokenEditor() {
    };
 
 
-   const handleDelete=async(token)=>{
-    // const confirm=window.confirm("Delete this token?")
-    // if(!confirm) return;
-   // console.log("Button Clicked",id)
-   const {data:sessiondata}= await supabase.auth.getSession();
-   console.log("sessiondata",sessiondata)
-   const {data:userdata,error:usererror}=await supabase.auth.getUser();
-   console.log("current user",userdata,"- token image",token.image_path,"-user error",usererror)
-   const {data:names}=await supabase.storage.from("tokens").list();
-   console.log("names",names)
-   //deleting image from storage 
-   if(token.image_path){
-        const {error:storageerror}=await supabase.storage.from("tokens").remove([token.image_path])
-        console.log("storage error-",storageerror)
+    const confirmDeleteToken=async()=>{
+    if(!pendingDeleteToken || isDeletingToken) return;
+    setIsDeletingToken(true);
+    try {
+        const {data:sessiondata}= await supabase.auth.getSession();
+        console.log("sessiondata",sessiondata)
+        const {data:userdata,error:usererror}=await supabase.auth.getUser();
+        console.log("current user",userdata,"- token image",pendingDeleteToken.image_path,"-user error",usererror)
+        const {data:names}=await supabase.storage.from("tokens").list();
+        console.log("names",names)
+        //deleting image from storage
+        if(pendingDeleteToken.image_path){
+              const {error:storageerror}=await supabase.storage.from("tokens").remove([pendingDeleteToken.image_path])
+              console.log("storage error-",storageerror)
+         }
+         //deleting row from tokens table
+         const {data,error}=await supabase.from("tokens").delete().eq("id",pendingDeleteToken.id);
+         if(error) console.log(`delete error: ${error}`);
+         if(data) console.log(`delete data: ${data}`);
+         //retrieving remaining rows of the table
+         fetchTokens();
+         setPendingDeleteToken(null);
+    } finally {
+        setIsDeletingToken(false);
     }
-    //deleting row from tokens table
-    const {data,error}=await supabase.from("tokens").delete().eq("id",token.id);
-    if(error) console.log(`delete error: ${error}`);
-    if(data) console.log(`delete data: ${data}`);
-    //retrieving remaining rows of the table
-    fetchTokens() 
+    }
+
+   const handleDelete=(token)=>{
+    setPendingDeleteToken(token);
    }
+
+   const handleCancelDelete = () => {
+    if (isDeletingToken) return;
+    setPendingDeleteToken(null);
+   };
 
      // toggle active/inactive state for a token
      const handleToggleActive = async (token) => {
@@ -237,6 +252,44 @@ export default function TokenEditor() {
         ))}
     </tbody>
  </table>
+
+ {pendingDeleteToken && (
+        <div
+            className="token-modal-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="token-delete-modal-title"
+            onClick={handleCancelDelete}
+        >
+            <div className="token-modal-content" onClick={(e) => e.stopPropagation()}>
+                <h3 id="token-delete-modal-title">Delete token?</h3>
+                <p>
+                    Are you sure you want to delete
+                    {' '}
+                    <strong>{pendingDeleteToken.color || 'this token'}</strong>
+                    ?
+                </p>
+                <div className="token-modal-actions">
+                    <button
+                        type="button"
+                        className="delete-btn token-modal-delete"
+                        onClick={confirmDeleteToken}
+                        disabled={isDeletingToken}
+                    >
+                        {isDeletingToken ? 'Deleting...' : 'Delete'}
+                    </button>
+                    <button
+                        type="button"
+                        className="token-modal-cancel"
+                        onClick={handleCancelDelete}
+                        disabled={isDeletingToken}
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+ )}
 
     </div>
     );
