@@ -12,6 +12,8 @@ export default function TokenEditor() {
     const [tokens, setTokens] = useState([]);
     const [editToken, setEditToken] = useState(null);
     const [currentImage, setCurrentImage] = useState("");
+    const [pendingDeleteToken, setPendingDeleteToken] = useState(null);
+    const [isDeletingToken, setIsDeletingToken] = useState(false);
 
     //useEffect for body ID and className
     useEffect(() => {
@@ -89,16 +91,23 @@ export default function TokenEditor() {
         setShowForm(true);
     };
 
-    const handleDelete = async (token) => {
-        if (token.image_path) {
-            const { error: storageerror } = await supabase.storage.from("tokens").remove([token.image_path]);
-            console.log("storage error-", storageerror);
+    const confirmDelete = async () => {
+        if (!pendingDeleteToken || isDeletingToken) return;
+        setIsDeletingToken(true);
+        try {
+            if (pendingDeleteToken.image_path) {
+                const { error: storageerror } = await supabase.storage.from("tokens").remove([pendingDeleteToken.image_path]);
+                console.log("storage error-", storageerror);
+            }
+            const { data, error } = await supabase.from("tokens").delete().eq("id", pendingDeleteToken.id);
+            if (error) console.log(`delete error: ${error}`);
+            if (data) console.log(`delete data: ${data}`);
+            fetchTokens();
+        } finally {
+            setPendingDeleteToken(null);
+            setIsDeletingToken(false);
         }
-        const { data, error } = await supabase.from("tokens").delete().eq("id", token.id);
-        if (error) console.log(`delete error: ${error}`);
-        if (data) console.log(`delete data: ${data}`);
-        fetchTokens();
-    }
+    };
 
     const handleToggleActive = async (token) => {
         try {
@@ -216,7 +225,7 @@ export default function TokenEditor() {
                                 <td data-label="Actions" className="actions-cell">
                                     <div className="action-buttons">
                                         <button className="edit-btn" onClick={() => handleEdit(token)}>Edit</button>
-                                        <button className="delete-btn" onClick={() => handleDelete(token)}>Delete</button>
+                                        <button className="delete-btn" onClick={() => setPendingDeleteToken(token)}>Delete</button>
                                     </div>
                                 </td>
                             </tr>
@@ -224,6 +233,32 @@ export default function TokenEditor() {
                     </tbody>
                 </table>
             </div>
+
+            {/* Delete Confirmation Modal */}
+            {pendingDeleteToken && (
+                <div className="token-modal-overlay" onClick={() => setPendingDeleteToken(null)}>
+                    <div className="token-modal-content" onClick={(e) => e.stopPropagation()}>
+                        <h3>Confirm Delete</h3>
+                        <p>Are you sure you want to delete the <strong>{pendingDeleteToken.color || 'this token'}</strong> token?</p>
+                        <div className="token-modal-actions">
+                            <button
+                                className="token-modal-delete"
+                                onClick={confirmDelete}
+                                disabled={isDeletingToken}
+                            >
+                                {isDeletingToken ? 'Deleting...' : 'Delete'}
+                            </button>
+                            <button
+                                className="token-modal-cancel"
+                                onClick={() => setPendingDeleteToken(null)}
+                                disabled={isDeletingToken}
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

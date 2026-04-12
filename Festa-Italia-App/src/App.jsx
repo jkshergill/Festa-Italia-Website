@@ -265,11 +265,6 @@ export default function App(){
           <button role="menuitem" onClick={() => { setPage('scholarships'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Scholarships</button>
           <button role="menuitem" onClick={() => { setPage('donate'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Donate</button>
           <button role="menuitem" onClick={() => { setPage('donation'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Previous Sponsors</button>
-          
-          {/* admin tools to be moved next sprint */}
-          <button role="menuitem" onClick={() => { setPage('admin-foods'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Admin Tool - Food Menu Editor</button>
-          <button role="menuitem" onClick={() => { setPage('token-editor'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Token Editor</button>
-          <button role="menuitem" onClick={() => { setPage('queens-editor'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Queens Editor</button>
 
 
         </div>
