@@ -33,6 +33,7 @@ export default function TicketPurchase( {setPage} ) {
   const [otherTables, setOtherTables] = useState([]);
   const [session, setSession] = useState(null);
   const [authBanner, setAuthBanner] = useState("");
+  const [addingToCart, setAddingToCart] = useState(false);
 
   const total = quantities.adult * prices.adult + quantities.child * prices.child;
   const totalTickets = quantities.adult + quantities.child;
@@ -91,7 +92,71 @@ export default function TicketPurchase( {setPage} ) {
     updated[index] = value;
     setOtherTables(updated);
   };
-
+  
+  const handleAddToCart = async () => {
+    if (!session) { setAuthBanner("Please sign in to purchase tickets"); return; }
+    if (names.some((n) => !n?.trim())) { alert("Please fill in all ticket holder names."); return; }
+    if (foodChoices.some((f) => !f))  { alert("Please pick a dish for every ticket."); return; }
+ 
+    setAddingToCart(true);
+    try {
+      const amount_cents = total * 100;
+      const orderId      = crypto.randomUUID();
+ 
+      const { data: pendingOrder, error: pendingError } = await supabase
+        .from("pending_orders")
+        .insert({
+          order_id:       orderId,
+          user_id:        session.user.id,
+          buyer_email:    session.user.email,
+          attendee_names: names,
+          ticket_types:   ticketTypes,
+          food_choices:   foodChoices,
+          amount:         amount_cents,
+          order_type:     "Coronation Ball",
+          metadata: { purchaserName: session.user.user_metadata?.full_name },
+          expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+        })
+        .select()
+        .single();
+ 
+      if (pendingError) {
+        console.error("Add-to-cart error:", pendingError);
+        alert("Failed to add to cart. Please try again.");
+        return;
+      }
+ 
+      if (typeof setCartItems === "function") {
+        setCartItems((prev) => [
+          ...prev,
+          {
+            id:          pendingOrder.id,
+            order_id:    orderId,
+            price:       amount_cents / 100,
+            ticketTypes,
+            quantities:  { ...quantities },
+            names:       [...names],
+            foodChoices: [...foodChoices],
+            buyer_email: session.user.email,
+            order_type:  "Coronation Ball",
+            expires_at:  pendingOrder.expires_at,
+            category:    "ticket",
+            name:        "Coronation Ball",
+            event:       "Coronation Ball",
+            prices:      { ...prices },
+          },
+        ]);
+      }
+ 
+      setPage("cart");
+    } catch (err) {
+      console.error("Add-to-cart error:", err);
+      alert("Unexpected error. Please try again.");
+    } finally {
+      setAddingToCart(false);
+    }
+  };
+  
   const handleCheckout = async () => {
   try {
     // Validation
@@ -322,9 +387,14 @@ export default function TicketPurchase( {setPage} ) {
             />
           ))} */}
 
-          <button onClick={handleCheckout} /*disabled={!session}*/>
-            Checkout
-          </button>
+          <div className="cbt-action-row">
+            <button className="cbt-checkout-btn" onClick={handleCheckout} disabled={!session}>
+              Checkout
+            </button>
+            <button className="cbt-add-to-cart-btn" onClick={handleAddToCart} disabled={addingToCart || !session}>
+              {addingToCart ? "Adding…" : "Add to Cart"}
+            </button>
+          </div>
         </div>
       )}
     <button onClick={() => setPage('coronation')} >
