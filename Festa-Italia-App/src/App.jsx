@@ -20,6 +20,8 @@ import Volunteer from './Volunteer'
 import PaymentSuccess from './PaymentSuccess';
 import PaymentCancelled from './PaymentCancelled';
 import PaymentFailed from './PaymentFailed';
+import DonationSuccess from './DonationSuccess';
+
 
 import { useEffect } from 'react'
 import AdminDashboard from './AdminDashboard'
@@ -130,6 +132,16 @@ export default function App(){
         };
         fetchPageVisibility();
     }, []);
+    useEffect(() => {
+  // Check if there's a page parameter in the URL
+  const params = new URLSearchParams(window.location.search);
+  const pageParam = params.get('page');
+  
+  if (pageParam && ['success', 'donation-success', 'donation-cancel', 'donation-failure', 'cancel', 'failure'].includes(pageParam)) {
+    console.log('🔍 URL parameter detected, setting page to:', pageParam);
+    setPage(pageParam);
+  }
+}, []); // Empty dependency array means this runs once on initial load
 
   //MOCK CHECKOUT ROUTE - REMOVE AFTER ADDING CLOVER
   if (window.location.pathname === "/mock-checkout") {

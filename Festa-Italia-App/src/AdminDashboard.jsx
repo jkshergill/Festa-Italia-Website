@@ -54,6 +54,60 @@ function PageDropdown({ pageOptions = [], onSelect }) {
     );
 }
 
+// Confirm Modal Component for Reset Confirmation
+function ConfirmModal({ isOpen, onClose, onConfirm, title, message }) {
+  if (!isOpen) return null;
+  
+  return (
+    <div className="modal-overlay" style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.7)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 9999
+    }} onClick={onClose}>
+      <div className="modal-content" style={{
+        backgroundColor: 'white',
+        padding: '2rem',
+        borderRadius: '12px',
+        maxWidth: '500px',
+        width: '90%',
+        textAlign: 'center'
+      }} onClick={(e) => e.stopPropagation()}>
+        <h3 style={{ color: '#e67e22', marginTop: 0 }}>{title}</h3>
+        <p>{message}</p>
+        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '1.5rem' }}>
+          <button onClick={onConfirm} style={{
+            backgroundColor: '#e67e22',
+            color: 'white',
+            border: 'none',
+            padding: '0.5rem 1rem',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}>
+            Yes, Reset
+          </button>
+          <button onClick={onClose} style={{
+            backgroundColor: '#95a5a6',
+            color: 'white',
+            border: 'none',
+            padding: '0.5rem 1rem',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}>
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Main Dashboard Section
 function MainDashboard() {
     return (
@@ -74,11 +128,6 @@ function MainDashboard() {
                     <p>All systems operational</p>
                     <p>Last updated: Today</p>
                 </div>
-
-
-
-
-
 
                 <div className="admin-card ticket-management-card">
                     <div className="card-header"></div>
@@ -191,107 +240,87 @@ function MainDashboard() {
     );
 }
 
-// i am very sorry jack :(
-
-/*{showTicketModal && (
-    <div className="modal-overlay" onClick={() => setShowTicketModal(false)}>
-        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-                <h2>Ticket Management</h2>
-                <button 
-                    className="close-button"
-                    onClick={() => setShowTicketModal(false)}
-                >
-                    &times;
-                </button>
-            </div>
-            <div className="modal-body">
-                
-                
-                <TicketManagement 
-                userRole="admin" 
-                onClose={() => setShowTicketModal(false)}
-                />
-            </div>
-        </div>
-    </div>
-)}
-{showGuestListModal && (
-    <div className="modal-overlay" onClick={() => setShowGuestListModal(false)}>
-        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-                <h2>Guest List Management</h2>
-                <button 
-                    className="close-button"
-                    onClick={() => setShowGuestListModal(false)}
-                >
-                    &times;
-                </button>
-            </div>
-            <div className="modal-body">
-                <GuestList 
-                    userRole={userRole} 
-                    onClose={() => setShowGuestListModal(false)} 
-                />
-            </div>
-        </div>
-    </div>
-)}*/
-
 // Confirm Volunteers Section
 function ConfirmVolunteers() {
   const [query, setQuery] = useState('');
   const [signups, setSignups] = useState([]);
   const [booths, setBooths] = useState([]);
   const [profiles, setProfiles] = useState([]);
-    const [newBoothName, setNewBoothName] = useState('');
-    const [boothMessage, setBoothMessage] = useState('');
+  const [newBoothName, setNewBoothName] = useState('');
+  const [boothMessage, setBoothMessage] = useState('');
+  const [showResetModal, setShowResetModal] = useState(false);
 
-  useEffect(() => {
-    async function loadData() {
+  const loadData = async () => {
+    try {
       // 1. Fetch booths
-            const { data: boothData } = await supabase
-                .from('booths')
-                .select('id, name')
-                .order('name', { ascending: true });
-            setBooths(boothData || []);
+      const { data: boothData } = await supabase
+        .from('booths')
+        .select('id, name')
+        .order('name', { ascending: true });
+      setBooths(boothData || []);
 
       // 2. Fetch profiles
-      const { data: profileData } = await supabase.from('profiles').select('id, first_name, last_name');
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name');
       setProfiles(profileData || []);
 
       // 3. Fetch signups
-            const { data: signupData } = await supabase
-                .from('volunteer_signups')
-                .select('id, confirm, booth_id, user_id, day, timeframe');
+      const { data: signupData } = await supabase
+        .from('volunteer_signups')
+        .select('id, confirm, booth_id, user_id, day, timeframe');
+      
       if (signupData) {
         // Merge booth & profile info
         const merged = signupData.map(s => ({
           ...s,
-          booth: boothData.find(b => b.id === s.booth_id) || null,
-          profile: profileData.find(p => p.id === s.user_id) || null
+          booth: (boothData || []).find(b => b.id === s.booth_id) || null,
+          profile: (profileData || []).find(p => p.id === s.user_id) || null
         }));
         setSignups(merged);
       }
+    } catch (err) {
+      console.error('Error loading data:', err);
     }
+  };
 
+  useEffect(() => {
     loadData();
   }, []);
 
-    const prettyDay = (day) => {
-        if (!day) return 'Day TBD';
-        const lower = String(day).toLowerCase();
-        return lower.charAt(0).toUpperCase() + lower.slice(1);
-    };
+  const resetVolunteerPage = async () => {
+    setShowResetModal(false);
+    try {
+      // Delete all volunteer signups
+      const { error } = await supabase
+        .from('volunteer_signups')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000');
+      
+      if (error) throw error;
+      
+      await loadData();
+      alert('✅ Volunteer page has been successfully reset. All volunteer signups have been cleared.');
+    } catch (err) {
+      console.error('Reset error:', err);
+      alert(`Failed to reset volunteer page: ${err.message}`);
+    }
+  };
 
-    const prettyTimeframe = (value) => {
-        if (!value) return 'Timeframe TBD';
-        const lower = String(value).toLowerCase();
-        if (lower === 'morning') return 'Morning';
-        if (lower === 'evening') return 'Evening';
-        if (lower === 'night') return 'Night';
-        return value;
-    };
+  const prettyDay = (day) => {
+    if (!day) return 'Day TBD';
+    const lower = String(day).toLowerCase();
+    return lower.charAt(0).toUpperCase() + lower.slice(1);
+  };
+
+  const prettyTimeframe = (value) => {
+    if (!value) return 'Timeframe TBD';
+    const lower = String(value).toLowerCase();
+    if (lower === 'morning') return 'Morning';
+    if (lower === 'evening') return 'Evening';
+    if (lower === 'night') return 'Night';
+    return value;
+  };
 
   // Search logic
   const searchLower = query.toLowerCase();
@@ -307,66 +336,66 @@ function ConfirmVolunteers() {
   const getVolunteersForBooth = (boothId) =>
     signups.filter(s => s.booth?.id === boothId);
 
-    const createBooth = async () => {
-        const trimmed = newBoothName.trim();
-        if (!trimmed) {
-            setBoothMessage('Enter a booth name first.');
-            return;
-        }
+  const createBooth = async () => {
+    const trimmed = newBoothName.trim();
+    if (!trimmed) {
+      setBoothMessage('Enter a booth name first.');
+      return;
+    }
 
-        const alreadyExists = booths.some(b => b.name.toLowerCase() === trimmed.toLowerCase());
-        if (alreadyExists) {
-            setBoothMessage('A booth with that name already exists.');
-            return;
-        }
+    const alreadyExists = booths.some(b => b.name.toLowerCase() === trimmed.toLowerCase());
+    if (alreadyExists) {
+      setBoothMessage('A booth with that name already exists.');
+      return;
+    }
 
-        const { data, error } = await supabase
-            .from('booths')
-            .insert({ name: trimmed })
-            .select('id, name')
-            .single();
+    const { data, error } = await supabase
+      .from('booths')
+      .insert({ name: trimmed })
+      .select('id, name')
+      .single();
 
-        if (error) {
-            setBoothMessage(error.message);
-            return;
-        }
+    if (error) {
+      setBoothMessage(error.message);
+      return;
+    }
 
-        setBooths(prev => [...prev, data].sort((a, b) => a.name.localeCompare(b.name)));
-        setNewBoothName('');
-        setBoothMessage(`Created booth: ${data.name}`);
-    };
+    setBooths(prev => [...prev, data].sort((a, b) => a.name.localeCompare(b.name)));
+    setNewBoothName('');
+    setBoothMessage(`Created booth: ${data.name}`);
+  };
 
-    const deleteBooth = async (boothId) => {
-        const booth = booths.find(b => b.id === boothId);
-        if (!booth) return;
+  const deleteBooth = async (boothId) => {
+    const booth = booths.find(b => b.id === boothId);
+    if (!booth) return;
 
-        const confirmed = window.confirm(`Delete booth "${booth.name}"? This will unassign volunteers from this booth.`);
-        if (!confirmed) return;
+    const confirmed = window.confirm(`Delete booth "${booth.name}"? This will unassign volunteers from this booth.`);
+    if (!confirmed) return;
 
-        const { error: unassignError } = await supabase
-            .from('volunteer_signups')
-            .update({ booth_id: null })
-            .eq('booth_id', boothId);
+    const { error: unassignError } = await supabase
+      .from('volunteer_signups')
+      .update({ booth_id: null })
+      .eq('booth_id', boothId);
 
-        if (unassignError) {
-            setBoothMessage(unassignError.message);
-            return;
-        }
+    if (unassignError) {
+      setBoothMessage(unassignError.message);
+      return;
+    }
 
-        const { error } = await supabase
-            .from('booths')
-            .delete()
-            .eq('id', boothId);
+    const { error } = await supabase
+      .from('booths')
+      .delete()
+      .eq('id', boothId);
 
-        if (error) {
-            setBoothMessage(error.message);
-            return;
-        }
+    if (error) {
+      setBoothMessage(error.message);
+      return;
+    }
 
-        setBooths(prev => prev.filter(b => b.id !== boothId));
-        setSignups(prev => prev.map(s => (s.booth?.id === boothId ? { ...s, booth: null, booth_id: null } : s)));
-        setBoothMessage(`Deleted booth: ${booth.name}`);
-    };
+    setBooths(prev => prev.filter(b => b.id !== boothId));
+    setSignups(prev => prev.map(s => (s.booth?.id === boothId ? { ...s, booth: null, booth_id: null } : s)));
+    setBoothMessage(`Deleted booth: ${booth.name}`);
+  };
 
   const assignToBooth = async (signupId, boothId) => {
     const { error } = await supabase.from('volunteer_signups')
@@ -410,32 +439,78 @@ function ConfirmVolunteers() {
         />
       </div>
 
-            <div className="list" style={{ marginBottom: '1.5rem', borderBottom: '1px solid #eee', paddingBottom: '1rem' }}>
-                <h4>Booth Management</h4>
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
-                    <input
-                        type="text"
-                        className="search-input"
-                        placeholder="New booth name"
-                        value={newBoothName}
-                        onChange={(e) => setNewBoothName(e.target.value)}
-                        style={{ maxWidth: '360px' }}
-                    />
-                    <button className="add-btn" onClick={createBooth}>Create Booth</button>
-                </div>
+      {/* RESET VOLUNTEER PAGE BUTTON */}
+      <div style={{ 
+        marginBottom: '1.5rem', 
+        padding: '1rem', 
+        backgroundColor: '#fff3e0', 
+        borderRadius: '8px',
+        border: '1px solid #ffcc80'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <h4 style={{ margin: 0, color: '#e67e22' }}>⚠️ Reset Volunteer Page</h4>
+            <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', color: '#666' }}>
+              This will permanently delete ALL volunteer signups and clear the schedule.
+            </p>
+          </div>
+          <button
+            onClick={() => setShowResetModal(true)}
+            style={{
+              backgroundColor: '#e67e22',
+              color: 'white',
+              border: 'none',
+              padding: '0.75rem 1.5rem',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              fontSize: '1rem'
+            }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#d35400'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#e67e22'}
+          >
+            🗑️ Reset Volunteer Page
+          </button>
+        </div>
+      </div>
 
-                <div style={{ display: 'grid', gap: '0.4rem' }}>
-                    {booths.map((b) => (
-                        <div key={b.id} className="admin-item" style={{ borderBottom: 'none', padding: '0.35rem 0' }}>
-                            <div className="name">{b.name}</div>
-                            <div className="actions">
-                                <button className="remove-btn" onClick={() => deleteBooth(b.id)}>Delete</button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-                {boothMessage && <div className="muted">{boothMessage}</div>}
+      {/* Reset Confirmation Modal */}
+      {showResetModal && (
+        <ConfirmModal
+          isOpen={showResetModal}
+          onClose={() => setShowResetModal(false)}
+          onConfirm={resetVolunteerPage}
+          title="⚠️ Reset Volunteer Page"
+          message="Are you absolutely sure you want to delete ALL volunteer signups? This action cannot be undone."
+        />
+      )}
+
+      <div className="list" style={{ marginBottom: '1.5rem', borderBottom: '1px solid #eee', paddingBottom: '1rem' }}>
+        <h4>Booth Management</h4>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+          <input
+            type="text"
+            className="search-input"
+            placeholder="New booth name"
+            value={newBoothName}
+            onChange={(e) => setNewBoothName(e.target.value)}
+            style={{ maxWidth: '360px' }}
+          />
+          <button className="add-btn" onClick={createBooth}>Create Booth</button>
+        </div>
+
+        <div style={{ display: 'grid', gap: '0.4rem' }}>
+          {booths.map((b) => (
+            <div key={b.id} className="admin-item" style={{ borderBottom: 'none', padding: '0.35rem 0' }}>
+              <div className="name">{b.name}</div>
+              <div className="actions">
+                <button className="remove-btn" onClick={() => deleteBooth(b.id)}>Delete</button>
+              </div>
             </div>
+          ))}
+        </div>
+        {boothMessage && <div className="muted">{boothMessage}</div>}
+      </div>
 
       {/* Requesting Volunteers */}
       <div className="admin-list">
@@ -443,12 +518,12 @@ function ConfirmVolunteers() {
         {requestingVolunteers.length === 0 && <div className="muted">No volunteers requesting assignment.</div>}
         {requestingVolunteers.map(s => (
           <div key={s.id} className="admin-item">
-                        <div className="name">
-                            <div>{s.profile.first_name} {s.profile.last_name}</div>
-                            <div className="muted" style={{ padding: 0 }}>
-                                {prettyDay(s.day)} • {prettyTimeframe(s.timeframe)}
-                            </div>
-                        </div>
+            <div className="name">
+              <div>{s.profile.first_name} {s.profile.last_name}</div>
+              <div className="muted" style={{ padding: 0 }}>
+                {prettyDay(s.day)} • {prettyTimeframe(s.timeframe)}
+              </div>
+            </div>
             <div className="actions">
               <select
                 style={{ padding: '0.4rem 0.5rem', borderRadius: '4px', border: '1px solid #ddd', fontSize: '0.9rem' }}
@@ -478,12 +553,12 @@ function ConfirmVolunteers() {
             {volunteersForBooth.map(s => (
               <div key={s.id} className="admin-item">
                 <div className="name">
-                                    <div>
-                                        {s.profile.first_name} {s.profile.last_name} {s.confirm && <span style={{ color: '#007bff', marginLeft: '0.5rem', fontSize: '0.9rem' }}>Confirmed</span>}
-                                    </div>
-                                    <div className="muted" style={{ padding: 0 }}>
-                                        {prettyDay(s.day)} • {prettyTimeframe(s.timeframe)}
-                                    </div>
+                  <div>
+                    {s.profile.first_name} {s.profile.last_name} {s.confirm && <span style={{ color: '#007bff', marginLeft: '0.5rem', fontSize: '0.9rem' }}>Confirmed</span>}
+                  </div>
+                  <div className="muted" style={{ padding: 0 }}>
+                    {prettyDay(s.day)} • {prettyTimeframe(s.timeframe)}
+                  </div>
                 </div>
                 <div className="actions">
                   <button className="remove-btn" onClick={() => unassign(s.id)}>✕</button>
