@@ -262,7 +262,7 @@ export default function Volunteer() {
         <div className="volunteer-section volunteer-signup-actions">
           <button
             type="button"
-            className="signup-button"
+            className="sigup-button"
             disabled={!canSubmit}
             onClick={handleSignup}
             style={{ opacity: canSubmit ? 1 : 0.7 }}
