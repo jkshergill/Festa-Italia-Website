@@ -167,8 +167,11 @@
     margin: 0;
     color: #777;
 }
+/*code for signup button*/
+.sigup-button {
+    display:block;
+    margin: 0 auto;
 
-.signup-button {
     min-width: 350px;
     background: #009246;
     color: #fff;
@@ -177,7 +180,7 @@
     border-radius: 10px;
     font-size: 1rem;
     cursor: pointer;
-    transform: translateX(-110px);
+    /* transform: translateX(-110px); to center align the button*/
 }
 
 .signup-button:hover {
