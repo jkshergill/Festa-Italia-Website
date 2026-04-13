@@ -6,21 +6,21 @@ import BocceDash from './Bocce-dashboard'
 import BocceSign from './Bocce-sign-up'
 import CoronationBall from './coronationball'
 import CoronationTix from './CoronationBallTickets'
+import DeleteAccount from './DeleteAccount'
 import Donate from './Donate'
 import Donation from './Donation'
+import DonationSuccess from './DonationSuccess'
 import FestivalInfo from './FestivalInfo'
 import Home from './HomePage'
 import Login from './Login'
+import PaymentCancelled from './PaymentCancelled'
+import PaymentFailed from './PaymentFailed'
+import PaymentSuccess from './PaymentSuccess'
 import ResetPass from './resetPassword'
 import Scholarship from './Scholarship'
-import DeleteAccount from './DeleteAccount'
 import Shopping from './Shopping'
 import Signup from './Signup'
 import Volunteer from './Volunteer'
-import PaymentSuccess from './PaymentSuccess';
-import PaymentCancelled from './PaymentCancelled';
-import PaymentFailed from './PaymentFailed';
-import DonationSuccess from './DonationSuccess';
 
 
 import { useEffect } from 'react'
@@ -30,10 +30,10 @@ import AuthStatus from './AuthStatus'
 import ForgotPass from './forgotpassword'
 import MockCheckout from "./MockCheckout"
 import PageOff from './PageOff'
+import QueensEditor from './QueensEditor'
 import SignInWall from './SignInWall'
 import TokenEditor from './TokenEditor'
 import UserProfile from './UserProfile'
-import QueensEditor from './QueensEditor'
 
 export default function App(){
     const [page, setPage] = useState('home')
@@ -176,7 +176,7 @@ export default function App(){
         if (pageVisibility["Coronation Ball Info"] === undefined) return null;
         return pageVisibility["Coronation Ball Info"] ? <CoronationBall setPage={setPage}/> : <PageOff/>;
       case 'coronation-tix':
-      if (pageVisibility["Coronation Ball Tickets"] === undefined) return null;
+        if (pageVisibility["Coronation Ball Tickets"] === undefined) return null;
         return !pageVisibility["Coronation Ball Tickets"] ? <PageOff/> : !user ? <SignInWall setPage={setPage}/> : <CoronationTix setPage={setPage}/>;
       case 'donate':
         if (pageVisibility["Donation"] === undefined) return null;
@@ -199,10 +199,8 @@ export default function App(){
         return !pageVisibility["Volunteer Sign-Up"] ? <PageOff/>: !user ? <SignInWall /> : <Volunteer user={user}/>;
       case 'forgot-pass': return <ForgotPass />
       case 'user-profile': return <UserProfile setPage={setPage} /> // Added by JK
-      
       case 'donation': return <Donation />
       case 'delete-account': return <DeleteAccount setPage={setPage} />
-
       case 'sign-in-wall': return <SignInWall setPage={setPage} />
       case 'page-off': return <PageOff setPage={setPage} />
       case 'token-editor': return <TokenEditor />
@@ -214,7 +212,7 @@ export default function App(){
       case 'donation-success': return <DonationSuccess setPage={setPage} />;
       case 'donation-cancel': return <DonationCancelled setPage={setPage} />;
       case 'donation-failure': return <DonationFailed setPage={setPage} />;
- 
+
       default: return <Home />
     }
   }
@@ -269,16 +267,6 @@ export default function App(){
 
         </div>
       )
-    )
-  }
-
-  function header(){
-    return(
-      <div className="logo-wrap">
-        <a href="#" className="logo" aria-label="Festa Italia home" onClick={() => { setPage('home'); setMenuOpen(false);}}>
-          <img src="../images/logo2.gif" alt="Festa Italia logo" />
-        </a>
-      </div>
     )
   }
 

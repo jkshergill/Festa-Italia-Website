@@ -45,6 +45,7 @@ button:hover { background-color: #249548; }
   display:flex;
   flex-wrap:wrap;
   justify-content:space-between;
+  z-index: 100;
   /*right: 0;
   top: 0;*/
 }
