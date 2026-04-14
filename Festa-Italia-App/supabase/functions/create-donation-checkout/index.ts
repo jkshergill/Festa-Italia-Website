@@ -37,7 +37,7 @@ serve(async (req) => {
     }
 
     // Parse request body
-    const { amount, donorName, donationType, donationNote, orderId } = await req.json();
+    const { amount, donorName, donationType, donationNote, orderId, isAnonymous, consentToShare } = await req.json();
 
     if (!amount || !donorName || !donationType || !orderId) {
       return new Response(
@@ -77,7 +77,9 @@ serve(async (req) => {
         metadata: {
           donor_name: donorName,
           donation_note: donationNote || null,
-          donation_type: donationType
+          donation_type: donationType,
+          is_anonymous: !!isAnonymous,
+          consent_to_share: !!consentToShare
         },
         expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString()
       })
@@ -137,7 +139,9 @@ const requestBody = {
   metadata: {
     orderId: orderId,
     donationType: donationType,
-    donorName: donorName
+    donorName: donorName,
+    isAnonymous: !!isAnonymous,
+    consentToShare: !!consentToShare,
   }
 };
 
