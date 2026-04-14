@@ -1,3 +1,4 @@
+html,body,#root{min-height:100vh}
 * {
     margin: 0;
     padding: 0;
@@ -8,7 +9,7 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: white;
     color: #333;
-    height: 2500px;
+    height: 100vh;
     display: flex;
     flex-direction: column;
 }

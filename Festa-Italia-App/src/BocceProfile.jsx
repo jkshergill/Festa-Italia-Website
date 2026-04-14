@@ -130,7 +130,7 @@ if (sampleErr) {
     <div>
       <h3>My Bocce Teams</h3>
       {teams.map((t) => (
-        <div key={t.id} style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+        <div key={t.id} className="bocce-team-card">
           <div style={{ fontWeight: 700, fontSize: 18 }}>{t.team_name}</div>
           <div style={{ marginTop: 6 }}>
             <strong>Sponsored by:</strong> {t.sponsor_name || "—"}

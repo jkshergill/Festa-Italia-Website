@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "./supabaseClient"; // <- adjust path to your project
+import { supabase } from "./supabaseClient";
 
 export default function PurchasedTickets() {
   const [tickets, setTickets] = useState([]);
@@ -79,14 +79,7 @@ export default function PurchasedTickets() {
   return (
     <div style={{ display: "grid", gap: 12 }}>
       {tickets.map((t) => (
-        <div
-          key={t.id}
-          style={{
-            border: "1px solid #ddd",
-            borderRadius: 10,
-            padding: 12,
-          }}
-        >
+          <div key={t.id} className="profile-ticket-card">
           <div style={{ fontWeight: 700 }}>{t.event}</div>
           <div style={{ opacity: 0.8 }}>
             {t.ticket_type || "Ticket"} • ${(Number(t.price_cents || 0) / 100).toFixed(2)}

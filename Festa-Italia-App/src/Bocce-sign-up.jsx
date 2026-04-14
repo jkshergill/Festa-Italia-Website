@@ -1,9 +1,9 @@
 //src/bocce-sign-up.css
-import './bocce-sign-up.css'; 
 import { useEffect, useState } from 'react';
+import './bocce-sign-up.css';
 import { supabase } from './supabaseClient';
 
-export default function BocceSignUp() {
+export default function BocceSignUp( {setPage} ) {
 
   // State to track if the form has been submitted.
   const [submitted, setSubmitted] = useState(false);
@@ -141,8 +141,11 @@ export default function BocceSignUp() {
             />
           </div>
           
-          {/* Submit */}
-          <button type="submit">Submit</button>
+          {/* Submit and Back buttons */}
+          <div style={{display: 'flex', justifyContent: 'space-between', marginTop: '1rem'}}>
+            <button type="submit">Submit</button>
+            <button onClick={() => setPage('bocce-dash')}>Back</button>
+          </div>
         </form>
       </div>
     </div>

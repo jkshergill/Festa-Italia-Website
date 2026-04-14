@@ -1,32 +1,60 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import './Donate.css';
-import { useState } from 'react';
+import './HomePage.css';
+import { supabase } from './supabaseClient';
 
 function Donate() {
-
-  const maxLength = 500; {/*` Maximum length for the note input */}
+  const maxLength = 500;
   const [inputValue, setInputValue] = useState('');
-
-  // Controlled form fields so we can build the mock-checkout URL
   const [name, setName] = useState('');
   const [donationType, setDonationType] = useState('Basic');
   const [amount, setAmount] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [session, setSession] = useState(null);
 
-  const handleInputChange = (event) => { /* Handler to limit input length */
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [addImageLink, setAddImageLink] = useState(false);
+  const [imageLink, setImageLink] = useState('');
+
+  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [consentToShare, setConsentToShare] = useState(true);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleInputChange = (event) => {
     setInputValue(event.target.value.slice(0, maxLength));
   };
 
-  useEffect(() => { {/* Set body ID for styling */}
+  useEffect(() => {
     document.body.id = 'donate-body-id';
     document.body.className = 'donate-body';
   }, []);
 
-  /* For now, the submit handler just validates input and redirects 
-  to a mock checkout page with query params. In a real implementation, 
-  this would integrate with the Clover API to create a checkout session.
-  */
-  const handleSubmit = (e) => {
-    e?.preventDefault();
+  function normalizeUrl(url) {
+    const trimmed = (url || '').trim();
+    if (!trimmed) return null;
+    if (/^https?:\/\//i.test(trimmed)) return trimmed;
+    return `https://${trimmed}`;
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!session) {
+      alert('Please sign in to make a donation.');
+      window.location.href = '/?page=login&redirect=donate';
+      return;
+    }
 
     const amt = Number(amount);
     if (!amt || amt <= 0) {
@@ -34,128 +62,205 @@ function Donate() {
       return;
     }
 
-    const amountCents = Math.round(amt * 100);
+    if (!name.trim()) {
+      alert('Please enter your name.');
+      return;
+    }
 
-    // Use donor name as the single attendee name so MockCheckout won't reject
-    const safeName = (name || 'Donor').replace(/\|/g, ' ');
-    const namesParam = encodeURIComponent(safeName);
-    const typesParam = encodeURIComponent(donationType || 'donation');
+    const normalizedImageLink = addImageLink ? normalizeUrl(imageLink) : null;
 
-    const href = `/mock-checkout` +
-      `?amount=${amountCents}` +
-      `&email=` +
-      `&names=${namesParam}` +
-      `&types=${typesParam}` +
-      `&food=` +
-      `&sid=${crypto.randomUUID()}`;
+    setIsLoading(true);
 
-    window.location.assign(href);
+    try {
+      const amount_cents = Math.round(amt * 100);
+      const orderId = crypto.randomUUID();
+
+      // NOTE:
+      // This sends link + image metadata forward, but your backend / edge function
+      // must also be updated to actually save them after payment succeeds.
+      const { data, error } = await supabase.functions.invoke(
+        'create-donation-checkout',
+        {
+          body: {
+            amount: amount_cents,
+            donorName: name.trim(),
+            donationType,
+            donationNote: inputValue.trim() || null,
+            donorLinkUrl: normalizedImageLink,
+            imageFileName: selectedFile?.name || null,
+            orderId,
+            isAnonymous,
+            consentToShare,
+          },
+        }
+      );
+
+      if (error) {
+        console.error('Checkout error:', error);
+        alert(`Failed to create checkout: ${error.message}`);
+        return;
+      }
+
+      console.log('Redirecting to Clover:', data.checkoutUrl);
+      window.location.href = data.checkoutUrl;
+    } catch (err) {
+      console.error('Donation error:', err);
+      alert('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <>
-
-      <h1 className='donate-thank-you-message'>
-        Thank you for supporting your community!
-      </h1>
-
-      <form className='donate-form' onSubmit={handleSubmit}>
-
-        <div className='donate-name-section-div'>
-          <label className='donate-name-section'>
-            What is your name?
-          </label>
-
-          <div>
-            <input
-              className='donate-enter-name'
-              type="text"
-              placeholder='Enter name'
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
-        </div>
-
-        <div className='donate-donation-type-div'>
-          <label className='donate-donation-type-message'>
-            What kind of donation is this?
-          </label>
-
-          <select className='donate-donation-type' value={donationType} onChange={(e) => setDonationType(e.target.value)}>
-            <option value='Basic'>
-              Basic Donation
-            </option>
-
-            <option value='Vendor'>
-              Vendor
-            </option>
-
-            <option value='Bocce'>
-              Bocce
-            </option>
-
-            <option value='Queens'>
-              Queens Court
-            </option>
-
-            <option value='Advertising'>
-              Advertising/Sponsorship
-            </option>
-          </select>
-        </div>
-
-        <div className='donate-amount-section-div'>
-          <label className='donate-amount-section'>
-            Amount:
-          </label>
-
-          <div className='donate-enter-amount-div'>
-            <input
-              className='donate-enter-amount'
-              type="number"
-              placeholder="Enter amount"
-              min={1}
-              max={10000}
-              required
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-            />
-          </div>
-        </div>
-
-        <div className='donate-note-div'>
-          <label className='donate-note-section'>
-          Note (optional):
-          <br />
-          </label>
-
-          <textarea className='donate-note-box' placeholder="Enter a note" value={inputValue} onChange={handleInputChange}></textarea>
-          <br />
-
-          <div className='donate-character-counter-div'>
-            <p className='donate-character-counter'> 
-              {inputValue.length}/ {maxLength}
+    <div className="page-root donate-page-root">
+      <main>
+        <section className="container section">
+          <div className="donate-hero-card">
+            <h1 className="donate-thank-you-message">
+              Thank you for supporting your community!
+            </h1>
+            <p className="donate-subtext">
+              Donations help Festa continue celebrating community, culture, and tradition.
             </p>
           </div>
 
-          <label className='donate-logo-section'>
-            Upload photo/logo:
-          </label>
+          <form className="donate-form" onSubmit={handleSubmit}>
+            <div className="donate-form-grid">
+              <div className="donate-field">
+                <label className="donate-label">What is your name?</label>
+                <input
+                  className="donate-enter-name"
+                  type="text"
+                  placeholder="Enter name"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  disabled={isLoading}
+                />
+              </div>
 
-          <br />
+              <div className="donate-field">
+                <label className="donate-label">What kind of donation is this?</label>
+                <select
+                  className="donate-donation-type"
+                  value={donationType}
+                  onChange={(e) => setDonationType(e.target.value)}
+                  disabled={isLoading}
+                >
+                  <option value="Basic">Basic Donation</option>
+                  <option value="Vendor">Vendor</option>
+                  <option value="Bocce">Bocce</option>
+                  <option value="Queens">Queens Court</option>
+                  <option value="Advertising/Sponsorship">Advertising/Sponsorship</option>
+                </select>
+              </div>
 
-          <input className='donate-upload-logo' type='file' accept='.pdf, .png, .jpg, .jpeg'/>
+              <div className="donate-field">
+                <label className="donate-label">Amount</label>
+                <input
+                  className="donate-enter-amount"
+                  type="number"
+                  placeholder="Enter amount"
+                  min={1}
+                  max={10000}
+                  required
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  disabled={isLoading}
+                />
+              </div>
 
-          <div className='donate-clover-button-div'>
-            <button className='donate-clover-button' type="submit">
-              Submit with Clover
-            </button>
-          </div>
-        </div>
-      </form>
-    </>
+              <div className="donate-field donate-field-full">
+                <label className="donate-label">Note (optional)</label>
+                <textarea
+                  className="donate-note-box"
+                  placeholder="Enter a note"
+                  value={inputValue}
+                  onChange={handleInputChange}
+                  disabled={isLoading}
+                />
+                <div className="donate-character-counter-div">
+                  <p className="donate-character-counter">
+                    {inputValue.length}/{maxLength}
+                  </p>
+                </div>
+              </div>
+
+              <div className="donate-field donate-field-full">
+              <label className="donate-checkbox-row">
+                <input
+                  type="checkbox"
+                  checked={isAnonymous}
+                  onChange={(e) => setIsAnonymous(e.target.checked)}
+                  disabled={isLoading}
+                />
+                <span>Keep credentials anonymous</span>
+              </label>
+            </div>
+
+            <div className="donate-field donate-field-full">
+              <label className="donate-checkbox-row">
+                <input
+                  type="checkbox"
+                  checked={consentToShare}
+                  onChange={(e) => setConsentToShare(e.target.checked)}
+                  disabled={isLoading}
+                />
+                <span>Allow Festa Italia to publish this donation on their site</span>
+              </label>
+            </div>
+
+              <div className="donate-field donate-field-full">
+                <label className="donate-label">Upload photo/logo</label>
+                <input
+                  className="donate-upload-logo"
+                  type="file"
+                  accept=".png,.jpg,.jpeg,.webp,.gif"
+                  disabled={isLoading}
+                  onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                />
+              </div>
+
+              <div className="donate-field donate-field-full">
+                <label className="donate-checkbox-row">
+                  <input
+                    type="checkbox"
+                    checked={addImageLink}
+                    onChange={(e) => {
+                      setAddImageLink(e.target.checked);
+                      if (!e.target.checked) setImageLink('');
+                    }}
+                    disabled={isLoading}
+                  />
+                  <span>Add URL link for image</span>
+                </label>
+
+                {addImageLink && (
+                  <input
+                    className="donate-enter-link"
+                    type="url"
+                    placeholder="https://example.com"
+                    value={imageLink}
+                    onChange={(e) => setImageLink(e.target.value)}
+                    disabled={isLoading}
+                  />
+                )}
+              </div>
+            </div>
+
+            <div className="donate-clover-button-div">
+              <button className="donate-clover-button" type="submit" disabled={isLoading}>
+                {isLoading ? 'Processing...' : 'Donate with Clover'}
+              </button>
+            </div>
+
+            <div className="donate-help-text">
+              Corperate and general donations will be displayed on the previous donors webpage unless otherwise specified. Please get in contact with Festa if you made a mistake entering your information.
+            </div>
+          </form>
+        </section>
+      </main>
+    </div>
   );
 }
 

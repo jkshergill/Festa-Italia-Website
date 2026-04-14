@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 import Shopping from './Shopping'
 
-// Task 364: Test case 1
+// Test case 1
 describe('Shopping renders correctly', () => {
   it('shows important static text', async () => {
     render(<Shopping />)
@@ -12,10 +12,12 @@ describe('Shopping renders correctly', () => {
     expect(screen.getByText('Drinks')).toBeInTheDocument()
     expect(screen.getByText('Tokens')).toBeInTheDocument()
     expect(screen.getByText('Reset Totals')).toBeInTheDocument()
+    expect(screen.getByText('Add to Order')).toBeInTheDocument()
+    expect(screen.getByText('Back')).toBeInTheDocument()
   })
 })
 
-// Task 369: Test case 1
+// Test case 2: 
 describe('Testing Reset Button', () => {
   it('allows user to click the reset button', async () => {
     render(<Shopping />)
@@ -24,4 +26,3 @@ describe('Testing Reset Button', () => {
     expect(resetButton ).toBeInTheDocument() // Just checking the button is there and clickable
   })
 })
-

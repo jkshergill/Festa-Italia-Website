@@ -1,379 +1,426 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import EditPageComponent from './EditPage';
 import { useEffect, useState } from 'react';
 import './AdminDashboard.css';
+import AdminFoods from './adminEditMenu';
+import DonorManager from './DonorManager';
+import EditPageComponent from './EditPage';
+import QueensEditor from './QueensEditor';
 import { supabase } from "./supabaseClient";
+import TokenEditor from './TokenEditor';
 
-// Reusable PageDropdown component
-function PageDropdown({ pageOptions = [], onSelect }) {
-    const [query, setQuery] = useState('');
-    const [open, setOpen] = useState(false);
 
-    const filtered = pageOptions.filter(p => p.label.toLowerCase().includes(query.toLowerCase()));
 
-    return (
-        <div className="search-section">
-            <div className="search-container">
-                <input
-                    type="text"
-                    placeholder="Search web pages..."
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    onFocus={() => setOpen(true)}
-                    className="search-input"
-                />
-
-                {open && (
-                    <div className="dropdown-menu">
-                        {filtered.length > 0 ? (
-                            filtered.map((page) => (
-                                <button
-                                    key={page.value}
-                                    className="dropdown-item"
-                                    onClick={() => {
-                                        setOpen(false);
-                                        setQuery('');
-                                        if (onSelect) onSelect(page);
-                                    }}
-                                >
-                                    {page.label}
-                                </button>
-                            ))
-                        ) : (
-                            <div className="dropdown-item no-results">No pages found</div>
-                        )}
-                    </div>
-                )}
-            </div>
+// Confirm Modal Component for Reset Confirmation
+function ConfirmModal({ isOpen, onClose, onConfirm, title, message }) {
+  if (!isOpen) return null;
+  
+  return (
+    <div className="modal-overlay" style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.7)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 9999
+    }} onClick={onClose}>
+      <div className="modal-content" style={{
+        backgroundColor: 'white',
+        padding: '2rem',
+        borderRadius: '12px',
+        maxWidth: '500px',
+        width: '90%',
+        textAlign: 'center'
+      }} onClick={(e) => e.stopPropagation()}>
+        <h3 style={{ color: '#e67e22', marginTop: 0 }}>{title}</h3>
+        <p>{message}</p>
+        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '1.5rem' }}>
+          <button onClick={onConfirm} style={{
+            backgroundColor: '#e67e22',
+            color: 'white',
+            border: 'none',
+            padding: '0.5rem 1rem',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}>
+            Yes, Reset
+          </button>
+          <button onClick={onClose} style={{
+            backgroundColor: '#95a5a6',
+            color: 'white',
+            border: 'none',
+            padding: '0.5rem 1rem',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}>
+            Cancel
+          </button>
         </div>
-    );
-}
-
-// Main Dashboard Section
-function MainDashboard() {
-    return (
-        <div className="dashboard-content">
-            <div className="admin-cards">
-                <div className="admin-card">
-                    <h3>Quick Stats</h3>
-                    <p>Total Users: 1,234</p>
-                    <p>Active Events: 5</p>
-                </div>
-                <div className="admin-card">
-                    <h3>Recent Activity</h3>
-                    <p>New registrations: 12</p>
-                    <p>Ticket sales: $2,450</p>
-                </div>
-                <div className="admin-card">
-                    <h3>System Status</h3>
-                    <p>All systems operational</p>
-                    <p>Last updated: Today</p>
-                </div>
-
-
-
-
-
-
-                <div className="admin-card ticket-management-card">
-                    <div className="card-header"></div>
-                        <h3>Ticket Management</h3>
-                        <button
-                            className="manage-button"
-                            onClick={() => setShowTicketModal(true)}
-                        >
-                            Manage Tickets
-                        </button>
-                </div>
-                <div className="ticket-summary">
-                    <div className="summary-item">
-                        <span className="summary-label">Active Tickets:</span>
-                        <span className="summary-value">245</span>
-                    </div>
-                    <div className="summary-item">
-                        <span className="summary-label">Checked In:</span>
-                        <span className="summary-value">89</span>
-                    </div>
-                    <div className="summary-item">
-                        <span className="summary-label">Revoked:</span>
-                        <span className="summary-value">12</span>
-                    </div>
-                    <div className="summary-item">
-                        <span className="summary-label">Today's Sales:</span>
-                        <span className="summary-value">$1,250</span>
-                    </div>
-                    <div className="recent-tickets">
-                        <h4>Recent Ticket Activity</h4>
-                        <div className="tickets-list"></div>
-                        {[
-                            { id: 'TKT-1001', event: 'Coronation Ball', purchaser: 'John Doe', status: 'active' },
-                            { id: 'TKT-1002', event: 'Bocce Tournament', purchaser: 'Jane Smith', status: 'checked-in' },
-                            { id: 'TKT-1003', event: 'Fishermans Festival', purchaser: 'Bob Wilson', status: 'active' },
-                            ].map(ticket => (   
-                            <div key={ticket.id} className="recent-ticket-item">
-                                <div className="ticket-info">
-                                    <span className="ticket-id">{ticket.id}</span>
-                                    <span className="ticket-event">{ticket.event}</span>
-                                </div>
-                                <div className="ticket-details">
-                                    <span className="ticket-purchaser">{ticket.purchaser}</span> 
-                                    <span className={`ticket-status status-${ticket.status}`}>{ticket.status === 'checked-in' ? 'Checked In' : 'Active'}
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
-                    </div> 
-                </div>
-            </div>
-            <div className="admin-card guest-list-card">
-                    <div className="card-header">
-                        <h3>Guest List</h3>
-                        <button 
-                            className="manage-button guest-list-button"
-                            onClick={() => {
-                                console.log("Manage Guest List button clicked");
-                                setShowGuestListModal(true);
-                            }}
-                        >
-                            Manage Guest List
-                        </button>
-                    </div>
-                    
-                    <div className="guest-summary">
-                        <div className="summary-item">
-                            <span className="summary-label">Total Guests:</span>
-                            <span className="summary-value">85</span>
-                        </div>
-                        <div className="summary-item">
-                            <span className="summary-label">Checked In:</span>
-                            <span className="summary-value">42</span>
-                        </div>
-                        <div className="summary-item">
-                            <span className="summary-label">With Profile:</span>
-                            <span className="summary-value">63</span>
-                        </div>
-                        <div className="summary-item">
-                            <span className="summary-label">Avg Tickets:</span>
-                            <span className="summary-value">2.8</span>
-                        </div>
-                    </div>
-                    
-                    <div className="recent-guests">
-                        <h4>Recent Guest Activity</h4>
-                        <div className="guests-list">
-                            {[
-                                { id: 'GUEST-001', name: 'Alice Johnson', email: 'alice@example.com', tickets: 3, status: 'checked-in' },
-                                { id: 'GUEST-002', name: 'Bob Wilson', email: 'bob@example.com', tickets: 2, status: 'not-checked-in' },
-                                { id: 'GUEST-003', name: 'Carol Davis', email: 'carol@example.com', tickets: 1, status: 'checked-in' },
-                            ].map(guest => (   
-                                <div key={guest.id} className="recent-guest-item">
-                                    <div className="guest-info">
-                                        <span className="guest-name">{guest.name}</span>
-                                        <span className="guest-email">{guest.email}</span>
-                                    </div>
-                                    <div className="guest-details">
-                                        <span className="guest-tickets">{guest.tickets} ticket{guest.tickets !== 1 ? 's' : ''}</span> 
-                                        <span className={`guest-status status-${guest.status}`}>
-                                            {guest.status === 'checked-in' ? 'Checked In' : 'Not Checked In'}
-                                        </span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div> 
-            </div>
-        </div>
-    );
-}
-
-// i am very sorry jack :(
-
-/*{showTicketModal && (
-    <div className="modal-overlay" onClick={() => setShowTicketModal(false)}>
-        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-                <h2>Ticket Management</h2>
-                <button 
-                    className="close-button"
-                    onClick={() => setShowTicketModal(false)}
-                >
-                    &times;
-                </button>
-            </div>
-            <div className="modal-body">
-                
-                
-                <TicketManagement 
-                userRole="admin" 
-                onClose={() => setShowTicketModal(false)}
-                />
-            </div>
-        </div>
+      </div>
     </div>
-)}
-{showGuestListModal && (
-    <div className="modal-overlay" onClick={() => setShowGuestListModal(false)}>
-        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-                <h2>Guest List Management</h2>
-                <button 
-                    className="close-button"
-                    onClick={() => setShowGuestListModal(false)}
-                >
-                    &times;
-                </button>
-            </div>
-            <div className="modal-body">
-                <GuestList 
-                    userRole={userRole} 
-                    onClose={() => setShowGuestListModal(false)} 
-                />
-            </div>
-        </div>
-    </div>
-)}*/
+  );
+}
 
 // Confirm Volunteers Section
 function ConfirmVolunteers() {
-  const [query, setQuery] = useState('');
-  const [signups, setSignups] = useState([]);
-  const [booths, setBooths] = useState([]);
-  const [profiles, setProfiles] = useState([]);
+    const [query, setQuery] = useState('');
+    const [signups, setSignups] = useState([]);
+    const [booths, setBooths] = useState([]);
+    const [profiles, setProfiles] = useState([]);
+    const [newBoothName, setNewBoothName] = useState('');
+    const [boothMessage, setBoothMessage] = useState('');
+    const [showResetModal, setShowResetModal] = useState(false);
+    const [pendingDelete, setPendingDelete] = useState(null);
 
-  useEffect(() => {
-    async function loadData() {
-      // 1. Fetch booths
-      const { data: boothData } = await supabase.from('booths').select('id, name');
-      setBooths(boothData || []);
+    const loadData = async () => {
+        try {
+        // 1. Fetch booths
+        const { data: boothData } = await supabase
+            .from('booths')
+            .select('id, name')
+            .order('name', { ascending: true });
+        setBooths(boothData || []);
 
-      // 2. Fetch profiles
-      const { data: profileData } = await supabase.from('profiles').select('id, first_name, last_name');
-      setProfiles(profileData || []);
+        // 2. Fetch profiles
+        const { data: profileData } = await supabase
+            .from('profiles')
+            .select('id, first_name, last_name');
+        setProfiles(profileData || []);
 
-      // 3. Fetch signups
-      const { data: signupData } = await supabase.from('volunteer_signups').select('id, confirm, booth_id, user_id');
-      if (signupData) {
-        // Merge booth & profile info
-        const merged = signupData.map(s => ({
-          ...s,
-          booth: boothData.find(b => b.id === s.booth_id) || null,
-          profile: profileData.find(p => p.id === s.user_id) || null
-        }));
-        setSignups(merged);
-      }
-    }
+        // 3. Fetch signups
+        const { data: signupData } = await supabase
+            .from('volunteer_signups')
+            .select('id, confirm, booth_id, user_id, day, timeframe');
+        
+        if (signupData) {
+            // Merge booth & profile info
+            const merged = signupData.map(s => ({
+            ...s,
+            booth: (boothData || []).find(b => b.id === s.booth_id) || null,
+            profile: (profileData || []).find(p => p.id === s.user_id) || null
+            }));
+            setSignups(merged);
+        }
+        } catch (err) {
+        console.error('Error loading data:', err);
+        }
+    };
 
-    loadData();
-  }, []);
+    useEffect(() => {
+        loadData();
+    }, []);
 
-  // Search logic
-  const searchLower = query.toLowerCase();
+    const resetVolunteerPage = async () => {
+        setShowResetModal(false);
+        try {
+        // Delete all volunteer signups
+        const { error } = await supabase
+            .from('volunteer_signups')
+            .delete()
+            .neq('id', '00000000-0000-0000-0000-000000000000');
+        
+        if (error) throw error;
+        
+        await loadData();
+        alert('✅ Volunteer page has been successfully reset. All volunteer signups have been cleared.');
+        } catch (err) {
+        console.error('Reset error:', err);
+        alert(`Failed to reset volunteer page: ${err.message}`);
+        }
+    };
 
-  const activeBooths = booths.filter(b =>
-    b.name.toLowerCase().includes(searchLower) ||
-    signups.some(s => s.booth?.id === b.id && s.profile && `${s.profile.first_name} ${s.profile.last_name}`.toLowerCase().includes(searchLower))
-  );
+    const prettyDay = (day) => {
+        if (!day) return 'Day TBD';
+        const lower = String(day).toLowerCase();
+        return lower.charAt(0).toUpperCase() + lower.slice(1);
+    };
 
-  const requestingVolunteers = signups.filter(s => !s.booth && s.profile)
-    .filter(s => `${s.profile.first_name} ${s.profile.last_name}`.toLowerCase().includes(searchLower));
+    const prettyTimeframe = (value) => {
+        if (!value) return 'Timeframe TBD';
+        const lower = String(value).toLowerCase();
+        if (lower === 'morning') return 'Morning';
+        if (lower === 'evening') return 'Evening';
+        if (lower === 'night') return 'Night';
+        return value;
+    };
 
-  const getVolunteersForBooth = (boothId) =>
-    signups.filter(s => s.booth?.id === boothId);
+    // Search logic
+    const searchLower = query.toLowerCase();
 
-  const assignToBooth = async (signupId, boothId) => {
-    const { error } = await supabase.from('volunteer_signups')
-      .update({ booth_id: boothId }).eq('id', signupId);
-    if (!error) {
-      setSignups(prev =>
-        prev.map(s => s.id === signupId ? { ...s, booth: booths.find(b => b.id === boothId) } : s)
-      );
-    }
-  };
+    const activeBooths = booths.filter(b =>
+        b.name.toLowerCase().includes(searchLower) ||
+        signups.some(s => s.booth?.id === b.id && s.profile && `${s.profile.first_name} ${s.profile.last_name}`.toLowerCase().includes(searchLower))
+    );
 
-  const toggleConfirm = async (signupId, current) => {
-    const { error } = await supabase.from('volunteer_signups')
-      .update({ confirm: !current }).eq('id', signupId);
-    if (!error) {
-      setSignups(prev =>
-        prev.map(s => s.id === signupId ? { ...s, confirm: !current } : s)
-      );
-    }
-  };
+    const requestingVolunteers = signups.filter(s => !s.booth && s.profile)
+        .filter(s => `${s.profile.first_name} ${s.profile.last_name}`.toLowerCase().includes(searchLower));
 
-  const unassign = async (signupId) => {
-    const { error } = await supabase.from('volunteer_signups')
-      .update({ booth_id: null }).eq('id', signupId);
-    if (!error) {
-      setSignups(prev =>
-        prev.map(s => s.id === signupId ? { ...s, booth: null } : s)
-      );
-    }
-  };
+    const getVolunteersForBooth = (boothId) =>
+        signups.filter(s => s.booth?.id === boothId);
 
-  return (
-    <div className="section-content">
-      <div style={{ marginBottom: '1.5rem' }}>
-        <input
-          className="search-input"
-          type="text"
-          placeholder="Search booth name or volunteer name..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-      </div>
+    const createBooth = async () => {
+        const trimmed = newBoothName.trim();
+        if (!trimmed) {
+        setBoothMessage('Enter a booth name first.');
+        return;
+        }
 
-      {/* Requesting Volunteers */}
-      <div className="admin-list">
-        <h4>Requesting Volunteers</h4>
-        {requestingVolunteers.length === 0 && <div className="muted">No volunteers requesting assignment.</div>}
-        {requestingVolunteers.map(s => (
-          <div key={s.id} className="admin-item">
-            <div className="name">{s.profile.first_name} {s.profile.last_name}</div>
-            <div className="actions">
-              <select
-                style={{ padding: '0.4rem 0.5rem', borderRadius: '4px', border: '1px solid #ddd', fontSize: '0.9rem' }}
-                onChange={(e) => {
-                  if (e.target.value) {
-                    assignToBooth(s.id, e.target.value);
-                    e.target.value = '';
-                  }
-                }}
-                defaultValue=""
-              >
-                <option value="">Assign to booth...</option>
-                {booths.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-              </select>
+        const alreadyExists = booths.some(b => b.name.toLowerCase() === trimmed.toLowerCase());
+        if (alreadyExists) {
+        setBoothMessage('A booth with that name already exists.');
+        return;
+        }
+
+        const { data, error } = await supabase
+        .from('booths')
+        .insert({ name: trimmed })
+        .select('id, name')
+        .single();
+
+        if (error) {
+        setBoothMessage(error.message);
+        return;
+        }
+
+        setBooths(prev => [...prev, data].sort((a, b) => a.name.localeCompare(b.name)));
+        setNewBoothName('');
+        setBoothMessage(`Created booth: ${data.name}`);
+    };
+
+    const deleteBooth = async (boothId) => {
+        const booth = booths.find(b => b.id === boothId);
+        if (!booth) return;
+
+        const confirmed = window.confirm(`Delete booth "${booth.name}"? This will unassign volunteers from this booth.`);
+        if (!confirmed) return;
+
+        const { error: unassignError } = await supabase
+        .from('volunteer_signups')
+        .update({ booth_id: null })
+        .eq('booth_id', boothId);
+
+        if (unassignError) {
+        setBoothMessage(unassignError.message);
+        return;
+        }
+
+        const { error } = await supabase
+        .from('booths')
+        .delete()
+        .eq('id', boothId);
+
+        if (error) {
+        setBoothMessage(error.message);
+        return;
+        }
+
+        setBooths(prev => prev.filter(b => b.id !== boothId));
+        setSignups(prev => prev.map(s => (s.booth?.id === boothId ? { ...s, booth: null, booth_id: null } : s)));
+        setBoothMessage(`Deleted booth: ${booth.name}`);
+    };
+
+    const assignToBooth = async (signupId, boothId) => {
+        const { error } = await supabase.from('volunteer_signups')
+        .update({ booth_id: boothId }).eq('id', signupId);
+        if (!error) {
+        setSignups(prev =>
+            prev.map(s => s.id === signupId ? { ...s, booth: booths.find(b => b.id === boothId) } : s)
+        );
+        }
+    };
+
+    const toggleConfirm = async (signupId, current) => {
+        const { error } = await supabase.from('volunteer_signups')
+        .update({ confirm: !current }).eq('id', signupId);
+        if (!error) {
+        setSignups(prev =>
+            prev.map(s => s.id === signupId ? { ...s, confirm: !current } : s)
+        );
+        }
+    };
+
+    const unassign = async (signupId) => {
+        const { error } = await supabase.from('volunteer_signups')
+        .update({ booth_id: null, confirm: false }).eq('id', signupId)
+        if (!error) {
+        setSignups(prev =>
+            prev.map(s => s.id === signupId ? { ...s, booth: null , confirm: false} : s)
+        );
+        }
+    };
+
+    const deleteVol = async () => {
+        const { error } = await supabase
+            .from('volunteer_signups')
+            .delete()
+            .eq('id', pendingDelete.id);
+        if (!error) {
+            setSignups(prev => prev.filter(s => s.id !== pendingDelete.id));
+        }
+        setPendingDelete(null);
+    };
+
+    return (
+        <div className="section-content">
+        <div style={{ marginBottom: '1.5rem' }}>
+            <input
+            className="search-input"
+            type="text"
+            placeholder="Search booth name or volunteer name..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            />
+        </div>
+
+        {/* RESET VOLUNTEER PAGE BUTTON */}
+        <div style={{ 
+            marginBottom: '1.5rem', 
+            padding: '1rem', 
+            backgroundColor: '#fff3e0', 
+            borderRadius: '8px',
+            border: '1px solid #ffcc80'
+        }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+                <h4 style={{ margin: 0, color: '#e67e22' }}>⚠️ Reset Volunteer Page</h4>
+                <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', color: '#666' }}>
+                This will permanently delete ALL volunteer signups and clear the schedule.
+                </p>
             </div>
-          </div>
-        ))}
-      </div>
+            <button
+                onClick={() => setShowResetModal(true)}
+                style={{
+                backgroundColor: '#e67e22',
+                color: 'white',
+                border: 'none',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                fontSize: '1rem'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#d35400'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = '#e67e22'}
+            >
+                🗑️ Reset Volunteer Page
+            </button>
+            </div>
+        </div>
 
-      {/* Booths with Volunteers */}
-      {activeBooths.map((b, idx) => {
-        const volunteersForBooth = getVolunteersForBooth(b.id);
-        return (
-          <div key={idx} className="list" style={{ marginTop: idx === 0 ? '1.5rem' : '1rem' }}>
-            <h4>{b.name}</h4>
-            {volunteersForBooth.length === 0 && <div className="muted">No volunteers.</div>}
-            {volunteersForBooth.map(s => (
-              <div key={s.id} className="admin-item">
+        {/* Reset Confirmation Modal */}
+        {showResetModal && (
+            <ConfirmModal
+            isOpen={showResetModal}
+            onClose={() => setShowResetModal(false)}
+            onConfirm={resetVolunteerPage}
+            title="⚠️ Reset Volunteer Page"
+            message="Are you absolutely sure you want to delete ALL volunteer signups? This action cannot be undone."
+            />
+        )}
+
+        <div className="list" style={{ marginBottom: '1.5rem', borderBottom: '1px solid #eee', paddingBottom: '1rem' }}>
+            <h4>Booth Management</h4>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+            <input
+                type="text"
+                className="search-input"
+                placeholder="New booth name"
+                value={newBoothName}
+                onChange={(e) => setNewBoothName(e.target.value)}
+                style={{ maxWidth: '360px' }}
+            />
+            <button className="add-btn" onClick={createBooth}>Create Booth</button>
+            </div>
+
+            <div style={{ display: 'grid', gap: '0.4rem' }}>
+            {booths.map((b) => (
+                <div key={b.id} className="admin-item" style={{ borderBottom: 'none', padding: '0.35rem 0' }}>
+                <div className="name">{b.name}</div>
+                <div className="actions">
+                    <button className="remove-btn" onClick={() => deleteBooth(b.id)}>Delete</button>
+                </div>
+                </div>
+                
+            ))}
+            </div>
+            {boothMessage && <div className="muted">{boothMessage}</div>}
+        </div>
+
+        {/* Requesting Volunteers */}
+        <div className="admin-list">
+            <h4>Requesting Volunteers</h4>
+            {requestingVolunteers.length === 0 && <div className="muted">No volunteers requesting assignment.</div>}
+            {requestingVolunteers.map(s => (
+            <div key={s.id} className="admin-item">
                 <div className="name">
-                  {s.profile.first_name} {s.profile.last_name} {s.confirm && <span style={{ color: '#007bff', marginLeft: '0.5rem', fontSize: '0.9rem' }}>Confirmed</span>}
+                <div>{s.profile.first_name} {s.profile.last_name}</div>
+                <div className="muted" style={{ padding: 0 }}>
+                    {prettyDay(s.day)} • {prettyTimeframe(s.timeframe)}
+                </div>
                 </div>
                 <div className="actions">
-                  <button className="remove-btn" onClick={() => unassign(s.id)}>✕</button>
-                  <button style={{ marginLeft: '0.5rem' }} onClick={() => toggleConfirm(s.id, s.confirm)}>
-                    {s.confirm ? 'Unconfirm' : 'Confirm'}
-                  </button>
+                <button className="remove-btn" style={{ padding:'0.25rem 0.5rem'}} onClick={() => setPendingDelete(s)}>Remove Volunteer</button>
+                    {pendingDelete && (
+                    <ConfirmModal
+                        isOpen={!!pendingDelete}
+                        onClose={() => setPendingDelete(null)}
+                        onConfirm={deleteVol}
+                        title="Remove Volunteer"
+                        message={`Are you sure you want to remove ${pendingDelete?.name} from this signup? This cannot be undone.`}
+                    />
+                    )}
+                <select
+                    style={{ padding: '0.4rem 0.5rem', borderRadius: '4px', border: '1px solid #ddd', fontSize: '0.9rem' }}
+                    onChange={(e) => {
+                    if (e.target.value) {
+                        assignToBooth(s.id, e.target.value);
+                        e.target.value = '';
+                    }
+                    }}
+                    defaultValue=""
+                >
+                    <option value="">Assign to booth...</option>
+                    {booths.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+                </select>
                 </div>
-              </div>
+            </div>
             ))}
-          </div>
-        )
-      })}
-    </div>
-  );
+        </div>
+
+        {/* Booths with Volunteers */}
+        {activeBooths.map((b, idx) => {
+            const volunteersForBooth = getVolunteersForBooth(b.id);
+            return (
+            <div key={idx} className="list" style={{ marginTop: idx === 0 ? '1.5rem' : '1rem' }}>
+                <h4>{b.name}</h4>
+                {volunteersForBooth.length === 0 && <div className="muted">No volunteers.</div>}
+                {volunteersForBooth.map(s => (
+                <div key={s.id} className="admin-item">
+                    <div className="name">
+                    <div>
+                        {s.profile.first_name} {s.profile.last_name} {s.confirm && <span style={{ color: '#007bff', marginLeft: '0.5rem', fontSize: '0.9rem' }}>Confirmed</span>}
+                    </div>
+                    <div className="muted" style={{ padding: 0 }}>
+                        {prettyDay(s.day)} • {prettyTimeframe(s.timeframe)}
+                    </div>
+                    </div>
+                    <div className="actions">
+                    <button className="remove-btn" onClick={() => unassign(s.id)}>✕</button>
+                    <button style={{ marginLeft: '0.5rem' }} onClick={() => toggleConfirm(s.id, s.confirm)}>
+                        {s.confirm ? 'Unconfirm' : 'Confirm'}
+                    </button>
+                    </div>
+                </div>
+                ))}
+            </div>
+            )
+        })}
+        </div>
+    );
 }
 
 function ConfirmBocceTeams() {
@@ -517,47 +564,271 @@ function ConfirmBocceTeams() {
 
 // Confirm Coronation Tickets Section
 function ConfirmCoronationTickets() {
+    const [eventName, setEventName] = useState('');
+    const [newEventName, setNewEventName] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [message, setMessage] = useState(null);
+
+    // Load current event name from settings table
+    useEffect(() => {
+        const loadEventName = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from('settings')
+                    .select('value')
+                    .eq('key', 'current_event')
+                    .single();
+
+                if (error) throw error;
+                setEventName(data.value);
+                setNewEventName(data.value);
+            } catch (err) {
+                console.error('Error loading event name:', err);
+                setMessage({ type: 'error', text: 'Failed to load current event name.' });
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadEventName();
+    }, []);
+
+    // Save new event name to settings
+    const handleSaveEventName = async () => {
+        const trimmed = newEventName.trim();
+        if (!trimmed) {
+            setMessage({ type: 'error', text: 'Event name cannot be empty.' });
+            return;
+        }
+        if (trimmed === eventName) {
+            setMessage({ type: 'info', text: 'No changes to save.' });
+            return;
+        }
+
+        // Extract year from new name and check for duplicates in orders
+        const yearMatch = trimmed.match(/\d{4}/);
+        if (yearMatch) {
+            const year = yearMatch[0];
+            const { data: existingOrders } = await supabase
+                .from('orders')
+                .select('id')
+                .ilike('event', `%${year}%`)
+                .neq('event', eventName)
+                .limit(1);
+
+            if (existingOrders && existingOrders.length > 0) {
+                const proceed = window.confirm(
+                    `There are already orders for a different event in ${year}. Are you sure you want to continue?`
+                );
+                if (!proceed) return;
+            }
+        }
+
+        setSaving(true);
+        setMessage(null);
+        try {
+            const { error } = await supabase
+                .from('settings')
+                .update({ value: trimmed })
+                .eq('key', 'current_event');
+
+            if (error) throw error;
+            setEventName(trimmed);
+            setMessage({ type: 'success', text: 'Event name updated successfully! All new orders will use this name.' });
+        } catch (err) {
+            console.error('Error saving event name:', err);
+            setMessage({ type: 'error', text: 'Failed to save event name: ' + err.message });
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="section-content">
+                <p>Loading event settings...</p>
+            </div>
+        );
+    }
+
     return (
         <div className="section-content">
-            <p>Coronation ticket confirmation panel coming soon...</p>
+            <h3>Event Name Management</h3>
+            <p style={{ color: '#666', marginBottom: '1rem' }}>
+                Change the event name used for new Coronation Ball ticket orders.
+                Current event: <strong>{eventName}</strong>
+            </p>
+
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'stretch', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                <input
+                    type="text"
+                    value={newEventName}
+                    onChange={(e) => setNewEventName(e.target.value)}
+                    placeholder="Enter new event name"
+                    style={{
+                        padding: '0.6rem 0.8rem',
+                        border: '1px solid #ccc',
+                        borderRadius: '6px',
+                        fontSize: '1rem',
+                        minWidth: '300px',
+                        height: '40px',
+                        boxSizing: 'border-box'
+                    }}
+                    disabled={saving}
+                />
+                <button
+                    onClick={handleSaveEventName}
+                    disabled={saving}
+                    className="save-btn"
+                    style={{ whiteSpace: 'nowrap', height: '40px', boxSizing: 'border-box', marginTop: 0, padding: '0 1.5rem', display: 'flex', alignItems: 'center' }}
+                >
+                    {saving ? 'Saving...' : 'Save Event Name'}
+                </button>
+            </div>
+
+            <p style={{ fontSize: '0.85rem', color: '#888', marginBottom: '1rem' }}>
+                Existing orders will keep their original event name. Only new purchases will use the updated name.
+            </p>
+
+            {message && (
+                <div style={{
+                    padding: '0.75rem 1rem',
+                    borderRadius: '6px',
+                    marginTop: '0.5rem',
+                    backgroundColor: message.type === 'success' ? '#e8f5e9' : message.type === 'error' ? '#ffebee' : '#e3f2fd',
+                    color: message.type === 'success' ? '#2e7d32' : message.type === 'error' ? '#c62828' : '#1565c0',
+                    border: `1px solid ${message.type === 'success' ? '#a5d6a7' : message.type === 'error' ? '#ef9a9a' : '#90caf9'}`
+                }}>
+                    {message.text}
+                </div>
+            )}
         </div>
     );
 }
 
-
-// Edit Page Section – replaced with new EditPageComponent
-// Simply render the new component which has all functionality built-in
-
-// Add Admin Section
 function AddAdmin() {
     const [query, setQuery] = useState('');
 
-    // Placeholder data — replace with real API data when ready
-    const [admins, setAdmins] = useState([
-        { id: 1, name: 'John Doe' },
-        { id: 2, name: 'Jane Doe' }
-    ]);
+    const [admins, setAdmins] = useState([]);
+    const [users, setUsers] = useState([]);
 
-    const [users, setUsers] = useState([
-        { id: 11, name: 'John Schmidt' },
-        { id: 12, name: 'Jacob Schmidt' },
-        { id: 13, name: 'Jingleheimer Schmidt' }
-    ]);
+    const [pendingDemotions, setPendingDemotions] = useState([]);
+    const [pendingPromotions, setPendingPromotions] = useState([]);
+    const [saving, setSaving] = useState(false);
 
-    const filteredAdmins = admins.filter(a => a.name.toLowerCase().includes(query.toLowerCase()));
-    const filteredUsers = users.filter(u => u.name.toLowerCase().includes(query.toLowerCase()));
+    useEffect(() => {
+        const loadProfiles = async () => {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .order('id', { ascending: true });
 
-    const removeAdmin = (id) => {
-        const removed = admins.find(a => a.id === id);
-        setAdmins(prev => prev.filter(a => a.id !== id));
-        if (removed) setUsers(prev => [removed, ...prev]);
+            if (error) {
+                console.error('Error fetching profiles:', error);
+                return;
+            }
+
+            const adminRecords = [];
+            const userRecords = [];
+
+            data.forEach((p) => {
+                const display = {
+                    id: p.id,
+                    name: `${p.first_name || ''} ${p.last_name || ''}`.trim(),
+                    email: p.email || '',
+                    role: p.role || 'user',
+                };
+
+                if (p.role === 'admin') {
+                    adminRecords.push(display);
+                } else {
+                    userRecords.push(display);
+                }
+            });
+
+            const sortByName = (a, b) => a.name.localeCompare(b.name);
+            setAdmins(adminRecords.sort(sortByName));
+            setUsers(userRecords.sort(sortByName));
+        };
+
+            loadProfiles();
+        }, []);
+
+        const filteredAdmins = admins.filter(a =>
+            (`${a.name} ${a.email}`).toLowerCase().includes(query.toLowerCase())
+        );
+        const filteredUsers = users.filter(u =>
+            (`${u.name} ${u.email}`).toLowerCase().includes(query.toLowerCase())
+        );
+
+    const demoteAdmin = (id) => {
+        const admin = admins.find(a => a.id === id);
+        if (!admin || pendingDemotions.some(d => d.id === id)) return;
+        setPendingDemotions(prev => [...prev, admin]);
     };
 
-    const addAdmin = (id) => {
+    const promoteUser = (id) => {
         const user = users.find(u => u.id === id);
-        if (!user) return;
-        setUsers(prev => prev.filter(u => u.id !== id));
-        setAdmins(prev => [user, ...prev]);
+        if (!user || pendingPromotions.some(p => p.id === id)) return;
+        setPendingPromotions(prev => [...prev, user]);
+    };
+
+    const cancelDemotion = (id) => setPendingDemotions(prev => prev.filter(d => d.id !== id));
+    const cancelPromotion = (id) => setPendingPromotions(prev => prev.filter(p => p.id !== id));
+
+    const saveChanges = async () => {
+        setSaving(true);
+        const errors = [];
+
+        // Apply demotions
+        for (const admin of pendingDemotions) {
+            const { error } = await supabase.rpc('set_user_role', {
+                target_user_id: admin.id,
+                new_role: 'user'  // swap this for whatever your base role is
+            });
+            if (error) {
+                console.error('Demotion error for', admin.id, ':', error);
+                errors.push(admin.name);
+            }
+        }
+
+        // Apply promotions
+        for (const user of pendingPromotions) {
+            const { error } = await supabase.rpc('set_user_role', {
+                target_user_id: user.id,
+                new_role: 'admin'
+            });
+            if (error) {
+                console.error('Promotion error for', user.id, ':', error);
+                errors.push(user.name);
+            }
+        }
+
+        setSaving(false);
+
+        if (errors.length > 0) {
+            alert(`Some changes failed for: ${errors.join(', ')}. Please try again.`);
+            return;
+        }
+
+        // Update local state only on full success
+        const demotedIds = new Set(pendingDemotions.map(d => d.id));
+        const promotedIds = new Set(pendingPromotions.map(p => p.id));
+
+        setAdmins(prev => [
+            ...prev.filter(a => !demotedIds.has(a.id)),
+            ...pendingPromotions.map(u => ({ ...u, role: 'admin' }))
+        ].sort((a, b) => a.name.localeCompare(b.name)));
+
+        setUsers(prev => [
+            ...prev.filter(u => !promotedIds.has(u.id)),
+            ...pendingDemotions.map(a => ({ ...a, role: 'user' }))
+        ].sort((a, b) => a.name.localeCompare(b.name)));
+
+        setPendingDemotions([]);
+        setPendingPromotions([]);
+
+        alert('Role changes saved successfully!');
     };
 
     return (
@@ -577,9 +848,16 @@ function AddAdmin() {
                 {filteredAdmins.length === 0 && <div className="muted">No admins match your search.</div>}
                 {filteredAdmins.map(admin => (
                     <div key={admin.id} className="admin-item">
-                        <div className="name">{admin.name}</div>
+                        <div className="name">{admin.name} ({admin.email})</div>
                         <div className="actions">
-                            <button className="remove-btn" onClick={() => removeAdmin(admin.id)} aria-label={`Remove ${admin.name}`}>✕</button>
+                            <button
+                                className="remove-btn"
+                                onClick={() => demoteAdmin(admin.id)}
+                                disabled={pendingDemotions.some(d => d.id === admin.id)}
+                                aria-label={`Demote ${admin.name}`}
+                            >
+                                ✕
+                            </button>
                         </div>
                     </div>
                 ))}
@@ -590,108 +868,160 @@ function AddAdmin() {
                 {filteredUsers.length === 0 && <div className="muted">No users match your search.</div>}
                 {filteredUsers.map(user => (
                     <div key={user.id} className="admin-item">
-                        <div className="name">{user.name}</div>
+                        <div className="name">{user.name} ({user.email})</div>
                         <div className="actions">
-                            <button className="add-btn" onClick={() => addAdmin(user.id)}>Add Admin</button>
+                            <button
+                                className="add-btn"
+                                onClick={() => promoteUser(user.id)}
+                                disabled={pendingPromotions.some(p => p.id === user.id)}
+                            >
+                                Promote
+                            </button>
                         </div>
                     </div>
                 ))}
             </div>
+
+            {pendingDemotions.length > 0 && (
+                <div className="admin-list" style={{ marginTop: '1.5rem', border: '2px solid #ff6b6b' }}>
+                    <h4>Admins Being Demoted</h4>
+                    {pendingDemotions.map(admin => (
+                        <div key={admin.id} className="admin-item">
+                            <div className="name">{admin.name} ({admin.email})</div>
+                            <div className="actions">
+                                <button className="cancel-btn" onClick={() => cancelDemotion(admin.id)}>Cancel</button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {pendingPromotions.length > 0 && (
+                <div className="admin-list" style={{ marginTop: '1.5rem', border: '2px solid #51cf66' }}>
+                    <h4>Users Being Promoted</h4>
+                    {pendingPromotions.map(user => (
+                        <div key={user.id} className="admin-item">
+                            <div className="name">{user.name} ({user.email})</div>
+                            <div className="actions">
+                                <button className="cancel-btn" onClick={() => cancelPromotion(user.id)}>Cancel</button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {(pendingDemotions.length > 0 || pendingPromotions.length > 0) && (
+                <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+                    <button className="save-btn" onClick={saveChanges} disabled={saving}>
+                        {saving ? 'Saving...' : 'Save Role Changes'}
+                    </button>
+                </div>
+            )}
         </div>
     );
 }
 
-// Toggle Page Visability Section
-function TogglePage({ pageOptions = [] }){
-    const [allPages, setAllPages] = useState([]); // all page rows from DB
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchPages = async () => {
-        try {
-            const { data, error } = await supabase
-            .from("page_status")
-            .select("name, visible"); // fetch all pages
-
-            if (error) throw error;
-
-            // Convert DB rows into an object mapping for easy toggle
-            const pageStates = data.reduce((acc, page) => {
-            acc[page.name] = page.visible; // true = visible, false = hidden
-            return acc;
-            }, {});
-
-            setAllPages(pageStates);
-        } catch (err) {
-            console.error("Error fetching page visibility:", err);
-            setAllPages({});
-        } finally {
-            setLoading(false);
-        }
-        };
-
-        fetchPages();
-    }, []);
-
-    const togglePage = (pageName) => {
-        setAllPages((prev) => ({
-        ...prev,
-        [pageName]: !prev[pageName],
-        }));
-    };
-
-    const saveChanges = async () => {
-        try {
-        const updates = Object.entries(allPages).map(([name, isVisible]) => ({
-            name,
-            visible: isVisible, // DB stores visible
-        }));
-
-        for (const update of updates) {
-            await supabase
-                .from("page_status")
-                .update({ visible: update.visible })
-                .eq("name", update.name);
-        }
-
-        alert("Page visibility settings saved!");
-        } catch (err) {
-        console.error("Error saving changes:", err);
-        alert("Failed to save page visibility");
-        }
-    };
-
-    if (loading) return <div>Loading Pages...</div>;
+// Toggle Page Section
+function TogglePage({ pageOptions = [], pageStates = {}, togglePage, saveChanges }) {
+    if (!pageOptions || pageOptions.length === 0) {
+        return <div className="section-content"><div className="muted">No pages available.</div></div>;
+    }
+    // filter out the Home (it shouldnt be toggleable)
+    const visibleOptions = pageOptions.filter(p => p.value !== 'home');
 
     return (
         <div className="section-content">
-        <div className="admin-list">
-            <h4>Page Visibility</h4>
-            {Object.entries(allPages).map(([name, isVisible]) => (
-            <div key={name} className="admin-item">
-                <div className="name">{name}</div>
-                <div className="actions">
-                <button
-                    className={isVisible ? "toggle-on-btn" : "toggle-off-btn"}
-                    onClick={() => togglePage(name)}
-                >
-                    {isVisible ? "Visible" : "Hidden"}
+            <div className="admin-list">
+                <h4>Page Visibility</h4>
+                {visibleOptions.map((page) => (
+                    <div key={page.label} className="admin-item">
+                        <div className="name">{page.label}</div>
+                        <div className="actions">
+                            <button
+                                className={pageStates[page.label] ? 'toggle-on-btn' : 'toggle-off-btn'}
+                                onClick={() => togglePage(page.label)}
+                            >
+                                {pageStates[page.label] ? 'Visible' : 'Hidden'}
+                            </button>
+                        </div>
+                    </div>
+                ))}
+                <button className="save-btn" onClick={saveChanges}>
+                    Save Changes
                 </button>
-                </div>
             </div>
-            ))}
-            <button className="save-btn" onClick={saveChanges}>
-            Save Changes
-            </button>
-        </div>
         </div>
     );
 }
 
-
 function AdminDashboard() {
+    useEffect(() => {
+        document.body.id = 'admin-dashboard-body-id';
+        document.body.className = 'admin-dashboard-body';
+    }, []);
+
     // sidebar active section state
-    const [activeSection, setActiveSection] = useState('main');
+    const [activeSection, setActiveSection] = useState('confirm-volunteers');
+
+    // pages fetched from database for dropdowns (replaces static pageOptions const)
+    const [pageOptions, setPageOptions] = useState([]);
+    const [pageStates, setPageStates] = useState({}); // visibility mapping
+
+    // load page names once on mount
+    useEffect(() => {
+        const loadPages = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from('page_status')
+                    .select('name, visible');
+                if (error) throw error;
+                // build dropdown options and visibility map
+                const opts = data.map(p => ({
+                    value: p.name.toLowerCase().replace(/\s+/g, '-'),
+                    label: p.name
+                }));
+                const states = data.reduce((acc, p) => {
+                    acc[p.name] = p.visible;
+                    return acc;
+                }, {});
+                setPageOptions(opts);
+                setPageStates(states);
+            } catch (err) {
+                console.error('Error loading page options:', err);
+                setPageOptions([]);
+                setPageStates({});
+            }
+        };
+        loadPages();
+    }, []);
+
+    // toggle a single page's visibility in local state
+    const togglePage = (pageName) => {
+        setPageStates(prev => ({
+            ...prev,
+            [pageName]: !prev[pageName]
+        }));
+    };
+
+    // persist current state values back to database
+    const savePageStates = async () => {
+        try {
+            const updates = Object.entries(pageStates).map(([name, isVisible]) => ({
+                name,
+                visible: isVisible
+            }));
+            for (const update of updates) {
+                await supabase
+                    .from('page_status')
+                    .update({ visible: update.visible })
+                    .eq('name', update.name);
+            }
+            alert('Page visibility settings saved!');
+        } catch (err) {
+            console.error('Error saving page states:', err);
+            alert('Failed to save page visibility');
+        }
+    };
 
     // Handler for sidebar buttons
     const handleSidebarClick = (action) => {
@@ -699,33 +1029,17 @@ function AdminDashboard() {
         console.log(`Admin section: ${action}`);
     };
 
-    // List of available pages for the dropdown
-    const pageOptions = [
-        { value: 'home', label: 'Home Page' },
-        { value: 'festival', label: 'Fishermans Festival' },
-        { value: 'bocce-dash', label: 'Bocce Tournament' },
-        { value: 'coronation', label: "Queen's Court" },
-        { value: 'scholarships', label: 'Scholarships' },
-        { value: 'donate', label: 'Donate' },
-        { value: 'shopping', label: 'Shopping' },
-        { value: 'bocce-sign', label: 'Bocce Sign up' },
-        { value: 'coronation-tix', label: 'Coronation Ball Tickets' },
-        { value: 'login', label: 'Log in' },
-        { value: 'signup', label: 'Create Account' }
-    ];
-
     return (
         <div className="admin-dashboard">
             {/* Left Sidebar with Admin Actions */}
             <aside className="admin-sidebar">
                 <nav className="sidebar-nav">
-                    <button
+                    {/*<button
                         className={`sidebar-btn ${activeSection === 'main' ? 'active' : ''}`}
                         onClick={() => handleSidebarClick('main')}
                         title="Main dashboard"
                     >
-                        Main
-                    </button>
+                    </button>*/}
                     <button
                         className={`sidebar-btn ${activeSection === 'confirm-volunteers' ? 'active' : ''}`}
                         onClick={() => handleSidebarClick('confirm-volunteers')}
@@ -768,6 +1082,34 @@ function AdminDashboard() {
                     >
                         Toggle Page
                     </button>
+                    <button
+                        className={`sidebar-btn ${activeSection === 'admin-foods' ? 'active' : ''}`}
+                        onClick={() => handleSidebarClick('admin-foods')}
+                        title="Food Menu Editor"
+                    >
+                        Festa Food Editor
+                    </button>
+                    <button
+                        className={`sidebar-btn ${activeSection === 'token-editor' ? 'active' : ''}`}
+                        onClick={() => handleSidebarClick('token-editor')}
+                        title="Token Editor"
+                    >
+                        Token Editor
+                    </button>
+                    <button
+                        className={`sidebar-btn ${activeSection === 'queens-editor' ? 'active' : ''}`}
+                        onClick={() => handleSidebarClick('queens-editor')}
+                        title="Queens Editor"
+                    >
+                        Queens Editor
+                    </button>
+                    <button
+                    className={`sidebar-btn ${activeSection === 'manage-donors' ? 'active' : ''}`}
+                    onClick={() => handleSidebarClick('manage-donors')}
+                    title="Add, edit, and delete sponsors/private donors"
+                    >
+                        Manage Donors
+                    </button>
                 </nav>
             </aside>
 
@@ -783,17 +1125,18 @@ function AdminDashboard() {
                         {activeSection === 'edit-page' && 'Edit Page'}
                         {activeSection === 'add-admin' && 'Add Admin'}
                         {activeSection === 'toggle-page' && 'Toggle Page'}
+                        {activeSection === 'admin-foods' && 'Admin Tool - Food Editor'}
+                        {activeSection === 'token-editor' && 'Token Editor'}
+                        {activeSection === 'queens-editor' && 'Queens Editor'}
+                        {activeSection === 'manage-donors' && 'Manage Donors'}
                     </h1>
                 </div>
-
-                {/* Main Section */}
-                {activeSection === 'main' && <MainDashboard />}
 
                 {/* Confirm Volunteers Section */}
                 {activeSection === 'confirm-volunteers' && <ConfirmVolunteers pageOptions={pageOptions} />}
 
                 {/* Confirm Bocce Team Section */}
-                {activeSection == 'confirm-bocce-teams' && <ConfirmBocceTeams pageOptions={pageOptions} />}
+                {activeSection === 'confirm-bocce-teams' && <ConfirmBocceTeams pageOptions={pageOptions} />}
 
                 {/* Confirm Coronation Tickets Section */}
                 {activeSection === 'confirm-coronation-tickets' && <ConfirmCoronationTickets />}
@@ -803,11 +1146,20 @@ function AdminDashboard() {
 
                 {/* Add Admin Section */}
                 {activeSection === 'add-admin' && <AddAdmin />}
+                {activeSection === 'toggle-page' && (
+                    <TogglePage
+                        pageOptions={pageOptions}
+                        pageStates={pageStates}
+                        togglePage={togglePage}
+                        saveChanges={savePageStates}
+                    />
+                )}
 
-                {/* Toggle Page Section */}
-                {activeSection === 'toggle-page' && <TogglePage pageOptions=
-                    {pageOptions.filter(p => !['home', 'login', 'signup'].includes(p.value))} />}
-                    {/* filter removes pages that should NOT be toggleable */}
+                {/* Admin Tool Pages */}
+                {activeSection === 'admin-foods' && <div className="section-content"><AdminFoods /></div>}
+                {activeSection === 'token-editor' && <div className="section-content"><TokenEditor /></div>}
+                {activeSection === 'queens-editor' && <div className="section-content"><QueensEditor /></div>}
+                {activeSection === 'manage-donors' && <DonorManager />}
             </main>
         </div>
     );

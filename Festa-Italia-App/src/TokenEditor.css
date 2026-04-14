@@ -1,0 +1,456 @@
+/* TokenEditor.css - Combined Original + Responsive Styles */
+
+/* Body styling */
+.token-editor-body {
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+/* Original .page class - kept as is */
+.page {
+    padding: 10px;
+}
+
+/* Main Container - updated to work with original .page */
+.token-editor-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 10px;
+    background-color: #f5f5f5;
+    min-height: 100vh;
+}
+
+/* Header Section - new */
+.token-editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.token-editor-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #333;
+    margin: 0;
+}
+
+/* Add Token Button - new */
+.add-token-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.add-token-btn:hover {
+    background-color: #45a049;
+}
+
+/* Original .form class - preserved */
+.form {
+    margin-bottom: 0;
+    align-items: flex-start;
+    background: white;
+    color: black;
+    padding: 20px 20px 10px 20px;
+    border: 1px solid #ddd;
+    width: 300px;
+    gap: 10px;
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+}
+
+/* Form container wrapper */
+.token-form-container {
+    margin-bottom: 20px;
+}
+
+/* Form group styling */
+.form-group {
+    width: 100%;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+/* Original .input class - preserved */
+.input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.input:focus {
+    outline: none;
+    border-color: #4CAF50;
+}
+
+.image-filename {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* Original .submit-btn class - preserved */
+.submit-btn {
+    margin: 0;
+    line-height: normal;
+    padding: 10px;
+    background: black;
+    color: white;
+    cursor: pointer;
+    width: 100%;
+    border: none;
+    border-radius: 4px;
+}
+
+.submit-btn:hover {
+    background: #333;
+}
+
+/* Tokens Table Section - new wrapper */
+.tokens-table-section {
+    margin-top: 20px;
+    overflow-x: auto;
+}
+
+/* Original .table-title class - preserved */
+.table-title {
+    margin-top: 20px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Original .table class - preserved */
+.table {
+    margin-top: 10px;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* Original th/td styling - preserved */
+.table th, 
+.table td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.table tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* Image Path Cell styling */
+.image-path-cell {
+    max-width: 200px;
+    word-break: break-all;
+}
+
+.image-path-text {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.no-image {
+    color: #999;
+    font-style: italic;
+}
+
+/* Toggle Switch - replacing checkbox with nicer toggle */
+.active-cell {
+    text-align: center;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.3s;
+    border-radius: 24px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+    background-color: #4CAF50;
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(26px);
+}
+
+/* Actions cell styling */
+.actions-cell {
+    white-space: nowrap;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+/* Original .delete-btn class - preserved */
+.delete-btn {
+    background: black;
+    color: white;
+    padding: 6px 12px;
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+}
+
+.delete-btn:hover {
+    background: #333;
+}
+
+/* Edit button - new but matching delete-btn style */
+.edit-btn {
+    background: #2196F3;
+    color: white;
+    padding: 6px 12px;
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+}
+
+.edit-btn:hover {
+    background: #1976D2;
+}
+
+/* ======================================== */
+/* MOBILE RESPONSIVE STYLES */
+/* ======================================== */
+
+@media (max-width: 768px) {
+    .token-editor-container {
+        padding: 10px;
+    }
+
+    .token-editor-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .token-editor-title {
+        font-size: 1.5rem;
+    }
+
+    .add-token-btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Make form full width on mobile */
+    .form {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .token-form-container {
+        width: 100%;
+    }
+
+    .table-title {
+        font-size: 1.2rem;
+    }
+
+    /* Responsive table - stack on mobile */
+    .table thead {
+        display: none;
+    }
+
+    .table tbody tr {
+        display: block;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+    }
+
+    .table tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 10px;
+        border: none;
+        border-bottom: 1px solid #eee;
+    }
+
+    .table tbody td:last-child {
+        border-bottom: none;
+    }
+
+    .table tbody td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        width: 40%;
+        text-align: left;
+    }
+
+    .image-path-cell {
+        max-width: none;
+    }
+
+    .action-buttons {
+        justify-content: flex-end;
+        width: 100%;
+    }
+
+    .actions-cell {
+        white-space: normal;
+    }
+}
+
+/* Small phones */
+@media (max-width: 480px) {
+    .token-editor-title {
+        font-size: 1.3rem;
+    }
+
+    .form {
+        padding: 15px;
+    }
+
+    .input, .submit-btn, .delete-btn, .edit-btn {
+        padding: 8px;
+    }
+
+    .table th, .table td {
+        padding: 8px;
+    }
+
+    .toggle-switch {
+        width: 40px;
+        height: 20px;
+    }
+
+    .toggle-slider:before {
+        height: 14px;
+        width: 14px;
+        left: 3px;
+        bottom: 3px;
+    }
+
+    input:checked + .toggle-slider:before {
+        transform: translateX(20px);
+    }
+}
+
+.token-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+}
+
+.token-modal-content {
+    width: 100%;
+    max-width: 420px;
+    background: #fff;
+    color: #111;
+    border-radius: 10px;
+    padding: 1.25rem;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+}
+
+.token-modal-content h3 {
+    margin: 0 0 0.5rem 0;
+}
+
+.token-modal-content p {
+    margin: 0 0 1rem 0;
+    line-height: 1.4;
+}
+
+.token-modal-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+.token-modal-delete,
+.token-modal-cancel {
+    border: 1px solid #111;
+    border-radius: 6px;
+    padding: 0.55rem 0.9rem;
+    cursor: pointer;
+}
+
+.token-modal-cancel {
+    background: #fff;
+    color: #111;
+}
+
+.token-modal-delete:disabled,
+.token-modal-cancel:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}  
+  
+  /* Tablet styles */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .token-editor-container {
+        padding: 15px;
+    }
+    
+    .table th, 
+    .table td {
+        padding: 8px 6px;
+        font-size: 0.9rem;
+    }
+}

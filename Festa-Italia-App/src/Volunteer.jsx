@@ -1,170 +1,283 @@
-import { useState, useEffect } from 'react';
-import { supabase } from "./supabaseClient";
+import { useEffect, useMemo, useState } from 'react';
+import { supabase } from './supabaseClient';
 import './Volunteer.css';
 
-export default function Volunteer() {
-    const [selectedBooth, setSelectedBooth] = useState('');
-    const [selectedSlots, setSelectedSlots] = useState([]);
+const DAYS = ['Friday', 'Saturday', 'Sunday'];
+const TIMEFRAMES = ['Morning', 'Evening', 'Night'];
 
-    const [booths, setBooths] = useState([]);
-
-    useEffect(() => {
-        async function loadBooths() {
-            const { data, error } = await supabase
-                .from('booths')
-                .select('id, name')
-                .order('name');
-            
-            if (!error) setBooths(data);
-        }
-
-        loadBooths();
-    }, []);
-
-    
-
-    // Generate hourly slots starting from 9:00 AM (1-hour increments)
-    const startHour = 9
-    const endHour = 20 // last slot will be 8:00 PM - 9:00 PM
-
-    function formatRange(h) {
-        const to12 = (n) => {
-            const hour = ((n + 11) % 12) + 1
-            const ampm = n < 12 ? 'AM' : 'PM'
-            return `${hour}:00 ${ampm}`
-        }
-        return `${to12(h)} - ${to12(h + 1)}`
-    }
-
-    const scheduleData = []
-    for (let h = startHour; h <= endHour; h++) {
-        scheduleData.push({ id: h, friday: formatRange(h), saturday: formatRange(h), sunday: formatRange(h) })
-    }
-
-    function toggleSlot(day, hour) {
-        const key = `${day}-${hour}`
-        setSelectedSlots(prev => {
-            const exists = prev.includes(key)
-            if (exists) return prev.filter(p => p !== key)
-            return [...prev, key]
-        })
-    }
-
-    async function signUpForSelected() {
-    if (!selectedBooth) {
-        alert('Please select a booth')
-        return
-    }
-    if (selectedSlots.length === 0) {
-        alert('Please select at least one time slot')
-        return
-    }
-
-    // 1. Get logged-in user
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-        alert('You must be signed in')
-        return
-    }
-
-    // 2. Build signup rows (multi-slot)
-    const rows = selectedSlots.map(slot => {
-        const [day, hour] = slot.split('-')
-        return {
-            user_id: user.id,
-            booth_id: selectedBooth,
-            day,
-            hour: parseInt(hour, 10),
-            confirm: false
-        }
-    })
-
-    // 3. Insert all at once
-    const { error } = await supabase
-        .from('volunteer_signups')
-        .insert(rows)
-
-    if (error) {
-        alert(error.message)
-        return
-    }
-
-    alert('Signed up successfully')
-    setSelectedSlots([])
+function normalize(value) {
+  return String(value || '').trim().toLowerCase();
 }
 
-    return (
-        <div className="volunteer-container">
-            <h1 className="volunteer-title">Volunteer Page</h1>
+function makeShiftKey(day, timeframe) {
+  return `${day}__${timeframe}`;
+}
 
-            <div className="volunteer-section">
-                <select
-                    id="booth-dropdown"
-                    className="booth-dropdown"
-                    value={selectedBooth}
-                    onChange={(e) => setSelectedBooth(e.target.value)}
-                >
-                    <option value="">-- Select a booth --</option>
-                    {booths.map((b) => (
-                        <option key={b.id} value={b.id}>
-                            {b.name}
-                        </option>
-                    ))}
+export default function Volunteer() {
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
 
-                    <option value="f9f602de-cf5a-44c1-a476-27744ae7647d">Tokens</option>
-                    {booths.map((b) => (
-                        <option key={b.id} value={b.id}>
-                            {b.name}
-                        </option>
-                    ))}
+  const [userId, setUserId] = useState(null);
+  const [booths, setBooths] = useState([]);
+  const [selectedBooth, setSelectedBooth] = useState('');
+  const [selectedShifts, setSelectedShifts] = useState([]);
 
-                    <option value="565a6dbe-0ccc-48f9-9245-8e07ebb498c3">Ice Cream</option>
-                    {booths.map((b) => (
-                        <option key={b.id} value={b.id}>
-                            {b.name}
-                        </option>
-                    ))}
+  useEffect(() => {
+    let cancelled = false;
 
-                    <option value="4a228da4-a248-40a0-85ac-60cd6b60e624">Food</option>
-                    {booths.map((b) => (
-                        <option key={b.id} value={b.id}>
-                            {b.name}
-                        </option>
-                    ))}
+    async function load() {
+      setLoading(true);
+      setError('');
 
-                    <option value="6e6ecaae-9e1e-4c4d-a9ed-88adf8a43fb9">Pizza</option>
-                    {booths.map((b) => (
-                        <option key={b.id} value={b.id}>
-                            {b.name}
-                        </option>
-                    ))}
-                </select>
-            </div>
+      const { data: authData, error: authError } = await supabase.auth.getUser();
+      if (authError) {
+        if (!cancelled) setError(authError.message);
+        setLoading(false);
+        return;
+      }
 
-            <div className="schedule-wrapper">
-                <table className="schedule-table">
-                    <thead>
-                        <tr>
-                            <th>Friday</th>
-                            <th>Saturday</th>
-                            <th>Sunday</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {scheduleData.map((row) => (
-                            <tr key={row.id}>
-                                <td className={selectedSlots.includes(`friday-${row.id}`) ? 'selected' : ''} onClick={() => toggleSlot('friday', row.id)}>{row.friday}</td>
-                                <td className={selectedSlots.includes(`saturday-${row.id}`) ? 'selected' : ''} onClick={() => toggleSlot('saturday', row.id)}>{row.saturday}</td>
-                                <td className={selectedSlots.includes(`sunday-${row.id}`) ? 'selected' : ''} onClick={() => toggleSlot('sunday', row.id)}>{row.sunday}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-            
-            <div style={{textAlign:'right', marginTop: '1rem'}}>
-                <button className="signup-button" onClick={signUpForSelected}>Sign up for selected times</button>
-            </div>
+      const user = authData?.user;
+      if (!user) {
+        if (!cancelled) setError('You must be logged in to sign up for volunteer shifts.');
+        setLoading(false);
+        return;
+      }
+
+      const { data: boothData, error: boothError } = await supabase
+        .from('booths')
+        .select('id, name')
+        .order('name', { ascending: true });
+
+      if (boothError) {
+        if (!cancelled) setError(boothError.message);
+        setLoading(false);
+        return;
+      }
+
+      if (!cancelled) {
+        setUserId(user.id);
+        setBooths(boothData || []);
+      }
+      setLoading(false);
+    }
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const canSubmit = useMemo(() => {
+    return Boolean(userId && selectedShifts.length > 0 && !submitting);
+  }, [userId, selectedShifts, submitting]);
+
+  function toggleShift(day, timeframe) {
+    const key = makeShiftKey(day, timeframe);
+
+    setSelectedShifts((current) => {
+      const exists = current.some(
+        (shift) => shift.day === day && shift.timeframe === timeframe
+      );
+
+      if (exists) {
+        return current.filter(
+          (shift) => makeShiftKey(shift.day, shift.timeframe) !== key
+        );
+      }
+
+      return [...current, { day, timeframe }];
+    });
+  }
+
+  async function handleSignup() {
+    setError('');
+    setMessage('');
+
+    if (!canSubmit) return;
+
+    setSubmitting(true);
+
+    try {
+      const normalizedSelections = selectedShifts.map((shift) => ({
+        day: normalize(shift.day),
+        timeframe: normalize(shift.timeframe),
+      }));
+
+      const duplicateChecks = await Promise.all(
+        normalizedSelections.map(async (shift) => {
+          const { data, error: existingError } = await supabase
+            .from('volunteer_signups')
+            .select('id')
+            .eq('user_id', userId)
+            .eq('day', shift.day)
+            .eq('timeframe', shift.timeframe)
+            .limit(1);
+
+          if (existingError) throw existingError;
+
+          return {
+            ...shift,
+            exists: Boolean(data && data.length > 0),
+          };
+        })
+      );
+
+      const duplicates = duplicateChecks.filter((shift) => shift.exists);
+      if (duplicates.length > 0) {
+        const duplicateLabels = selectedShifts
+          .filter((selectedShift) =>
+            duplicates.some(
+              (duplicate) =>
+                duplicate.day === normalize(selectedShift.day) &&
+                duplicate.timeframe === normalize(selectedShift.timeframe)
+            )
+          )
+          .map((shift) => `${shift.day} ${shift.timeframe}`)
+          .join(', ');
+
+        setError(`You are already signed up for: ${duplicateLabels}.`);
+        setSubmitting(false);
+        return;
+      }
+
+      const payload = selectedShifts.map((shift) => ({
+        user_id: userId,
+        day: normalize(shift.day),
+        timeframe: normalize(shift.timeframe),
+        confirm: false,
+        booth_id: selectedBooth || null,
+      }));
+
+      const { error: insertError } = await supabase
+        .from('volunteer_signups')
+        .insert(payload);
+
+      if (insertError) throw insertError;
+
+      const submittedShiftLabels = selectedShifts
+        .map((shift) => `${shift.day} ${shift.timeframe}`)
+        .join(', ');
+
+      setMessage(`Signup submitted for: ${submittedShiftLabels}.`);
+      setSelectedShifts([]);
+    } catch (err) {
+      setError(err?.message || 'Unable to submit volunteer signup.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (loading) {
+    return <div className="volunteer-container">Loading volunteer signup...</div>;
+  }
+
+  return (
+    <div className="volunteer-container page-root">
+      <h1 className="volunteer-title">Volunteer Sign-Up</h1>
+
+      <div className="volunteer-card-box">
+        <div className="volunteer-section">
+          <label className="dropdown-label" htmlFor="booth-select">
+            Preferred Booth (Optional)
+          </label>
+          <select
+            id="booth-select"
+            className="role-dropdown"
+            value={selectedBooth}
+            onChange={(e) => setSelectedBooth(e.target.value)}
+          >
+            <option value="">No booth preference</option>
+            {booths.map((booth) => (
+              <option key={booth.id} value={booth.id}>
+                {booth.name}
+              </option>
+            ))}
+          </select>
         </div>
-    );
+
+        <div className="schedule-wrapper">
+          <table className="schedule-table">
+            <thead>
+              <tr>
+                <th>Day</th>
+                {TIMEFRAMES.map((timeframe) => (
+                  <th key={timeframe}>{timeframe}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {DAYS.map((day) => (
+                <tr key={day}>
+                  <td>{day}</td>
+                  {TIMEFRAMES.map((timeframe) => {
+                    const selected = selectedShifts.some(
+                      (shift) => shift.day === day && shift.timeframe === timeframe
+                    );
+
+                    return (
+                      <td
+                        key={`${day}-${timeframe}`}
+                        className={selected ? 'selected' : ''}
+                        onClick={() => toggleShift(day, timeframe)}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`${selected ? 'Deselect' : 'Select'} ${day} ${timeframe}`}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            toggleShift(day, timeframe);
+                          }
+                        }}
+                      >
+                        {selected ? 'Selected' : 'Select'}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="selected-shifts-box">
+          <h3 className="selected-shifts-title">Selected Shifts:</h3>
+          {selectedShifts.length > 0 ? (
+            <ul className="selected-shifts-list">
+              {selectedShifts.map((shift) => (
+                <li
+                  key={makeShiftKey(shift.day, shift.timeframe)}
+                  className="selected-shift-item"
+                >
+                  {shift.day} - {shift.timeframe}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="selected-shifts-empty">No shifts selected.</p>
+          )}
+        </div>
+
+        <div className="volunteer-section volunteer-signup-actions">
+          <button
+            type="button"
+            className="sigup-button"
+            disabled={!canSubmit}
+            onClick={handleSignup}
+            style={{ opacity: canSubmit ? 1 : 0.7 }}
+          >
+            {submitting ? 'Submitting...' : 'Sign up for Selected Shifts'}
+          </button>
+        </div>
+
+        {message && (
+          <p className="volunteer-message volunteer-message-success">{message}</p>
+        )}
+        {error && (
+          <p className="volunteer-message volunteer-message-error">{error}</p>
+        )}
+      </div>
+    </div>
+  );
 }

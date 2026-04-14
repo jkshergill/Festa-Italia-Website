@@ -16,6 +16,45 @@
     text-align: center;
 }
 
+.volunteer-card-box {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(0, 146, 70, 0.10);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+}
+
+.volunteer-signup-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.schedule-table th,
+.schedule-table td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.schedule-table th:first-child,
+.schedule-table td:first-child {
+  text-align: center;
+}
+
+.volunteer-message {
+  text-align: center;
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+.volunteer-message-success {
+  color: #0a7b34;
+}
+
+.volunteer-message-error {
+  color: crimson;
+}
+
 .dropdown-label {
     display: block;
     font-size: 1.1rem;
@@ -48,7 +87,7 @@
 
 .schedule-wrapper {
     max-height: 360px;
-    overflow: auto; /* allow vertical and horizontal scrolling */
+    overflow: auto;
     border: 1px solid #ddd;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -92,25 +131,56 @@
     padding: 1rem;
     color: #555;
     font-size: 0.95rem;
-}
-
-.schedule-table td {
     cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .schedule-table td.selected {
-    background: rgba(0, 146, 70, 0.12);
-    outline: 2px solid rgba(0,146,70,0.12);
+    background: #009246;
+    color: #fff;
+    font-weight: 600;
 }
 
-.signup-button {
+.selected-shifts-box {
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+.selected-shifts-title {
+    margin-bottom: 0.75rem;
+    color: #333;
+}
+
+.selected-shifts-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.selected-shift-item {
+    margin-bottom: 0.4rem;
+    color: #555;
+    font-weight: 500;
+}
+
+.selected-shifts-empty {
+    margin: 0;
+    color: #777;
+}
+/*code for signup button*/
+.sigup-button {
+    display:block;
+    margin: 0 auto;
+
+    min-width: 350px;
     background: #009246;
     color: #fff;
     border: none;
-    padding: 0.6rem 1rem;
-    border-radius: 6px;
+    padding: 12px 18px;
+    border-radius: 10px;
     font-size: 1rem;
     cursor: pointer;
+    /* transform: translateX(-110px); to center align the button*/
 }
 
 .signup-button:hover {
@@ -140,5 +210,9 @@
     .schedule-table td {
         padding: 0.75rem;
         font-size: 0.9rem;
+    }
+
+    .signup-button {
+        min-width: 100%;
     }
 }

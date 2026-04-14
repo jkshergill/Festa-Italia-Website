@@ -2,11 +2,14 @@ import { useEffect, useMemo, useState } from 'react';
 import './Signup.css';
 import { supabase } from './supabaseClient'; // <-- your file is in src
 
-function Signup() {
+function Signup({setPage}) {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const hasLowerCase = /[a-z]/; // This is a regular expression that checks if the password contains at least one lowercase letter
+  const hasUpperCase = /[A-Z]/; // This is a regular expression that checks if the password contains at least one uppercase letter
+  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/; // This is a regular expression that checks if the password contains at least one special 
 
   // form fields
   const [firstName, setFirstName] = useState('');
@@ -49,11 +52,27 @@ function Signup() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    console.log("clicked")
     setErrorMsg('');
     setSuccessMsg('');
 
     if (!formValid) {
       setErrorMsg('Please complete all fields correctly before continuing.');
+      return;
+    }
+
+    if(!hasLowerCase.test(password)) { // This is to check if the password contains at least one lowercase letter
+      setErrorMsg('Password must contain at least one lowercase letter.');
+      return;
+    }
+
+    if(!hasUpperCase.test(password)) { // This is to check if the password contains at least one uppercase letter
+      setErrorMsg('Password must contain at least one uppercase letter.');
+      return;
+    }
+
+    if(!hasSpecialChar.test(password)) { // This is to check if the password contains at least one special character
+      setErrorMsg('Password must contain at least one special character.');
       return;
     }
 
@@ -97,6 +116,7 @@ function Signup() {
 
   return (
     <div className='signup-border'>
+      
       <img className='signup-logo-02' src='../images/logo2.jpeg' alt='Logo' />
       <span className='signup-text'>Signup</span>
 
@@ -154,11 +174,12 @@ function Signup() {
             minLength={8}
             required
           />
-          <small style={{ marginLeft: 160, fontSize: 12, color: '#666', display: 'block', marginTop: 4, marginBottom: 8 }}>
+          <small className='password-rule'>
             Must be at least eight characters with one uppercase letter, one lowercase letter, and one special character
           </small>
 
           <label className='signup-password-section' htmlFor='confirm'>Confirm password:</label>
+          <div className='show'>
           <input
             id='confirm'
             type={passwordType}
@@ -180,13 +201,14 @@ function Signup() {
           >
             {showPassword ? 'Hide' : 'Show'}
           </button>
+          </div>
         </div>
 
         {/* Hidden donor field */}
         <input type='hidden' name='is_donor' value={String(isDonor)} />
 
         {/* Live validation hints (optional, styled in your CSS additions) */}
-        <div className='signup-hints' style={{ marginLeft: 160, fontSize: 8 }}>
+        <div className='signup-hints' style={{ fontSize: 8 }}>
           {!emailOk && email.length > 0 && <div>Enter a valid email address.</div>}
           {password && password.length < 8 && <div>Password must be at least 8 characters.</div>}
           {confirm && !pwMatch && <div>Passwords do not match.</div>}
@@ -196,24 +218,31 @@ function Signup() {
         {errorMsg && <div role='alert' className='signup-error'>{errorMsg}</div>}
         {successMsg && <div role='status' className='signup-success'>{successMsg}</div>}
 
-        <div className='signup-button-div'>
+        {/* signup-button*/}
           <button
-            className='signup-button'
+            className='up-button'
             type='submit'
-            disabled={loading || !formValid}
+            disabled={loading}
             aria-disabled={loading || !formValid}
             title={!formValid ? 'Complete all fields correctly to continue' : 'Create account'}
+        
           >
             {loading ? 'Signing up…' : 'Signup'}
           </button>
-        </div>
+          {/* </div>    */}
       </form>
 
-      <div className='signup-login-link-div'>
-        <a className='signup-login-link' href='/login'>
-          Login
-        </a>
-      </div>
+{/* /*********  */}
+
+	{/* on Login hyperlink  click redirects to Login page  */}
+
+        <div className="signup-login-link-div">
+          
+           <span className="signup-login-link" onClick={() => setPage("login")}
+            style={{ cursor: "pointer" , color: "blue"}}
+            >Login</span>
+            </div> 
+
     </div>
   );
 }

@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import './EditPage.css';
 import { supabase } from './supabaseClient';
+import { formatRichTextForEditor, formatRichTextForRender, sanitizeRichText } from './richTextUtils';
 
 export default function EditPage() {
   const [selectedPageId, setSelectedPageId] = useState(null);
@@ -11,6 +12,12 @@ export default function EditPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [pages, setPages] = useState([]);
+  const editorRefs = useRef({});
+
+  // Homepage rotator image state
+  const [rotatorImages, setRotatorImages] = useState([]);
+  const [rotatorLoading, setRotatorLoading] = useState(false);
+  const MAX_ROTATOR_IMAGES = 7;
 
   // Load available pages from Supabase on mount
   useEffect(() => {
@@ -31,6 +38,134 @@ export default function EditPage() {
 
     loadPages();
   }, []);
+
+  // Load rotator images when "home" page is selected
+  const loadRotatorImages = async () => {
+    setRotatorLoading(true);
+    try {
+      const { data, error: err } = await supabase
+        .from('homepage_images')
+        .select('*')
+        .order('display_order', { ascending: true });
+
+      if (err) throw err;
+      setRotatorImages(data || []);
+    } catch (err) {
+      console.error('Error loading rotator images:', err);
+    } finally {
+      setRotatorLoading(false);
+    }
+  };
+
+  const handleRotatorImageUpload = async (file) => {
+    if (!file) return;
+    if (rotatorImages.filter(img => img.is_active).length >= MAX_ROTATOR_IMAGES) {
+      alert(`Maximum of ${MAX_ROTATOR_IMAGES} active images allowed.`);
+      return;
+    }
+
+    setRotatorLoading(true);
+    try {
+      // Convert file to base64 data URL (same approach as content block images)
+      const dataUrl = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsDataURL(file);
+      });
+
+      const nextOrder = rotatorImages.length > 0
+        ? Math.max(...rotatorImages.map(img => img.display_order)) + 1
+        : 0;
+
+      const { error: insertError } = await supabase
+        .from('homepage_images')
+        .insert({
+          image_url: dataUrl,
+          display_order: nextOrder,
+          is_active: true
+        });
+
+      if (insertError) throw insertError;
+
+      await loadRotatorImages();
+    } catch (err) {
+      console.error('Error uploading rotator image:', err);
+      alert(`Error uploading image: ${err.message}`);
+    } finally {
+      setRotatorLoading(false);
+    }
+  };
+
+  const handleRotatorImageDelete = async (imageId) => {
+    if (!window.confirm('Are you sure you want to delete this image?')) return;
+
+    setRotatorLoading(true);
+    try {
+      const { error: err } = await supabase
+        .from('homepage_images')
+        .delete()
+        .eq('id', imageId);
+
+      if (err) throw err;
+      await loadRotatorImages();
+    } catch (err) {
+      console.error('Error deleting rotator image:', err);
+      alert(`Error deleting image: ${err.message}`);
+    } finally {
+      setRotatorLoading(false);
+    }
+  };
+
+  const handleRotatorToggleActive = async (imageId, currentActive) => {
+    if (!currentActive && rotatorImages.filter(img => img.is_active).length >= MAX_ROTATOR_IMAGES) {
+      alert(`Maximum of ${MAX_ROTATOR_IMAGES} active images allowed.`);
+      return;
+    }
+
+    setRotatorLoading(true);
+    try {
+      const { error: err } = await supabase
+        .from('homepage_images')
+        .update({ is_active: !currentActive })
+        .eq('id', imageId);
+
+      if (err) throw err;
+      await loadRotatorImages();
+    } catch (err) {
+      console.error('Error toggling image active state:', err);
+    } finally {
+      setRotatorLoading(false);
+    }
+  };
+
+  const handleRotatorReorder = async (imageId, direction) => {
+    const idx = rotatorImages.findIndex(img => img.id === imageId);
+    const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= rotatorImages.length) return;
+
+    setRotatorLoading(true);
+    try {
+      const orderA = rotatorImages[idx].display_order;
+      const orderB = rotatorImages[swapIdx].display_order;
+
+      await supabase
+        .from('homepage_images')
+        .update({ display_order: orderB })
+        .eq('id', rotatorImages[idx].id);
+
+      await supabase
+        .from('homepage_images')
+        .update({ display_order: orderA })
+        .eq('id', rotatorImages[swapIdx].id);
+
+      await loadRotatorImages();
+    } catch (err) {
+      console.error('Error reordering rotator images:', err);
+    } finally {
+      setRotatorLoading(false);
+    }
+  };
 
   // Handle page selection - fetch from Supabase
   const handlePageSelect = async (pageId) => {
@@ -73,7 +208,7 @@ export default function EditPage() {
           .map(block => ({
             text: block.text || '',
             image: block.image_url || null,
-            imagePosition: block.image_position || 'right'
+            imagePosition: block.image_position || 'left'
           }));
 
         return {
@@ -81,7 +216,7 @@ export default function EditPage() {
           section_id: section.section_id,
           title: section.title,
           position: section.position,
-          contentBlocks: contentBlocks.length > 0 ? contentBlocks : [{ text: '', image: null, imagePosition: 'right' }]
+          contentBlocks: contentBlocks.length > 0 ? contentBlocks : [{ text: '', image: null, imagePosition: 'left' }]
         };
       });
 
@@ -101,6 +236,11 @@ export default function EditPage() {
       setCollapsedSections(newCollapsedStates);
 
       console.log('Loaded sections from Supabase:', sectionsWithBlocks);
+
+      // Load rotator images when home page is selected
+      if (pageId === 'home') {
+        loadRotatorImages();
+      }
     } catch (err) {
       console.error('Error loading page:', err);
       setError(err.message);
@@ -151,7 +291,7 @@ export default function EditPage() {
       ...prev,
       [sectionId]: {
         ...prev[sectionId],
-        contentBlocks: [...prev[sectionId].contentBlocks, { text: '', image: null, imagePosition: 'right' }]
+        contentBlocks: [...prev[sectionId].contentBlocks, { text: '', image: null, imagePosition: 'left' }]
       }
     }));
     console.log(`Added content block to section ${sectionId}`);
@@ -214,7 +354,7 @@ export default function EditPage() {
             section_id: section.id,
             text: block.text || '',
             image_url: block.image || null,
-            image_position: block.imagePosition || 'right',
+            image_position: block.imagePosition || 'left',
             block_index: index
           }));
 
@@ -269,7 +409,7 @@ export default function EditPage() {
         section_id: newSectionData.section_id,
         title: '',
         position: newPosition,
-        contentBlocks: [{ text: '', image: null, imagePosition: 'right' }]
+        contentBlocks: [{ text: '', image: null, imagePosition: 'left' }]
       };
 
       setSections((prev) => [...prev, newSection]);
@@ -279,7 +419,7 @@ export default function EditPage() {
         ...prev,
         [newSectionData.id]: {
           title: '',
-          contentBlocks: [{ text: '', image: null, imagePosition: 'right' }]
+          contentBlocks: [{ text: '', image: null, imagePosition: 'left' }]
         }
       }));
 
@@ -375,6 +515,76 @@ export default function EditPage() {
     }));
   };
 
+  const insertHtmlAtCursor = (html) => {
+    if (document.queryCommandSupported && document.queryCommandSupported('insertHTML')) {
+      document.execCommand('insertHTML', false, html);
+      return;
+    }
+
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+
+    const range = selection.getRangeAt(0);
+    range.deleteContents();
+    const fragment = range.createContextualFragment(html);
+    const lastNode = fragment.lastChild;
+    range.insertNode(fragment);
+
+    if (lastNode) {
+      range.setStartAfter(lastNode);
+      range.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+  };
+
+  const handleRichTextPaste = (sectionId, blockIndex, event) => {
+    event.preventDefault();
+    const html = event.clipboardData.getData('text/html');
+    const text = event.clipboardData.getData('text/plain');
+    const content = html ? sanitizeRichText(html) : formatRichTextForRender(text);
+    insertHtmlAtCursor(content || '');
+
+    setTimeout(() => {
+      const currentHtml = event.currentTarget.innerHTML;
+      handleFieldChange(sectionId, 'contentBlocks', {
+        field: 'text',
+        value: sanitizeRichText(currentHtml)
+      }, blockIndex);
+    }, 0);
+  };
+
+  const handleRichTextInput = (sectionId, blockIndex, event) => {
+    handleFieldChange(sectionId, 'contentBlocks', {
+      field: 'text',
+      value: event.currentTarget.innerHTML
+    }, blockIndex);
+  };
+
+  const handleRichTextBlur = (sectionId, blockIndex, event) => {
+    const cleanHtml = sanitizeRichText(event.currentTarget.innerHTML);
+    event.currentTarget.innerHTML = cleanHtml;
+    handleFieldChange(sectionId, 'contentBlocks', {
+      field: 'text',
+      value: cleanHtml
+    }, blockIndex);
+  };
+
+  const setRichTextEditorRef = (sectionId, blockIndex, blockText) => (element) => {
+    if (!element) return;
+
+    const key = `${sectionId}-${blockIndex}`;
+    editorRefs.current[key] = element;
+
+    const nextHtml = formatRichTextForEditor(blockText || '');
+    const isFocused = document.activeElement === element;
+
+    // Keep cursor stable while typing/backspacing by not re-syncing focused editors.
+    if (!isFocused && element.innerHTML !== nextHtml) {
+      element.innerHTML = nextHtml;
+    }
+  };
+
   // Get the currently selected page name for display
   const selectedPageName = selectedPageId
     ? pages.find(p => p.page_id === selectedPageId)?.title || 'Page'
@@ -417,6 +627,80 @@ export default function EditPage() {
       {selectedPageId && (
         <div className="edit-page-content">
           <h2>Editing: {selectedPageName}</h2>
+
+          {/* Homepage Rotator Image Manager */}
+          {selectedPageId === 'home' && (
+            <div className="rotator-manager">
+              <h3>Homepage Image Rotator (max {MAX_ROTATOR_IMAGES} images)</h3>
+              <p className="rotator-manager-info">
+                Active images: {rotatorImages.filter(img => img.is_active).length} / {MAX_ROTATOR_IMAGES}
+              </p>
+
+              <div className="rotator-upload-row">
+                <label className="rotator-upload-label">
+                  <span className="rotator-upload-btn">+ Upload Image</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      handleRotatorImageUpload(e.target.files[0]);
+                      e.target.value = '';
+                    }}
+                    className="rotator-upload-input"
+                    disabled={rotatorLoading}
+                  />
+                </label>
+              </div>
+
+              {rotatorLoading && <p className="rotator-loading">Loading...</p>}
+
+              <div className="rotator-image-list">
+                {rotatorImages.map((img, idx) => (
+                  <div key={img.id} className={`rotator-image-item ${!img.is_active ? 'inactive' : ''}`}>
+                    <img src={img.image_url} alt={`Rotator ${idx + 1}`} className="rotator-image-thumb" />
+                    <div className="rotator-image-actions">
+                      <span className="rotator-image-order">#{idx + 1}</span>
+                      <button
+                        onClick={() => handleRotatorReorder(img.id, 'up')}
+                        disabled={idx === 0 || rotatorLoading}
+                        className="rotator-action-btn"
+                        title="Move up"
+                      >
+                        ▲
+                      </button>
+                      <button
+                        onClick={() => handleRotatorReorder(img.id, 'down')}
+                        disabled={idx === rotatorImages.length - 1 || rotatorLoading}
+                        className="rotator-action-btn"
+                        title="Move down"
+                      >
+                        ▼
+                      </button>
+                      <button
+                        onClick={() => handleRotatorToggleActive(img.id, img.is_active)}
+                        disabled={rotatorLoading}
+                        className={`rotator-action-btn ${img.is_active ? 'active-toggle' : 'inactive-toggle'}`}
+                        title={img.is_active ? 'Deactivate' : 'Activate'}
+                      >
+                        {img.is_active ? 'Active' : 'Inactive'}
+                      </button>
+                      <button
+                        onClick={() => handleRotatorImageDelete(img.id)}
+                        disabled={rotatorLoading}
+                        className="rotator-action-btn delete-btn"
+                        title="Delete image"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                {rotatorImages.length === 0 && !rotatorLoading && (
+                  <p className="rotator-empty">No rotator images uploaded yet. The default gallery images will be used.</p>
+                )}
+              </div>
+            </div>
+          )}
 
           {sections.length > 0 ? (
             <div className="sections-list">
@@ -501,7 +785,7 @@ export default function EditPage() {
                           <div className="position-controls">
                             <label>Position:</label>
                             <select
-                              value={block.imagePosition || 'right'}
+                              value={block.imagePosition || 'left'}
                               onChange={(e) => handleFieldChange(section.id, 'contentBlocks', {
                                 field: 'imagePosition',
                                 value: e.target.value
@@ -519,35 +803,24 @@ export default function EditPage() {
                         {/* Text Content */}
                         <div className="text-content-container">
                           <label htmlFor={`content-${section.id}-${blockIndex}`}>Content:</label>
-                          <textarea
+                          <div
                             id={`content-${section.id}-${blockIndex}`}
-                            value={block.text || ''}
-                            onChange={(e) =>
-                              handleFieldChange(section.id, 'contentBlocks', {
-                                field: 'text',
-                                value: e.target.value
-                              }, blockIndex)
-                            }
+                            contentEditable
+                            suppressContentEditableWarning
+                            ref={setRichTextEditorRef(section.id, blockIndex, block.text || '')}
+                            onInput={(e) => handleRichTextInput(section.id, blockIndex, e)}
+                            onBlur={(e) => handleRichTextBlur(section.id, blockIndex, e)}
+                            onPaste={(e) => handleRichTextPaste(section.id, blockIndex, e)}
                             onKeyDown={(e) => {
                               if (e.key === 'Tab') {
                                 e.preventDefault();
-                                const start = e.target.selectionStart;
-                                const end = e.target.selectionEnd;
-                                const newValue = block.text || '';
-                                const newText = newValue.substring(0, start) + '\t' + newValue.substring(end);
-                                handleFieldChange(section.id, 'contentBlocks', {
-                                  field: 'text',
-                                  value: newText
-                                }, blockIndex);
-                                // Set cursor position after the inserted tab
-                                setTimeout(() => {
-                                  e.target.selectionStart = e.target.selectionEnd = start + 1;
-                                }, 0);
+                                insertHtmlAtCursor('&nbsp;&nbsp;&nbsp;&nbsp;');
                               }
                             }}
-                            placeholder={`Enter content for block ${blockIndex + 1}`}
                             className="section-content-textarea"
-                            rows="4"
+                            role="textbox"
+                            aria-label={`Content for block ${blockIndex + 1}`}
+                            data-placeholder={`Enter content for block ${blockIndex + 1}`}
                           />
                         </div>
 
@@ -555,7 +828,7 @@ export default function EditPage() {
                         {(block.text || block.image) && (
                           <div className="content-block-preview">
                             <h5>Preview:</h5>
-                            <div className={`image-position-${block.imagePosition || 'right'} ${block.image ? 'has-image' : 'no-image'}`}>
+                            <div className={`image-position-${block.imagePosition || 'left'} ${block.image ? 'has-image' : 'no-image'}`}>
                               {block.image && block.imagePosition === 'above' && (
                                 <img
                                   src={block.image}
@@ -570,7 +843,12 @@ export default function EditPage() {
                                   style={{ maxWidth: '150px', borderRadius: '4px', order: block.imagePosition === 'left' ? -1 : 1 }}
                                 />
                               )}
-                              {block.text && <p style={{ textAlign: block.imagePosition === 'right' ? 'right' : 'left', whiteSpace: 'pre-wrap' }}>{block.text}</p>}
+                              {block.text && (
+                                <div
+                                  style={{ textAlign: 'left', whiteSpace: 'normal' }}
+                                  dangerouslySetInnerHTML={{ __html: formatRichTextForRender(block.text) }}
+                                />
+                              )}
                               {block.image && block.imagePosition === 'below' && (
                                 <img
                                   src={block.image}

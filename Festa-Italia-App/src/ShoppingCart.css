@@ -1,0 +1,186 @@
+.sc-root { display: flex; flex-direction: column; gap: 0; }
+
+/* ── Header ──────────────────────────────────────────────────────── */
+.sc-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1.25rem; }
+.sc-icon   { font-size: 1.5rem; line-height: 1; }
+
+.sc-header h3 {
+  margin: 0; font-size: 1.25rem; font-weight: 700; color: #0b5d36; flex: 1;
+}
+
+.sc-badge {
+  background: linear-gradient(135deg, #009246, #0b6d3b);
+  color: #fff; border-radius: 999px; font-size: 0.75rem; font-weight: 700;
+  min-width: 22px; height: 22px; display: flex; align-items: center;
+  justify-content: center; padding: 0 6px;
+}
+
+/* ── Auth banner ─────────────────────────────────────────────────── */
+.sc-auth-banner {
+  margin-bottom: 1rem; padding: 0.75rem 1rem; border-radius: 10px;
+  background: #fff3cd; border: 1px solid #ffc107; color: #856404;
+  font-size: 0.9rem; font-weight: 500;
+}
+
+/* ── Undo bar ────────────────────────────────────────────────────── */
+.sc-undo-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  background: #fff8e1; border: 1px solid #ffe082; border-radius: 10px;
+  padding: 0.65rem 1rem; font-size: 0.9rem; color: #795548;
+  margin-bottom: 1rem; gap: 1rem;
+}
+
+.sc-undo-btn {
+  appearance: none; border: none; background: none; color: #0b5d36;
+  font-weight: 700; font-size: 0.9rem; cursor: pointer; padding: 0;
+  text-decoration: underline; text-underline-offset: 2px; flex-shrink: 0;
+}
+.sc-undo-btn:hover { color: #009246; }
+
+/* ── Loading state ───────────────────────────────────────────────── */
+.sc-loading {
+  display: flex; align-items: center; justify-content: center;
+  gap: 0.75rem; padding: 3rem 1rem; color: #6b7280; font-size: 0.95rem;
+}
+
+/* ── Empty state ─────────────────────────────────────────────────── */
+.sc-empty {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 3.5rem 1rem; text-align: center; gap: 0.5rem;
+}
+.sc-empty-icon  { font-size: 3.5rem; margin-bottom: 0.5rem; opacity: 0.6; }
+.sc-empty-title { margin: 0; font-size: 1.15rem; font-weight: 700; color: #2c3e50; }
+.sc-empty-sub   { margin: 0; font-size: 0.9rem; color: #888; max-width: 300px; }
+
+.sc-browse-btn {
+  appearance: none; border: 1px solid rgba(0,146,70,0.3); background: #fff;
+  color: #0b5d36; padding: 0.7rem 1.4rem; border-radius: 999px;
+  font-size: 0.95rem; font-weight: 600; cursor: pointer; margin-top: 0.75rem;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.sc-browse-btn:hover {
+  background: rgba(0,146,70,0.06);
+  box-shadow: 0 4px 12px rgba(0,146,70,0.12);
+}
+
+/* ── Item list ───────────────────────────────────────────────────── */
+.sc-list { list-style: none; padding: 0; margin: 0 0 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+
+.sc-item {
+  background: #f9fbf9; border: 1px solid rgba(0,146,70,0.1);
+  border-radius: 14px; padding: 1rem 1.1rem; transition: box-shadow 0.2s ease;
+}
+.sc-item:hover { box-shadow: 0 4px 14px rgba(0,146,70,0.1); }
+
+/* Item top row */
+.sc-item-top {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 1rem; margin-bottom: 0.85rem;
+}
+
+.sc-item-meta  { display: flex; flex-direction: column; gap: 0.3rem; flex: 1; min-width: 0; }
+
+.sc-cat-pill {
+  display: inline-block; font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 0.05em; text-transform: uppercase; padding: 0.2rem 0.6rem;
+  border-radius: 999px; width: fit-content;
+}
+
+.sc-item-name { margin: 0; font-size: 0.95rem; font-weight: 600; color: #1a2e1a; word-break: break-word; }
+.sc-item-sub  { margin: 0; font-size: 0.82rem; color: #6b7280; }
+
+.sc-item-controls { display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; flex-shrink: 0; }
+
+.sc-item-price { margin: 0; font-size: 1rem; font-weight: 700; color: #0b5d36; }
+
+.sc-remove-btn {
+  appearance: none; border: none; background: none; color: #b91c1c;
+  font-size: 0.78rem; font-weight: 600; cursor: pointer; padding: 0; transition: opacity 0.15s;
+}
+.sc-remove-btn:hover { opacity: 0.7; }
+
+/* ── Per-ticket rows ─────────────────────────────────────────────── */
+.sc-ticket-row {
+  border-top: 1px dashed rgba(0,146,70,0.15); padding-top: 0.75rem;
+  margin-top: 0.1rem; display: flex; flex-direction: column; gap: 0.5rem;
+}
+.sc-ticket-row + .sc-ticket-row { margin-top: 0.65rem; }
+
+.sc-ticket-label {
+  font-size: 0.82rem; font-weight: 700; color: #374151;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.sc-ticket-unit-price { font-weight: 500; color: #6b7280; text-transform: none; letter-spacing: 0; }
+
+.sc-ticket-fields { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+
+.sc-field { display: flex; flex-direction: column; gap: 0.3rem; flex: 1; min-width: 140px; }
+.sc-field-label { font-size: 0.78rem; font-weight: 600; color: #555; }
+
+.sc-field-input,
+.sc-field-select {
+  padding: 0.45rem 0.65rem; border: 1px solid #d1d5db; border-radius: 7px;
+  font-size: 0.9rem; background: #fff; color: #1a2e1a;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.sc-field-input:focus,
+.sc-field-select:focus {
+  outline: none; border-color: #009246; box-shadow: 0 0 0 3px rgba(0,146,70,0.12);
+}
+.sc-field-input--warn { border-color: #f59e0b; background: #fffbeb; }
+
+/* ── Summary ─────────────────────────────────────────────────────── */
+.sc-summary {
+  background: #f4faf6; border: 1px solid rgba(0,146,70,0.12);
+  border-radius: 16px; padding: 1.25rem 1.35rem;
+  display: flex; flex-direction: column; gap: 0.65rem;
+}
+
+.sc-summary-row {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 0.92rem; color: #4b5563;
+}
+.sc-summary-tax   { opacity: 0.8; }
+.sc-summary-total {
+  border-top: 1px solid rgba(0,146,70,0.15); padding-top: 0.65rem;
+  margin-top: 0.2rem; font-size: 1.05rem; font-weight: 700; color: #0b5d36;
+}
+
+.sc-tax-note { margin: 0; font-size: 0.75rem; color: #9ca3af; font-style: italic; }
+
+/* ── Clover branding ─────────────────────────────────────────────── */
+.sc-clover-note { display: flex; align-items: center; gap: 0.5rem; font-size: 0.78rem; color: #6b7280; margin-top: 0.15rem; }
+.sc-clover-logo { width: 22px; height: 22px; flex-shrink: 0; border-radius: 50%; }
+
+/* ── Checkout button ─────────────────────────────────────────────── */
+.sc-checkout-btn {
+  appearance: none; border: none; width: 100%;
+  padding: 0.95rem 1.25rem;
+  background: linear-gradient(135deg, #009246, #0b6d3b);
+  color: #fff; font-size: 1rem; font-weight: 700; border-radius: 12px;
+  cursor: pointer; transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+  box-shadow: 0 8px 20px rgba(0,146,70,0.28);
+  display: flex; align-items: center; justify-content: center; gap: 0.6rem; margin-top: 0.35rem;
+}
+.sc-checkout-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(0,146,70,0.36); }
+.sc-checkout-btn:active:not(:disabled){ transform: translateY(0); }
+.sc-checkout-btn--loading,
+.sc-checkout-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+.sc-spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff;
+  border-radius: 50%; animation: sc-spin 0.75s linear infinite; flex-shrink: 0;
+}
+@keyframes sc-spin { to { transform: rotate(360deg); } }
+
+.sc-secure-note { margin: 0; text-align: center; font-size: 0.78rem; color: #9ca3af; }
+
+/* ── Responsive ──────────────────────────────────────────────────── */
+@media (max-width: 540px) {
+  .sc-item-top { flex-direction: column; gap: 0.75rem; }
+  .sc-item-controls { flex-direction: row; align-items: center; justify-content: space-between; width: 100%; flex-wrap: wrap; }
+  .sc-ticket-fields { flex-direction: column; }
+  .sc-field { min-width: unset; }
+  .sc-checkout-btn { font-size: 0.95rem; padding: 0.85rem 1rem; }
+}

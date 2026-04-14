@@ -1,171 +1,333 @@
+  html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+  /* background*/
+  
 .signup-body {
+  width: 100%;
   background-color: rgb(196, 239, 202);
-  height: auto;
-  overflow: hidden;
-  background-image: url('../images/logo_01.jpeg');
-  background-repeat: no-repeat, no-repeat;
-  background-position: 70px 200px;
-  background-size: 350px;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 20px 16px;
 }
 
 .signup-border {
-  width: 800px;
-  height: 690px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   background-color: rgb(254, 254, 254);
-  margin-bottom: 200px;
-  margin-left: 500px;
-  border-radius: 20px;
-  border-style: solid; /* This create the black outline of the border */
+  width: 100%;
+  max-width: 800px;
+  min-width: 200px;
+  height: auto;
+  margin: 20px auto;
+  padding: 24px 20px 32px;
+  border-radius: 12px;
+  border: 1px solid black;
   box-shadow: 6px 5px 8px rgba(0, 0, 0, 0.05);
-  border-color: black;
 }
 
+@media (min-width: 768px) {
+  .signup-border {
+    padding: 32px 40px 40px;
+    border-radius: 16px;
+    margin: 40px auto;
+  }
+}
+
+@media (min-width: 1024px) {
+  .signup-border {
+    padding: 40px 60px 50px;
+    border-radius: 20px;
+    margin: 60px auto 80px;
+  }
+}
+
+/* Signup heading-----*/
 .signup-text {
-  margin-left: 265px;
-  font-size: 65px;
+  font-size: 28px;
   color: black;
+  text-align: center;
+  margin: 0 auto 20px;
+  padding: 0;
+  width: 100%;
+  display: block;
+  
 }
 
+@media (min-width: 768px) {
+  .signup-text {
+    font-size: 38px;
+    margin-bottom: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .signup-text {
+    font-size: 45px;
+    margin-bottom: 28px;
+  }
+}
+
+/*FestaItalia logo------*/
 .signup-logo-02 {
-  margin-top: 50px;
-  margin-left: 220px;
-  width: 350px;
+  display: block;
+  margin: 0 auto 24px;
+  width: 180px;
 }
 
+@media (min-width: 768px) {
+  .signup-logo-02 {
+    width: 250px;
+    margin-bottom: 28px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .signup-logo-02 {
+    width: 350px;
+    margin-bottom: 32px;
+  }
+}
+
+/*  signup form*/
 .signup-form {
-  margin-top: 50px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: stretch;
+  gap: 0;
 }
 
-.signup-email-section {
-  font-size: 35px;
-  margin-left: 160px;
-  height: 50px;
-  width: 450px;
+/* name ,email and password fields----- */
+.signup-email-section,
+.signup-password-section,
+.signup-name-label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 480px;
+  font-size: 20px;
   color: black;
+  margin-bottom: 0;
 }
 
-.signup-email-textbox {
-  width: 250px;
-  height: 25px;
-  margin-left: 10px;
-  vertical-align: 25%;
+@media (min-width: 600px) {
+  .signup-email-section,
+  .signup-password-section,
+  .signup-name-label {
+    flex-direction: row;
+    align-items: center;
+    font-size: 28px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .signup-email-section,
+  .signup-password-section,
+  .signup-name-label {
+    font-size: 35px;
+  }
+}
+
+/*textboxes to enter name,email, password----   */
+.signup-email-textbox,
+.signup-password-textbox,
+.signup-name-textbox {
+  width: 100%;
+  max-width: 280px;
+  height: 32px;
+  margin-left: 0;
+  margin-top: 6px;
+  padding: 4px 8px;
   background-color: white;
-}
-
-input[type="email"] { /* Changes the text the user enters to black */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 15px;
   color: black;
 }
 
-.signup-password-section {
-  font-size: 35px;
-  margin-top: 160px;
-  margin-left: 160px; 
-  height: 50px;
-  width: 450px;
+@media (min-width: 600px) {
+  .signup-email-textbox,
+  .signup-password-textbox,
+  .signup-name-textbox {
+    margin-left: 12px;
+    margin-top: 0;
+  }
+}
+
+input[type="email"],
+input[type="text"],
+input[type="password"] {
   color: black;
 }
 
-.signup-password-section-span {
-  margin-top: auto;
+   /* spaces for password,button and login link */
+.signup-password-div {
+  margin-top: 14px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.signup-password-textbox {
-  width: 250px;
-  height: 25px;
-  margin-left: 10px;
-  vertical-align: 25%;
-  background-color: white;
+.signup-button-div {
+ margin-top: 24px;
+  width: 100%;
+  display: flex;
+  align-self: stretch;
+  justify-content: center;
 }
 
-input[type="text"] { /* Changes the text the user enters to black */
-  color: black;
+.signup-login-link-div {
+  margin-top: 20px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
 }
 
-input[type="password"] { /* Changes the password the user enters to black */
-  color: black;
-}
-
-.signup-button {
-  margin-left: 215px;
+/* css for signup button------*/
+.up-button {
   color: white;
   font-size: 15px;
-  width: 300px;
-  height: 35px;
+  width: 100%;        /*260px;*/
+  max-width: 250px;
+  height: 38px;
   border-radius: 30px;
   background-color: rgb(37, 187, 52);
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s, box-shadow 0.2s;
+  text-align: center;
+  margin: 0;
+  margin-top: 20px;
+  align-self: center;
 }
+
+
+/* @media (min-width: 600px) {
+  .signup-button {
+    width: 300px;
+  }
+} */
 
 .signup-button:hover {
-  cursor: pointer;
   opacity: 0.9;
-  box-shadow: 5px 5px 10px rgb(0, 0, 0, 0.15);
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.15);
 }
 
+/* password show button*/
 .signup-show-password-button {
   background-color: rgba(164, 161, 161, 0.887);
   color: rgb(0, 0, 0);
   width: fit-content;
   height: 28px;
   font-size: 13px;
+  border: none;
+  border-radius: 4px;
+  margin-top: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s, box-shadow 0.2s;
+}
+
+@media (min-width: 600px) {
+  .signup-show-password-button {
+    margin-left: 12px;
+    margin-top: 0;
+    vertical-align: middle;
+  }
 }
 
 .signup-show-password-button:hover {
-  cursor: pointer;
-  background-color: rgba(164, 161, 161, 0.887);
   opacity: 0.8;
-  box-shadow: 5px 5px 10px rgb(0, 0, 0, 0.15);
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.15);
 }
 
+/*centered login link ----*/
 .signup-login-link {
-  font-size: 23px;
-  margin-left: 320px;
+  font-size: 20px;
+  text-align: center;
+  margin: 0;
+  display: block;
 }
 
-.signup-password-div { /* The only purpose of this div is to add margin to the top of the password section */
-  margin-top: 10px;
+@media (min-width: 768px) {
+  .signup-login-link {
+    font-size: 23px;
+  }
 }
 
-.signup-button-div { /* The only purpose of this div is to add margin to the top of the signup button */
-  margin-top: 20px;
-}
-
-.signup-login-link-div { /* The only purpose of this div is to add margin to the top of the login link */
-  margin-top: 20px;
-}
-
-/* --- New: First/Last name to match email/password --- */
-.signup-name-label {
-  font-size: 35px;
-  margin-left: 160px;
-  height: 50px;
-  width: 450px;
-  color: black;
-}
-
-.signup-name-textbox {
-  width: 250px;
-  height: 25px;
-  margin-left: 10px;
-  vertical-align: 25%;
-  background-color: white;
-}
-
-/* --- New: status messages consistent spacing --- */
+/*succes/error messages----*/
 .signup-error,
 .signup-success {
   margin-top: 10px;
-  margin-left: 160px;
-  width: 450px;
+  width: 100%;
+  max-width: 480px;
   font-size: 14px;
   padding: 6px 10px;
   border-radius: 6px;
+  text-align: center;
 }
 
-.signup-error { background: #ffe5e5; color: #900; border: 1px solid #f5b5b5; }
-.signup-success { background: #e6ffe9; color: #0a5; border: 1px solid #b8f0c2; }
-
-/* Optional: keep the Show/Hide button aligned with inputs */
-.signup-show-password-button {
-  margin-left: 10px;      /* add to match input spacing */
-  vertical-align: 25%;
+.signup-error {
+  background: #ffe5e5;
+  color: #900;
+  border: 1px solid #f5b5b5;
 }
+
+.signup-success {
+  background: #e6ffe9;
+  color: #0a5;
+  border: 1px solid #b8f0c2;
+}
+
+.password-rule {
+  max-width:100%;
+  font-size: 12;
+  color: #666; 
+  display: block;
+   margin-top: 4;
+   margin-bottom: 8 ;
+}
+
+@media (min-width: 600px) {
+  .password-rule {
+    max-width: 100%;
+
+  }
+}
+
+@media (min-width: 1024px) {
+  .password-rule {
+    max-width: 50%;
+
+  }
+}
+
+
+.show {
+  display: flex;
+  flex-wrap: wrap;
+  position: relative;
+  width:100%;
+  gap: 2px;
+  justify-content: center;
+}
+.show input{
+box-sizing:border-box;
+width:100%;
+}
+

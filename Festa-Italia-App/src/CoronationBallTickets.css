@@ -1,6 +1,8 @@
+html,body,#root{min-height:100vh}
+
 .coronation-ball-tickets-body {
   background-color: white;
-  height: auto;
+  min-height: 100vh;
 }
 
 .ticket-container {
@@ -40,25 +42,6 @@ h1 {
   width: 60px;
   padding: 5px;
 }
-
-/*button {
-  display: block;
-  width: 100%;
-  padding: 12px;
-  font-size: 16px;
-  margin-top: 20px;
-  background-color: #d32f2f;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #b71c1c;
-}
-  both of these conflict with app.css buttons and need to be worked on together
-*/
 
 .total {
   font-weight: bold;
@@ -131,4 +114,97 @@ h4 {
   font-size: 3rem;
   text-align: center;
   margin-bottom: 1.5rem;
+}
+
+/* Responsive design for mobile devices */
+@media screen and (max-width: 600px) {
+    .ticket-container {
+    padding: 15px; 
+  }
+
+  .ticket-section {
+    max-width: 100%;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+  }
+
+  .name-block {
+    flex-direction: column;   
+    gap: 10px;
+  }
+
+  .name-input input,
+  .food-input select {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+/* Responsive design for tablets and small laptops */
+@media screen and (max-width: 1024px) {
+  .ticket-container {
+    padding: 15px; 
+  }
+
+  .ticket-section {
+    max-width: 100%;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+  }
+
+
+  .name-block {
+    flex-direction: column;   
+    gap: 10px;
+  }
+
+  .name-input input,
+  .food-input select {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+/* ── Checkout / Add-to-Cart button row (names step) ─────────────────────── */
+.cbt-action-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  gap: 12px;
+}
+ 
+.cbt-checkout-btn,
+.cbt-add-to-cart-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+}
+ 
+.cbt-checkout-btn {
+  background: #b71c1c;
+  color: #fff;
+}
+ 
+.cbt-checkout-btn:hover:not(:disabled) { background: #8e1414; }
+ 
+.cbt-add-to-cart-btn {
+  background: #009246;
+  color: #fff;
+}
+ 
+.cbt-add-to-cart-btn:hover:not(:disabled) { background: #007a38; }
+ 
+.cbt-checkout-btn:disabled,
+.cbt-add-to-cart-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }

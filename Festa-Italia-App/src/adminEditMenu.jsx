@@ -111,6 +111,9 @@ export default function AdminFoods() {
   };
 
   useEffect(() => {
+    document.body.id = 'edit-menu-body-id';
+    document.body.className = 'edit-menu-body';
+
     (async () => {
       const ok = await checkAdmin();
       if (ok) {
@@ -615,23 +618,14 @@ export default function AdminFoods() {
                 // Normal row
                 return (
                   <div
+                    className="edit-food-container"
                     key={f.id}
-                    style={{
-                      border: "1px solid rgba(255,255,255,0.15)",
-                      borderRadius: 14,
-                      padding: 14,
-                    }}
                   >
                     <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        gap: 16,
-                        alignItems: "center",
-                      }}
+                      className="food-row"
                     >
                       {/* LEFT: name + description */}
-                      <div style={{ flex: 1, minWidth: 0 }}>
+                      <div className="left-food-container">
                         <div style={{ fontSize: 18, fontWeight: 700 }}>
                           {f.name}{" "}
                           <span style={{ fontWeight: 500, opacity: 0.75 }}>
@@ -650,18 +644,7 @@ export default function AdminFoods() {
 
                       {/* MIDDLE: thumbnail */}
                       <div
-                        style={{
-                          width: 120,
-                          height: 90,
-                          borderRadius: 12,
-                          overflow: "hidden",
-                          border: "1px solid rgba(255,255,255,0.18)",
-                          background: "rgba(255,255,255,0.06)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          flexShrink: 0,
-                        }}
+                        className="middle-food-container"
                         title={f.image_path || ""}
                       >
                         {f.image_path ? (
@@ -684,7 +667,7 @@ export default function AdminFoods() {
                       </div>
 
                       {/* RIGHT: action buttons */}
-                      <div style={{ display: "flex", flexDirection: "column", gap: 8, minWidth: 160 }}>
+                      <div className="right-food-container">
                         <button onClick={() => openEdit(f)} disabled={busyId === f.id || !!confirmDelete}>
                           Edit
                         </button>

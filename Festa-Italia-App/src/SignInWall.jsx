@@ -7,13 +7,6 @@ import './SignInWall.css';
  * - subtitle: override for the subtitle text
  */
 export default function SignInWall({ setPage, title, subtitle }) {
-    const handleClick = (e) => {
-        if (typeof setPage === 'function') {
-            setPage('login'); // go to login
-        } else {
-            window.location.href = '/'; // fallback (full reload)
-        }
-    };
 
     return (
         <main className="sign-in-wall" aria-labelledby="signinwall-title">
@@ -23,7 +16,7 @@ export default function SignInWall({ setPage, title, subtitle }) {
                 <h1 id="signinwall-title" className="siw-title">{title || 'Please sign in to use this page'}</h1>
                 <p className="siw-sub">{subtitle || 'Thank you for supporting Festa Italia!'}</p>
                 <div className="siw-actions">
-                <button className="siw-btn" onClick={handleClick}>Sign in</button>
+                    <button className="siw-btn" onClick={()=>setPage('login')}>Sign in</button>
                 </div>
             </div>
         </main>
