@@ -187,7 +187,7 @@ export default function App(){
       case 'reset-pass': return <ResetPass />
       case 'home': return <Home setPage={setPage}/>
       case 'login': return <Login setPage={setPage}/>;
-      case 'signup': return <Signup />
+      case 'signup': return <Signup setPage={setPage}/>
       case 'scholarships':
         if (pageVisibility["Scholarships"] === undefined) return null;
         return pageVisibility["Scholarships"] ? <Scholarship setPage={setPage}/> : <PageOff/>;
@@ -199,7 +199,7 @@ export default function App(){
         return !pageVisibility["Volunteer Sign-Up"] ? <PageOff/>: !user ? <SignInWall /> : <Volunteer user={user}/>;
       case 'forgot-pass': return <ForgotPass />
       case 'user-profile': return <UserProfile setPage={setPage} /> // Added by JK
-      case 'donation': return <Donation />
+      case 'donation': return <Donation setPage={setPage}/>
       case 'delete-account': return <DeleteAccount setPage={setPage} />
       case 'sign-in-wall': return <SignInWall setPage={setPage} />
       case 'page-off': return <PageOff setPage={setPage} />
