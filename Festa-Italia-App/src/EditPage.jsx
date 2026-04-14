@@ -59,10 +59,19 @@ export default function EditPage() {
 
   const handleRotatorImageUpload = async (file) => {
     if (!file) return;
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
+    if (!allowedTypes.includes(file.type)) {
+      alert('Only image files are allowed (.jpg, .jpeg, .png, .webp, .gif).');
+      return;
+    }
+
     if (rotatorImages.filter(img => img.is_active).length >= MAX_ROTATOR_IMAGES) {
       alert(`Maximum of ${MAX_ROTATOR_IMAGES} active images allowed.`);
       return;
     }
+
 
     setRotatorLoading(true);
     try {
