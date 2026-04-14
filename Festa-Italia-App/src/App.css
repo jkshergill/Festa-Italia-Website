@@ -35,7 +35,7 @@ button:hover { background-color: #249548; }
 /* ================================================== */
 .site-header {
   height: 92px;
-  background: linear-gradient(90deg, rgba(0,146,70,0.95), rgba(255,255,255,0));
+  background: linear-gradient(90deg, rgba(0,146,70,1) 20%, rgba(255,255,255,0));
   width: 100%;
 }
 

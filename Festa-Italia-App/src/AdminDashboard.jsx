@@ -9,50 +9,7 @@ import QueensEditor from './QueensEditor';
 import { supabase } from "./supabaseClient";
 import TokenEditor from './TokenEditor';
 
-// Reusable PageDropdown component
-function PageDropdown({ pageOptions = [], onSelect }) {
-    const [query, setQuery] = useState('');
-    const [open, setOpen] = useState(false);
 
-    const filtered = pageOptions.filter(p => p.label.toLowerCase().includes(query.toLowerCase()));
-
-    return (
-        <div className="search-section">
-            <div className="search-container">
-                <input
-                    type="text"
-                    placeholder="Search web pages..."
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    onFocus={() => setOpen(true)}
-                    className="search-input"
-                />
-
-                {open && (
-                    <div className="dropdown-menu">
-                        {filtered.length > 0 ? (
-                            filtered.map((page) => (
-                                <button
-                                    key={page.value}
-                                    className="dropdown-item"
-                                    onClick={() => {
-                                        setOpen(false);
-                                        setQuery('');
-                                        if (onSelect) onSelect(page);
-                                    }}
-                                >
-                                    {page.label}
-                                </button>
-                            ))
-                        ) : (
-                            <div className="dropdown-item no-results">No pages found</div>
-                        )}
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-}
 
 // Confirm Modal Component for Reset Confirmation
 function ConfirmModal({ isOpen, onClose, onConfirm, title, message }) {
@@ -108,471 +65,362 @@ function ConfirmModal({ isOpen, onClose, onConfirm, title, message }) {
   );
 }
 
-// Main Dashboard Section
-function MainDashboard() {
-    return (
-        <div className="dashboard-content">
-            <div className="admin-cards">
-                <div className="admin-card">
-                    <h3>Quick Stats</h3>
-                    <p>Total Users: 1,234</p>
-                    <p>Active Events: 5</p>
-                </div>
-                <div className="admin-card">
-                    <h3>Recent Activity</h3>
-                    <p>New registrations: 12</p>
-                    <p>Ticket sales: $2,450</p>
-                </div>
-                <div className="admin-card">
-                    <h3>System Status</h3>
-                    <p>All systems operational</p>
-                    <p>Last updated: Today</p>
-                </div>
-
-                <div className="admin-card ticket-management-card">
-                    <div className="card-header"></div>
-                        <h3>Ticket Management</h3>
-                        <button
-                            className="manage-button"
-                            onClick={() => setShowTicketModal(true)}
-                        >
-                            Manage Tickets
-                        </button>
-                </div>
-                <div className="ticket-summary">
-                    <div className="summary-item">
-                        <span className="summary-label">Active Tickets:</span>
-                        <span className="summary-value">245</span>
-                    </div>
-                    <div className="summary-item">
-                        <span className="summary-label">Checked In:</span>
-                        <span className="summary-value">89</span>
-                    </div>
-                    <div className="summary-item">
-                        <span className="summary-label">Revoked:</span>
-                        <span className="summary-value">12</span>
-                    </div>
-                    <div className="summary-item">
-                        <span className="summary-label">Today's Sales:</span>
-                        <span className="summary-value">$1,250</span>
-                    </div>
-                    <div className="recent-tickets">
-                        <h4>Recent Ticket Activity</h4>
-                        <div className="tickets-list"></div>
-                        {[
-                            { id: 'TKT-1001', event: 'Coronation Ball', purchaser: 'John Doe', status: 'active' },
-                            { id: 'TKT-1002', event: 'Bocce Tournament', purchaser: 'Jane Smith', status: 'checked-in' },
-                            { id: 'TKT-1003', event: 'Fishermans Festival', purchaser: 'Bob Wilson', status: 'active' },
-                            ].map(ticket => (   
-                            <div key={ticket.id} className="recent-ticket-item">
-                                <div className="ticket-info">
-                                    <span className="ticket-id">{ticket.id}</span>
-                                    <span className="ticket-event">{ticket.event}</span>
-                                </div>
-                                <div className="ticket-details">
-                                    <span className="ticket-purchaser">{ticket.purchaser}</span> 
-                                    <span className={`ticket-status status-${ticket.status}`}>{ticket.status === 'checked-in' ? 'Checked In' : 'Active'}
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
-                    </div> 
-                </div>
-            </div>
-            <div className="admin-card guest-list-card">
-                    <div className="card-header">
-                        <h3>Guest List</h3>
-                        <button 
-                            className="manage-button guest-list-button"
-                            onClick={() => {
-                                console.log("Manage Guest List button clicked");
-                                setShowGuestListModal(true);
-                            }}
-                        >
-                            Manage Guest List
-                        </button>
-                    </div>
-                    
-                    <div className="guest-summary">
-                        <div className="summary-item">
-                            <span className="summary-label">Total Guests:</span>
-                            <span className="summary-value">85</span>
-                        </div>
-                        <div className="summary-item">
-                            <span className="summary-label">Checked In:</span>
-                            <span className="summary-value">42</span>
-                        </div>
-                        <div className="summary-item">
-                            <span className="summary-label">With Profile:</span>
-                            <span className="summary-value">63</span>
-                        </div>
-                        <div className="summary-item">
-                            <span className="summary-label">Avg Tickets:</span>
-                            <span className="summary-value">2.8</span>
-                        </div>
-                    </div>
-                    
-                    <div className="recent-guests">
-                        <h4>Recent Guest Activity</h4>
-                        <div className="guests-list">
-                            {[
-                                { id: 'GUEST-001', name: 'Alice Johnson', email: 'alice@example.com', tickets: 3, status: 'checked-in' },
-                                { id: 'GUEST-002', name: 'Bob Wilson', email: 'bob@example.com', tickets: 2, status: 'not-checked-in' },
-                                { id: 'GUEST-003', name: 'Carol Davis', email: 'carol@example.com', tickets: 1, status: 'checked-in' },
-                            ].map(guest => (   
-                                <div key={guest.id} className="recent-guest-item">
-                                    <div className="guest-info">
-                                        <span className="guest-name">{guest.name}</span>
-                                        <span className="guest-email">{guest.email}</span>
-                                    </div>
-                                    <div className="guest-details">
-                                        <span className="guest-tickets">{guest.tickets} ticket{guest.tickets !== 1 ? 's' : ''}</span> 
-                                        <span className={`guest-status status-${guest.status}`}>
-                                            {guest.status === 'checked-in' ? 'Checked In' : 'Not Checked In'}
-                                        </span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div> 
-            </div>
-        </div>
-    );
-}
-
 // Confirm Volunteers Section
 function ConfirmVolunteers() {
-  const [query, setQuery] = useState('');
-  const [signups, setSignups] = useState([]);
-  const [booths, setBooths] = useState([]);
-  const [profiles, setProfiles] = useState([]);
-  const [newBoothName, setNewBoothName] = useState('');
-  const [boothMessage, setBoothMessage] = useState('');
-  const [showResetModal, setShowResetModal] = useState(false);
+    const [query, setQuery] = useState('');
+    const [signups, setSignups] = useState([]);
+    const [booths, setBooths] = useState([]);
+    const [profiles, setProfiles] = useState([]);
+    const [newBoothName, setNewBoothName] = useState('');
+    const [boothMessage, setBoothMessage] = useState('');
+    const [showResetModal, setShowResetModal] = useState(false);
+    const [pendingDelete, setPendingDelete] = useState(null);
 
-  const loadData = async () => {
-    try {
-      // 1. Fetch booths
-      const { data: boothData } = await supabase
+    const loadData = async () => {
+        try {
+        // 1. Fetch booths
+        const { data: boothData } = await supabase
+            .from('booths')
+            .select('id, name')
+            .order('name', { ascending: true });
+        setBooths(boothData || []);
+
+        // 2. Fetch profiles
+        const { data: profileData } = await supabase
+            .from('profiles')
+            .select('id, first_name, last_name');
+        setProfiles(profileData || []);
+
+        // 3. Fetch signups
+        const { data: signupData } = await supabase
+            .from('volunteer_signups')
+            .select('id, confirm, booth_id, user_id, day, timeframe');
+        
+        if (signupData) {
+            // Merge booth & profile info
+            const merged = signupData.map(s => ({
+            ...s,
+            booth: (boothData || []).find(b => b.id === s.booth_id) || null,
+            profile: (profileData || []).find(p => p.id === s.user_id) || null
+            }));
+            setSignups(merged);
+        }
+        } catch (err) {
+        console.error('Error loading data:', err);
+        }
+    };
+
+    useEffect(() => {
+        loadData();
+    }, []);
+
+    const resetVolunteerPage = async () => {
+        setShowResetModal(false);
+        try {
+        // Delete all volunteer signups
+        const { error } = await supabase
+            .from('volunteer_signups')
+            .delete()
+            .neq('id', '00000000-0000-0000-0000-000000000000');
+        
+        if (error) throw error;
+        
+        await loadData();
+        alert('✅ Volunteer page has been successfully reset. All volunteer signups have been cleared.');
+        } catch (err) {
+        console.error('Reset error:', err);
+        alert(`Failed to reset volunteer page: ${err.message}`);
+        }
+    };
+
+    const prettyDay = (day) => {
+        if (!day) return 'Day TBD';
+        const lower = String(day).toLowerCase();
+        return lower.charAt(0).toUpperCase() + lower.slice(1);
+    };
+
+    const prettyTimeframe = (value) => {
+        if (!value) return 'Timeframe TBD';
+        const lower = String(value).toLowerCase();
+        if (lower === 'morning') return 'Morning';
+        if (lower === 'evening') return 'Evening';
+        if (lower === 'night') return 'Night';
+        return value;
+    };
+
+    // Search logic
+    const searchLower = query.toLowerCase();
+
+    const activeBooths = booths.filter(b =>
+        b.name.toLowerCase().includes(searchLower) ||
+        signups.some(s => s.booth?.id === b.id && s.profile && `${s.profile.first_name} ${s.profile.last_name}`.toLowerCase().includes(searchLower))
+    );
+
+    const requestingVolunteers = signups.filter(s => !s.booth && s.profile)
+        .filter(s => `${s.profile.first_name} ${s.profile.last_name}`.toLowerCase().includes(searchLower));
+
+    const getVolunteersForBooth = (boothId) =>
+        signups.filter(s => s.booth?.id === boothId);
+
+    const createBooth = async () => {
+        const trimmed = newBoothName.trim();
+        if (!trimmed) {
+        setBoothMessage('Enter a booth name first.');
+        return;
+        }
+
+        const alreadyExists = booths.some(b => b.name.toLowerCase() === trimmed.toLowerCase());
+        if (alreadyExists) {
+        setBoothMessage('A booth with that name already exists.');
+        return;
+        }
+
+        const { data, error } = await supabase
         .from('booths')
+        .insert({ name: trimmed })
         .select('id, name')
-        .order('name', { ascending: true });
-      setBooths(boothData || []);
+        .single();
 
-      // 2. Fetch profiles
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('id, first_name, last_name');
-      setProfiles(profileData || []);
+        if (error) {
+        setBoothMessage(error.message);
+        return;
+        }
 
-      // 3. Fetch signups
-      const { data: signupData } = await supabase
+        setBooths(prev => [...prev, data].sort((a, b) => a.name.localeCompare(b.name)));
+        setNewBoothName('');
+        setBoothMessage(`Created booth: ${data.name}`);
+    };
+
+    const deleteBooth = async (boothId) => {
+        const booth = booths.find(b => b.id === boothId);
+        if (!booth) return;
+
+        const confirmed = window.confirm(`Delete booth "${booth.name}"? This will unassign volunteers from this booth.`);
+        if (!confirmed) return;
+
+        const { error: unassignError } = await supabase
         .from('volunteer_signups')
-        .select('id, confirm, booth_id, user_id, day, timeframe');
-      
-      if (signupData) {
-        // Merge booth & profile info
-        const merged = signupData.map(s => ({
-          ...s,
-          booth: (boothData || []).find(b => b.id === s.booth_id) || null,
-          profile: (profileData || []).find(p => p.id === s.user_id) || null
-        }));
-        setSignups(merged);
-      }
-    } catch (err) {
-      console.error('Error loading data:', err);
-    }
-  };
+        .update({ booth_id: null })
+        .eq('booth_id', boothId);
 
-  useEffect(() => {
-    loadData();
-  }, []);
+        if (unassignError) {
+        setBoothMessage(unassignError.message);
+        return;
+        }
 
-  const resetVolunteerPage = async () => {
-    setShowResetModal(false);
-    try {
-      // Delete all volunteer signups
-      const { error } = await supabase
-        .from('volunteer_signups')
+        const { error } = await supabase
+        .from('booths')
         .delete()
-        .neq('id', '00000000-0000-0000-0000-000000000000');
-      
-      if (error) throw error;
-      
-      await loadData();
-      alert('✅ Volunteer page has been successfully reset. All volunteer signups have been cleared.');
-    } catch (err) {
-      console.error('Reset error:', err);
-      alert(`Failed to reset volunteer page: ${err.message}`);
-    }
-  };
+        .eq('id', boothId);
 
-  const prettyDay = (day) => {
-    if (!day) return 'Day TBD';
-    const lower = String(day).toLowerCase();
-    return lower.charAt(0).toUpperCase() + lower.slice(1);
-  };
+        if (error) {
+        setBoothMessage(error.message);
+        return;
+        }
 
-  const prettyTimeframe = (value) => {
-    if (!value) return 'Timeframe TBD';
-    const lower = String(value).toLowerCase();
-    if (lower === 'morning') return 'Morning';
-    if (lower === 'evening') return 'Evening';
-    if (lower === 'night') return 'Night';
-    return value;
-  };
+        setBooths(prev => prev.filter(b => b.id !== boothId));
+        setSignups(prev => prev.map(s => (s.booth?.id === boothId ? { ...s, booth: null, booth_id: null } : s)));
+        setBoothMessage(`Deleted booth: ${booth.name}`);
+    };
 
-  // Search logic
-  const searchLower = query.toLowerCase();
+    const assignToBooth = async (signupId, boothId) => {
+        const { error } = await supabase.from('volunteer_signups')
+        .update({ booth_id: boothId }).eq('id', signupId);
+        if (!error) {
+        setSignups(prev =>
+            prev.map(s => s.id === signupId ? { ...s, booth: booths.find(b => b.id === boothId) } : s)
+        );
+        }
+    };
 
-  const activeBooths = booths.filter(b =>
-    b.name.toLowerCase().includes(searchLower) ||
-    signups.some(s => s.booth?.id === b.id && s.profile && `${s.profile.first_name} ${s.profile.last_name}`.toLowerCase().includes(searchLower))
-  );
+    const toggleConfirm = async (signupId, current) => {
+        const { error } = await supabase.from('volunteer_signups')
+        .update({ confirm: !current }).eq('id', signupId);
+        if (!error) {
+        setSignups(prev =>
+            prev.map(s => s.id === signupId ? { ...s, confirm: !current } : s)
+        );
+        }
+    };
 
-  const requestingVolunteers = signups.filter(s => !s.booth && s.profile)
-    .filter(s => `${s.profile.first_name} ${s.profile.last_name}`.toLowerCase().includes(searchLower));
+    const unassign = async (signupId) => {
+        const { error } = await supabase.from('volunteer_signups')
+        .update({ booth_id: null, confirm: false }).eq('id', signupId)
+        if (!error) {
+        setSignups(prev =>
+            prev.map(s => s.id === signupId ? { ...s, booth: null , confirm: false} : s)
+        );
+        }
+    };
 
-  const getVolunteersForBooth = (boothId) =>
-    signups.filter(s => s.booth?.id === boothId);
+    const deleteVol = async () => {
+        const { error } = await supabase
+            .from('volunteer_signups')
+            .delete()
+            .eq('id', pendingDelete.id);
+        if (!error) {
+            setSignups(prev => prev.filter(s => s.id !== pendingDelete.id));
+        }
+        setPendingDelete(null);
+    };
 
-  const createBooth = async () => {
-    const trimmed = newBoothName.trim();
-    if (!trimmed) {
-      setBoothMessage('Enter a booth name first.');
-      return;
-    }
-
-    const alreadyExists = booths.some(b => b.name.toLowerCase() === trimmed.toLowerCase());
-    if (alreadyExists) {
-      setBoothMessage('A booth with that name already exists.');
-      return;
-    }
-
-    const { data, error } = await supabase
-      .from('booths')
-      .insert({ name: trimmed })
-      .select('id, name')
-      .single();
-
-    if (error) {
-      setBoothMessage(error.message);
-      return;
-    }
-
-    setBooths(prev => [...prev, data].sort((a, b) => a.name.localeCompare(b.name)));
-    setNewBoothName('');
-    setBoothMessage(`Created booth: ${data.name}`);
-  };
-
-  const deleteBooth = async (boothId) => {
-    const booth = booths.find(b => b.id === boothId);
-    if (!booth) return;
-
-    const confirmed = window.confirm(`Delete booth "${booth.name}"? This will unassign volunteers from this booth.`);
-    if (!confirmed) return;
-
-    const { error: unassignError } = await supabase
-      .from('volunteer_signups')
-      .update({ booth_id: null })
-      .eq('booth_id', boothId);
-
-    if (unassignError) {
-      setBoothMessage(unassignError.message);
-      return;
-    }
-
-    const { error } = await supabase
-      .from('booths')
-      .delete()
-      .eq('id', boothId);
-
-    if (error) {
-      setBoothMessage(error.message);
-      return;
-    }
-
-    setBooths(prev => prev.filter(b => b.id !== boothId));
-    setSignups(prev => prev.map(s => (s.booth?.id === boothId ? { ...s, booth: null, booth_id: null } : s)));
-    setBoothMessage(`Deleted booth: ${booth.name}`);
-  };
-
-  const assignToBooth = async (signupId, boothId) => {
-    const { error } = await supabase.from('volunteer_signups')
-      .update({ booth_id: boothId }).eq('id', signupId);
-    if (!error) {
-      setSignups(prev =>
-        prev.map(s => s.id === signupId ? { ...s, booth: booths.find(b => b.id === boothId) } : s)
-      );
-    }
-  };
-
-  const toggleConfirm = async (signupId, current) => {
-    const { error } = await supabase.from('volunteer_signups')
-      .update({ confirm: !current }).eq('id', signupId);
-    if (!error) {
-      setSignups(prev =>
-        prev.map(s => s.id === signupId ? { ...s, confirm: !current } : s)
-      );
-    }
-  };
-
-  const unassign = async (signupId) => {
-    const { error } = await supabase.from('volunteer_signups')
-      .update({ booth_id: null }).eq('id', signupId);
-    if (!error) {
-      setSignups(prev =>
-        prev.map(s => s.id === signupId ? { ...s, booth: null } : s)
-      );
-    }
-  };
-
-  return (
-    <div className="section-content">
-      <div style={{ marginBottom: '1.5rem' }}>
-        <input
-          className="search-input"
-          type="text"
-          placeholder="Search booth name or volunteer name..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-      </div>
-
-      {/* RESET VOLUNTEER PAGE BUTTON */}
-      <div style={{ 
-        marginBottom: '1.5rem', 
-        padding: '1rem', 
-        backgroundColor: '#fff3e0', 
-        borderRadius: '8px',
-        border: '1px solid #ffcc80'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-          <div>
-            <h4 style={{ margin: 0, color: '#e67e22' }}>⚠️ Reset Volunteer Page</h4>
-            <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', color: '#666' }}>
-              This will permanently delete ALL volunteer signups and clear the schedule.
-            </p>
-          </div>
-          <button
-            onClick={() => setShowResetModal(true)}
-            style={{
-              backgroundColor: '#e67e22',
-              color: 'white',
-              border: 'none',
-              padding: '0.75rem 1.5rem',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              fontSize: '1rem'
-            }}
-            onMouseEnter={(e) => e.target.style.backgroundColor = '#d35400'}
-            onMouseLeave={(e) => e.target.style.backgroundColor = '#e67e22'}
-          >
-            🗑️ Reset Volunteer Page
-          </button>
-        </div>
-      </div>
-
-      {/* Reset Confirmation Modal */}
-      {showResetModal && (
-        <ConfirmModal
-          isOpen={showResetModal}
-          onClose={() => setShowResetModal(false)}
-          onConfirm={resetVolunteerPage}
-          title="⚠️ Reset Volunteer Page"
-          message="Are you absolutely sure you want to delete ALL volunteer signups? This action cannot be undone."
-        />
-      )}
-
-      <div className="list" style={{ marginBottom: '1.5rem', borderBottom: '1px solid #eee', paddingBottom: '1rem' }}>
-        <h4>Booth Management</h4>
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
-          <input
-            type="text"
+    return (
+        <div className="section-content">
+        <div style={{ marginBottom: '1.5rem' }}>
+            <input
             className="search-input"
-            placeholder="New booth name"
-            value={newBoothName}
-            onChange={(e) => setNewBoothName(e.target.value)}
-            style={{ maxWidth: '360px' }}
-          />
-          <button className="add-btn" onClick={createBooth}>Create Booth</button>
+            type="text"
+            placeholder="Search booth name or volunteer name..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            />
         </div>
 
-        <div style={{ display: 'grid', gap: '0.4rem' }}>
-          {booths.map((b) => (
-            <div key={b.id} className="admin-item" style={{ borderBottom: 'none', padding: '0.35rem 0' }}>
-              <div className="name">{b.name}</div>
-              <div className="actions">
-                <button className="remove-btn" onClick={() => deleteBooth(b.id)}>Delete</button>
-              </div>
+        {/* RESET VOLUNTEER PAGE BUTTON */}
+        <div style={{ 
+            marginBottom: '1.5rem', 
+            padding: '1rem', 
+            backgroundColor: '#fff3e0', 
+            borderRadius: '8px',
+            border: '1px solid #ffcc80'
+        }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+                <h4 style={{ margin: 0, color: '#e67e22' }}>⚠️ Reset Volunteer Page</h4>
+                <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', color: '#666' }}>
+                This will permanently delete ALL volunteer signups and clear the schedule.
+                </p>
             </div>
-          ))}
-        </div>
-        {boothMessage && <div className="muted">{boothMessage}</div>}
-      </div>
-
-      {/* Requesting Volunteers */}
-      <div className="admin-list">
-        <h4>Requesting Volunteers</h4>
-        {requestingVolunteers.length === 0 && <div className="muted">No volunteers requesting assignment.</div>}
-        {requestingVolunteers.map(s => (
-          <div key={s.id} className="admin-item">
-            <div className="name">
-              <div>{s.profile.first_name} {s.profile.last_name}</div>
-              <div className="muted" style={{ padding: 0 }}>
-                {prettyDay(s.day)} • {prettyTimeframe(s.timeframe)}
-              </div>
-            </div>
-            <div className="actions">
-              <select
-                style={{ padding: '0.4rem 0.5rem', borderRadius: '4px', border: '1px solid #ddd', fontSize: '0.9rem' }}
-                onChange={(e) => {
-                  if (e.target.value) {
-                    assignToBooth(s.id, e.target.value);
-                    e.target.value = '';
-                  }
+            <button
+                onClick={() => setShowResetModal(true)}
+                style={{
+                backgroundColor: '#e67e22',
+                color: 'white',
+                border: 'none',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                fontSize: '1rem'
                 }}
-                defaultValue=""
-              >
-                <option value="">Assign to booth...</option>
-                {booths.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-              </select>
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#d35400'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = '#e67e22'}
+            >
+                🗑️ Reset Volunteer Page
+            </button>
             </div>
-          </div>
-        ))}
-      </div>
+        </div>
 
-      {/* Booths with Volunteers */}
-      {activeBooths.map((b, idx) => {
-        const volunteersForBooth = getVolunteersForBooth(b.id);
-        return (
-          <div key={idx} className="list" style={{ marginTop: idx === 0 ? '1.5rem' : '1rem' }}>
-            <h4>{b.name}</h4>
-            {volunteersForBooth.length === 0 && <div className="muted">No volunteers.</div>}
-            {volunteersForBooth.map(s => (
-              <div key={s.id} className="admin-item">
+        {/* Reset Confirmation Modal */}
+        {showResetModal && (
+            <ConfirmModal
+            isOpen={showResetModal}
+            onClose={() => setShowResetModal(false)}
+            onConfirm={resetVolunteerPage}
+            title="⚠️ Reset Volunteer Page"
+            message="Are you absolutely sure you want to delete ALL volunteer signups? This action cannot be undone."
+            />
+        )}
+
+        <div className="list" style={{ marginBottom: '1.5rem', borderBottom: '1px solid #eee', paddingBottom: '1rem' }}>
+            <h4>Booth Management</h4>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+            <input
+                type="text"
+                className="search-input"
+                placeholder="New booth name"
+                value={newBoothName}
+                onChange={(e) => setNewBoothName(e.target.value)}
+                style={{ maxWidth: '360px' }}
+            />
+            <button className="add-btn" onClick={createBooth}>Create Booth</button>
+            </div>
+
+            <div style={{ display: 'grid', gap: '0.4rem' }}>
+            {booths.map((b) => (
+                <div key={b.id} className="admin-item" style={{ borderBottom: 'none', padding: '0.35rem 0' }}>
+                <div className="name">{b.name}</div>
+                <div className="actions">
+                    <button className="remove-btn" onClick={() => deleteBooth(b.id)}>Delete</button>
+                </div>
+                </div>
+                
+            ))}
+            </div>
+            {boothMessage && <div className="muted">{boothMessage}</div>}
+        </div>
+
+        {/* Requesting Volunteers */}
+        <div className="admin-list">
+            <h4>Requesting Volunteers</h4>
+            {requestingVolunteers.length === 0 && <div className="muted">No volunteers requesting assignment.</div>}
+            {requestingVolunteers.map(s => (
+            <div key={s.id} className="admin-item">
                 <div className="name">
-                  <div>
-                    {s.profile.first_name} {s.profile.last_name} {s.confirm && <span style={{ color: '#007bff', marginLeft: '0.5rem', fontSize: '0.9rem' }}>Confirmed</span>}
-                  </div>
-                  <div className="muted" style={{ padding: 0 }}>
+                <div>{s.profile.first_name} {s.profile.last_name}</div>
+                <div className="muted" style={{ padding: 0 }}>
                     {prettyDay(s.day)} • {prettyTimeframe(s.timeframe)}
-                  </div>
+                </div>
                 </div>
                 <div className="actions">
-                  <button className="remove-btn" onClick={() => unassign(s.id)}>✕</button>
-                  <button style={{ marginLeft: '0.5rem' }} onClick={() => toggleConfirm(s.id, s.confirm)}>
-                    {s.confirm ? 'Unconfirm' : 'Confirm'}
-                  </button>
+                <button className="remove-btn" style={{ padding:'0.25rem 0.5rem'}} onClick={() => setPendingDelete(s)}>Remove Volunteer</button>
+                    {pendingDelete && (
+                    <ConfirmModal
+                        isOpen={!!pendingDelete}
+                        onClose={() => setPendingDelete(null)}
+                        onConfirm={deleteVol}
+                        title="Remove Volunteer"
+                        message={`Are you sure you want to remove ${pendingDelete?.name} from this signup? This cannot be undone.`}
+                    />
+                    )}
+                <select
+                    style={{ padding: '0.4rem 0.5rem', borderRadius: '4px', border: '1px solid #ddd', fontSize: '0.9rem' }}
+                    onChange={(e) => {
+                    if (e.target.value) {
+                        assignToBooth(s.id, e.target.value);
+                        e.target.value = '';
+                    }
+                    }}
+                    defaultValue=""
+                >
+                    <option value="">Assign to booth...</option>
+                    {booths.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+                </select>
                 </div>
-              </div>
+            </div>
             ))}
-          </div>
-        )
-      })}
-    </div>
-  );
+        </div>
+
+        {/* Booths with Volunteers */}
+        {activeBooths.map((b, idx) => {
+            const volunteersForBooth = getVolunteersForBooth(b.id);
+            return (
+            <div key={idx} className="list" style={{ marginTop: idx === 0 ? '1.5rem' : '1rem' }}>
+                <h4>{b.name}</h4>
+                {volunteersForBooth.length === 0 && <div className="muted">No volunteers.</div>}
+                {volunteersForBooth.map(s => (
+                <div key={s.id} className="admin-item">
+                    <div className="name">
+                    <div>
+                        {s.profile.first_name} {s.profile.last_name} {s.confirm && <span style={{ color: '#007bff', marginLeft: '0.5rem', fontSize: '0.9rem' }}>Confirmed</span>}
+                    </div>
+                    <div className="muted" style={{ padding: 0 }}>
+                        {prettyDay(s.day)} • {prettyTimeframe(s.timeframe)}
+                    </div>
+                    </div>
+                    <div className="actions">
+                    <button className="remove-btn" onClick={() => unassign(s.id)}>✕</button>
+                    <button style={{ marginLeft: '0.5rem' }} onClick={() => toggleConfirm(s.id, s.confirm)}>
+                        {s.confirm ? 'Unconfirm' : 'Confirm'}
+                    </button>
+                    </div>
+                </div>
+                ))}
+            </div>
+            )
+        })}
+        </div>
+    );
 }
 
 function ConfirmBocceTeams() {
@@ -1107,8 +955,13 @@ function TogglePage({ pageOptions = [], pageStates = {}, togglePage, saveChanges
 }
 
 function AdminDashboard() {
+    useEffect(() => {
+        document.body.id = 'admin-dashboard-body-id';
+        document.body.className = 'admin-dashboard-body';
+    }, []);
+
     // sidebar active section state
-    const [activeSection, setActiveSection] = useState('main');
+    const [activeSection, setActiveSection] = useState('confirm-volunteers');
 
     // pages fetched from database for dropdowns (replaces static pageOptions const)
     const [pageOptions, setPageOptions] = useState([]);
@@ -1181,13 +1034,12 @@ function AdminDashboard() {
             {/* Left Sidebar with Admin Actions */}
             <aside className="admin-sidebar">
                 <nav className="sidebar-nav">
-                    <button
+                    {/*<button
                         className={`sidebar-btn ${activeSection === 'main' ? 'active' : ''}`}
                         onClick={() => handleSidebarClick('main')}
                         title="Main dashboard"
                     >
-                        Main
-                    </button>
+                    </button>*/}
                     <button
                         className={`sidebar-btn ${activeSection === 'confirm-volunteers' ? 'active' : ''}`}
                         onClick={() => handleSidebarClick('confirm-volunteers')}
@@ -1235,7 +1087,7 @@ function AdminDashboard() {
                         onClick={() => handleSidebarClick('admin-foods')}
                         title="Food Menu Editor"
                     >
-                        Admin Tool - Food Editor
+                        Festa Food Editor
                     </button>
                     <button
                         className={`sidebar-btn ${activeSection === 'token-editor' ? 'active' : ''}`}
@@ -1279,9 +1131,6 @@ function AdminDashboard() {
                         {activeSection === 'manage-donors' && 'Manage Donors'}
                     </h1>
                 </div>
-
-                {/* Main Section */}
-                {activeSection === 'main' && <MainDashboard />}
 
                 {/* Confirm Volunteers Section */}
                 {activeSection === 'confirm-volunteers' && <ConfirmVolunteers pageOptions={pageOptions} />}
