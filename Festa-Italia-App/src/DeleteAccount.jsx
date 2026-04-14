@@ -153,8 +153,10 @@ export default function DeleteAccount({ setPage }) {
         Signed in as <strong>{user.email}</strong>
       </p>
 
-      <div style={{ marginTop: '1rem', background: '#fff8f8', padding: '1rem', borderRadius: 6 }}>
-        <p style={{ marginTop: 0 }}>
+      <div style={{ marginTop: '1rem', background: '#fff8f8', padding: '1rem', borderRadius: 6, maxWidth: '100%', 
+        whiteSpace: 'normal', wordBreak: 'normal', overflowWrap: 'break-word'
+       }}>
+        <p style={{ marginTop: 0, wordBreak: 'break-word', overflowWrap: 'break-word' }}>
           Deleting your account is permanent. All your personal data associated with
           this account will be removed. This action cannot be undone.
         </p>

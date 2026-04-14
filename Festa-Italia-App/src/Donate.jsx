@@ -16,6 +16,9 @@ function Donate() {
   const [addImageLink, setAddImageLink] = useState(false);
   const [imageLink, setImageLink] = useState('');
 
+  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [consentToShare, setConsentToShare] = useState(true);
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -86,6 +89,8 @@ function Donate() {
             donorLinkUrl: normalizedImageLink,
             imageFileName: selectedFile?.name || null,
             orderId,
+            isAnonymous,
+            consentToShare,
           },
         }
       );
@@ -182,6 +187,30 @@ function Donate() {
               </div>
 
               <div className="donate-field donate-field-full">
+              <label className="donate-checkbox-row">
+                <input
+                  type="checkbox"
+                  checked={isAnonymous}
+                  onChange={(e) => setIsAnonymous(e.target.checked)}
+                  disabled={isLoading}
+                />
+                <span>Keep credentials anonymous</span>
+              </label>
+            </div>
+
+            <div className="donate-field donate-field-full">
+              <label className="donate-checkbox-row">
+                <input
+                  type="checkbox"
+                  checked={consentToShare}
+                  onChange={(e) => setConsentToShare(e.target.checked)}
+                  disabled={isLoading}
+                />
+                <span>Allow Festa Italia to publish this donation on their site</span>
+              </label>
+            </div>
+
+              <div className="donate-field donate-field-full">
                 <label className="donate-label">Upload photo/logo</label>
                 <input
                   className="donate-upload-logo"
@@ -226,7 +255,7 @@ function Donate() {
             </div>
 
             <div className="donate-help-text">
-              Corperate and general donations will be displayed on the previous donors webpage unless the . Please get in contact with Festa if you made a mistake entering your info.
+              Corperate and general donations will be displayed on the previous donors webpage unless otherwise specified. Please get in contact with Festa if you made a mistake entering your information.
             </div>
           </form>
         </section>
