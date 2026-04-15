@@ -57,54 +57,58 @@ export default function EditPage() {
     }
   };
 
-  const handleRotatorImageUpload = async (file) => {
-    if (!file) return;
+const handleRotatorImageUpload = async (file) => {
+  if (!file) return;
 
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+  const maxFileSizeBytes = 5 * 1024 * 1024; // 5 MB
 
-    if (!allowedTypes.includes(file.type)) {
-      alert('Only image files are allowed (.jpg, .jpeg, .png, .webp, .gif).');
-      return;
-    }
+  if (!allowedTypes.includes(file.type)) {
+    alert('Only image files are allowed (.jpg, .jpeg, .png, .webp, .gif).');
+    return;
+  }
 
-    if (rotatorImages.filter(img => img.is_active).length >= MAX_ROTATOR_IMAGES) {
-      alert(`Maximum of ${MAX_ROTATOR_IMAGES} active images allowed.`);
-      return;
-    }
+  if (file.size > maxFileSizeBytes) {
+    alert('Image is too large. Maximum allowed size is 5 MB.');
+    return;
+  }
 
+  if (rotatorImages.filter(img => img.is_active).length >= MAX_ROTATOR_IMAGES) {
+    alert(`Maximum of ${MAX_ROTATOR_IMAGES} active images allowed.`);
+    return;
+  }
 
-    setRotatorLoading(true);
-    try {
-      // Convert file to base64 data URL (same approach as content block images)
-      const dataUrl = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => resolve(e.target.result);
-        reader.onerror = () => reject(new Error('Failed to read file'));
-        reader.readAsDataURL(file);
+  setRotatorLoading(true);
+  try {
+    const dataUrl = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target.result);
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsDataURL(file);
+    });
+
+    const nextOrder = rotatorImages.length > 0
+      ? Math.max(...rotatorImages.map(img => img.display_order)) + 1
+      : 0;
+
+    const { error: insertError } = await supabase
+      .from('homepage_images')
+      .insert({
+        image_url: dataUrl,
+        display_order: nextOrder,
+        is_active: true
       });
 
-      const nextOrder = rotatorImages.length > 0
-        ? Math.max(...rotatorImages.map(img => img.display_order)) + 1
-        : 0;
+    if (insertError) throw insertError;
 
-      const { error: insertError } = await supabase
-        .from('homepage_images')
-        .insert({
-          image_url: dataUrl,
-          display_order: nextOrder,
-          is_active: true
-        });
-
-      if (insertError) throw insertError;
-
-      await loadRotatorImages();
-    } catch (err) {
-      console.error('Error uploading rotator image:', err);
-      alert(`Error uploading image: ${err.message}`);
-    } finally {
-      setRotatorLoading(false);
-    }
-  };
+    await loadRotatorImages();
+  } catch (err) {
+    console.error('Error uploading rotator image:', err);
+    alert(`Error uploading image: ${err.message}`);
+  } finally {
+    setRotatorLoading(false);
+  }
+};
 
   const handleRotatorImageDelete = async (imageId) => {
     if (!window.confirm('Are you sure you want to delete this image?')) return;
@@ -275,24 +279,40 @@ export default function EditPage() {
     }));
   };
 
-  // Handle image file selection
-  const handleImageChange = (sectionId, blockIndex, file) => {
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        handleFieldChange(sectionId, 'contentBlocks', {
-          field: 'image',
-          value: e.target.result
-        }, blockIndex);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      handleFieldChange(sectionId, 'contentBlocks', {
-        field: 'image',
-        value: null
-      }, blockIndex);
-    }
+const handleImageChange = (sectionId, blockIndex, file) => {
+  if (!file) {
+    handleFieldChange(sectionId, 'contentBlocks', {
+      field: 'image',
+      value: null
+    }, blockIndex);
+    return;
+  }
+
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+  const maxFileSizeBytes = 5 * 1024 * 1024; // 5 MB
+
+  if (!allowedTypes.includes(file.type)) {
+    alert('Only image files are allowed (.jpg, .jpeg, .png, .webp, .gif).');
+    return;
+  }
+
+  if (file.size > maxFileSizeBytes) {
+    alert('Image is too large. Maximum allowed size is 5 MB.');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    handleFieldChange(sectionId, 'contentBlocks', {
+      field: 'image',
+      value: e.target.result
+    }, blockIndex);
   };
+  reader.onerror = () => {
+    alert('Failed to read image file.');
+  };
+  reader.readAsDataURL(file);
+};
 
   // Handle adding a content block to a section
   const handleAddContentBlock = (sectionId) => {
