@@ -22,7 +22,7 @@ function formatPrice(v) {
 
 export default function AdminFoods() {
   const [authChecked, setAuthChecked] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState('user');
 
   const [foods, setFoods] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -87,27 +87,27 @@ export default function AdminFoods() {
     setSessionUser(user || null);
 
     if (!user) {
-      setIsAdmin(false);
+      setIsAdmin('user');
       setAuthChecked(true);
       return false;
     }
 
     const { data: profile, error } = await supabase
       .from("profiles")
-      .select("is_admin")
+      .select("role")
       .eq("id", user.id)
       .maybeSingle();
 
     if (error) {
       console.error("Admin check failed:", error);
-      setIsAdmin(false);
+      setIsAdmin('user');
       setAuthChecked(true);
       return false;
     }
 
-    setIsAdmin(!!profile?.is_admin);
+    setIsAdmin(!!profile?.role ? 'admin' : 'user');
     setAuthChecked(true);
-    return !!profile?.is_admin;
+    return !!profile?.role;
   };
 
   useEffect(() => {
@@ -355,7 +355,7 @@ export default function AdminFoods() {
     return <div style={{ padding: 24 }}>Checking permissions…</div>;
   }
 
-  if (!isAdmin) {
+  if (isAdmin === 'user') {
     return (
       <div style={{ padding: 24 }}>
         <h2>Unauthorized</h2>
