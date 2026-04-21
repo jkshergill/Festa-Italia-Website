@@ -1,16 +1,29 @@
-import { render, screen } from '@testing-library/react'
-import { describe, it, expect, vi } from 'vitest'
+import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import Login from './Login'
 
+const signInWithPassword = vi.fn()
+
+vi.mock('./supabaseClient', () => ({
+  supabase: {
+    auth: {
+      signInWithPassword,
+    },
+  },
+}))
 
 const mockSetPage = vi.fn()
 
-// Test Case 1
+beforeEach(() => {
+  mockSetPage.mockReset()
+  signInWithPassword.mockReset()
+})
+
 it('Login renders correctly', () => {
   render(<Login setPage={mockSetPage} />)
 })
 
-// Test Case 2
 describe('Shows important static text', () => {
   it('shows important static text', () => {
     render(<Login setPage={mockSetPage} />)
@@ -19,7 +32,6 @@ describe('Shows important static text', () => {
   })
 })
 
-// Test Case 3
 describe('Rendering all input fields', () => {
   it('renders all input fields', () => {
     render(<Login setPage={mockSetPage} />)
@@ -28,7 +40,6 @@ describe('Rendering all input fields', () => {
   })
 })
 
-// Test Case 4
 describe('Testing Log In button', () => {
   it('renders and allows clicking the log in button', () => {
     render(<Login setPage={mockSetPage} />)
@@ -38,7 +49,6 @@ describe('Testing Log In button', () => {
   })
 })
 
-// Test Case 5
 describe('Testing Show/Hide password button', () => {
   it('renders the show password toggle button', () => {
     render(<Login setPage={mockSetPage} />)
@@ -46,7 +56,6 @@ describe('Testing Show/Hide password button', () => {
   })
 })
 
-// Test Case 6
 describe('Sign Up and Forgot Password links are rendered', () => {
   it('renders the Sign Up hyperlink', () => {
     render(<Login setPage={mockSetPage} />)
@@ -56,5 +65,61 @@ describe('Sign Up and Forgot Password links are rendered', () => {
   it('renders the Forgot Password link', () => {
     render(<Login setPage={mockSetPage} />)
     expect(screen.getByText('Forgot Password?')).toBeInTheDocument()
+  })
+})
+
+describe('Login attempt limiting', () => {
+  it('locks the user out after 10 failed login attempts', async () => {
+    const user = userEvent.setup()
+    signInWithPassword.mockResolvedValue({ error: { message: 'Invalid login credentials' } })
+
+    render(<Login setPage={mockSetPage} />)
+
+    const emailInput = screen.getByPlaceholderText('Email address')
+    const passwordInput = screen.getByPlaceholderText('Password')
+    const loginButton = screen.getByRole('button', { name: 'Log In' })
+
+    await user.type(emailInput, 'test@example.com')
+    await user.type(passwordInput, 'wrongpassword')
+
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      await user.click(loginButton)
+    }
+
+    await waitFor(() => {
+      expect(screen.getByText(/too many incorrect login attempts/i)).toBeInTheDocument()
+    })
+
+    expect(signInWithPassword).toHaveBeenCalledTimes(10)
+    expect(emailInput).toBeDisabled()
+    expect(passwordInput).toBeDisabled()
+    expect(screen.getByRole('button', { name: /log in/i })).toBeDisabled()
+  })
+
+  it('resets failed attempts after a successful login', async () => {
+    const user = userEvent.setup()
+
+    signInWithPassword
+      .mockResolvedValueOnce({ error: { message: 'Invalid login credentials' } })
+      .mockResolvedValueOnce({ error: null })
+
+    render(<Login setPage={mockSetPage} />)
+
+    await user.type(screen.getByPlaceholderText('Email address'), 'test@example.com')
+    await user.type(screen.getByPlaceholderText('Password'), 'correctpassword')
+
+    await user.click(screen.getByRole('button', { name: 'Log In' }))
+
+    await waitFor(() => {
+      expect(screen.getByText(/9 login attempts remaining/i)).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByRole('button', { name: 'Log In' }))
+
+    await waitFor(() => {
+      expect(screen.getByText(/login successful/i)).toBeInTheDocument()
+    })
+
+    expect(mockSetPage).toHaveBeenCalledWith('home')
   })
 })
