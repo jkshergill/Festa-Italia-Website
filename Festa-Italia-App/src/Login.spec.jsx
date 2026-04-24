@@ -2,13 +2,13 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import Login from './Login'
+import { supabase } from './supabaseClient'
 
-const signInWithPassword = vi.fn()
 
 vi.mock('./supabaseClient', () => ({
   supabase: {
     auth: {
-      signInWithPassword,
+      signInWithPassword: vi.fn(),
     },
   },
 }))
@@ -17,7 +17,7 @@ const mockSetPage = vi.fn()
 
 beforeEach(() => {
   mockSetPage.mockReset()
-  signInWithPassword.mockReset()
+  supabase.auth.signInWithPassword.mockReset()
 })
 
 it('Login renders correctly', () => {
@@ -71,7 +71,7 @@ describe('Sign Up and Forgot Password links are rendered', () => {
 describe('Login attempt limiting', () => {
   it('locks the user out after 10 failed login attempts', async () => {
     const user = userEvent.setup()
-    signInWithPassword.mockResolvedValue({ error: { message: 'Invalid login credentials' } })
+    supabase.auth.signInWithPassword.mockResolvedValue({ error: { message: 'Invalid login credentials' } })
 
     render(<Login setPage={mockSetPage} />)
 
@@ -90,7 +90,7 @@ describe('Login attempt limiting', () => {
       expect(screen.getByText(/too many incorrect login attempts/i)).toBeInTheDocument()
     })
 
-    expect(signInWithPassword).toHaveBeenCalledTimes(10)
+    expect(supabase.auth.signInWithPassword).toHaveBeenCalledTimes(10)
     expect(emailInput).toBeDisabled()
     expect(passwordInput).toBeDisabled()
     expect(screen.getByRole('button', { name: /log in/i })).toBeDisabled()
@@ -99,7 +99,7 @@ describe('Login attempt limiting', () => {
   it('resets failed attempts after a successful login', async () => {
     const user = userEvent.setup()
 
-    signInWithPassword
+    supabase.auth.signInWithPassword
       .mockResolvedValueOnce({ error: { message: 'Invalid login credentials' } })
       .mockResolvedValueOnce({ error: null })
 
