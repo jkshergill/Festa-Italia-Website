@@ -196,7 +196,7 @@ export default function App(){
         return pageVisibility["Festa Menu"] ? <Shopping setPage={setPage}/> : <PageOff/>;
       case 'volunteer':
         if (pageVisibility["Volunteer Sign-Up"] === undefined) return null;
-        return !pageVisibility["Volunteer Sign-Up"] ? <PageOff/>: !user ? <SignInWall /> : <Volunteer user={user}/>;
+        return !pageVisibility["Volunteer Sign-Up"] ? <PageOff/>: !user ?  <SignInWall setPage={setPage} /> : <Volunteer user={user}/>;
       case 'forgot-pass': return <ForgotPass />
       case 'user-profile': return <UserProfile setPage={setPage} /> // Added by JK
       case 'user-profile:cart': return <UserProfile setPage={setPage} initialTab="cart" /> // Added by JK

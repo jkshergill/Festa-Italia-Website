@@ -113,8 +113,9 @@
 }
 
 .form__submit {
-  width: calc(100% + 4rem);
-  margin-left: -0.15rem;
+  display: block;
+  width: 100%;
+  margin: 0;
   min-height: 52px;
   border: none;
   border-radius: 16px;
@@ -148,7 +149,8 @@
 }
 
 .form__status {
-  margin: 0.25rem 0 0;
+  width: 100%;
+  margin: 0;
   padding: 0.9rem 1rem;
   border-radius: 12px;
   font-size: 0.95rem;
@@ -268,4 +270,9 @@
     width: 100%;
     height: auto;
   }
+}
+
+.form__status-container {
+  width: 100%;
+  min-height: 88px;
 }
