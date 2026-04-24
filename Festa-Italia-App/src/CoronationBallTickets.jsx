@@ -3,7 +3,7 @@ import "./CoronationBallTickets.css";
 import { supabase } from "./supabaseClient";
 
 
-export default function TicketPurchase( {setPage} ) {
+export default function TicketPurchase( {setPage, setCartItems} ) {
   // Ticket prices
   const prices = { adult: 20, child: 10 };
 
@@ -102,26 +102,30 @@ export default function TicketPurchase( {setPage} ) {
     try {
       const amount_cents = total * 100;
       const orderId      = crypto.randomUUID();
+
+      const itemPayload = {
+        order_id:       orderId,
+        buyer_email:    session.user.email,
+        attendee_names: names,
+        ticket_types:   ticketTypes,
+        food_choices:   foodChoices,
+        amount:         amount_cents,
+        order_type:     "Coronation Ball",
+        metadata: { purchaserName: session.user.user_metadata?.full_name },
+        expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+      };
  
-      const { data: pendingOrder, error: pendingError } = await supabase
-        .from("pending_orders")
+      const { data: cartItem, error: cartError } = await supabase
+        .from("cart_items")
         .insert({
-          order_id:       orderId,
-          user_id:        session.user.id,
-          buyer_email:    session.user.email,
-          attendee_names: names,
-          ticket_types:   ticketTypes,
-          food_choices:   foodChoices,
-          amount:         amount_cents,
-          order_type:     "Coronation Ball",
-          metadata: { purchaserName: session.user.user_metadata?.full_name },
-          expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+          user_id: session.user.id,
+          item:    itemPayload,
         })
         .select()
         .single();
  
-      if (pendingError) {
-        console.error("Add-to-cart error:", pendingError);
+      if (cartError) {
+        console.error("Add-to-cart error:", cartError);
         alert("Failed to add to cart. Please try again.");
         return;
       }
@@ -130,7 +134,7 @@ export default function TicketPurchase( {setPage} ) {
         setCartItems((prev) => [
           ...prev,
           {
-            id:          pendingOrder.id,
+            id:          cartItem.id,
             order_id:    orderId,
             price:       amount_cents / 100,
             ticketTypes,
@@ -139,7 +143,7 @@ export default function TicketPurchase( {setPage} ) {
             foodChoices: [...foodChoices],
             buyer_email: session.user.email,
             order_type:  "Coronation Ball",
-            expires_at:  pendingOrder.expires_at,
+            expires_at:  itemPayload.expires_at,
             category:    "ticket",
             name:        "Coronation Ball",
             event:       "Coronation Ball",
@@ -148,7 +152,7 @@ export default function TicketPurchase( {setPage} ) {
         ]);
       }
  
-      setPage("cart");
+      setPage("user-profile:cart");
     } catch (err) {
       console.error("Add-to-cart error:", err);
       alert("Unexpected error. Please try again.");
