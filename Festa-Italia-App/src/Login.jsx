@@ -159,22 +159,23 @@ function Login({ setPage }) {
             {isSubmitting ? 'Logging In...' : 'Log In'}
           </button>
 
-          {/* [SUPABASE] Inline status feedback */}
-          {status && (
-            <p
-              className={`form__status ${
-                status.type === 'error' ? 'form__status--error' : 'form__status--success'
-              }`}
-            >
-              {status.text}
-            </p>
-          )}
+          <div className="form__status-container">
+            {status && (
+              <p
+                className={`form__status ${
+                  status.type === 'error' ? 'form__status--error' : 'form__status--success'
+                }`}
+              >
+                {status.text}
+              </p>
+            )}
 
-          {!status && failedAttempts > 0 && !isLockedOut && (
-            <p className="form__status form__status--error">
-              {attemptsRemaining} login attempt{attemptsRemaining === 1 ? '' : 's'} remaining.
-            </p>
-          )}
+            {!status && failedAttempts > 0 && !isLockedOut && (
+              <p className="form__status form__status--error">
+                {attemptsRemaining} login attempt{attemptsRemaining === 1 ? '' : 's'} remaining.
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="form__divider" />
