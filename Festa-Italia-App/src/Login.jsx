@@ -1,4 +1,4 @@
-// Login.jsx
+
 // FROM RYAN LEE:---------------------------------------------------------------
 // Recent changes are annotated with "// [SUPABASE]" comments.
 // - Connect form to Supabase Auth (email+password)
@@ -14,6 +14,8 @@ import './Login.css';
 // [SUPABASE] Import the Supabase client
 import { supabase } from './supabaseClient';
 
+const MAX_LOGIN_ATTEMPTS = 10;
+
 function Login({ setPage }) {
   useEffect(() => {
     document.body.id = 'login-body-id';
@@ -25,7 +27,11 @@ function Login({ setPage }) {
   const [password, setPassword] = useState('');
   const [status, setStatus] = useState(null); // { type: 'error'|'success', text: string }
   const [showPassword, setShowPassword] = useState(false);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const passwordType = showPassword ? 'text' : 'password';
+  const isLockedOut = failedAttempts >= MAX_LOGIN_ATTEMPTS;
+  const attemptsRemaining = Math.max(0, MAX_LOGIN_ATTEMPTS - failedAttempts);
 
   const handleTogglePassword = (e) => {
     e.preventDefault();
@@ -35,6 +41,15 @@ function Login({ setPage }) {
   // [SUPABASE] Submit handler that checks credentials with Supabase
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (isLockedOut || isSubmitting) {
+      setStatus({
+        type: 'error',
+        text: 'Too many incorrect login attempts. Please reset your password or try again later.',
+      });
+      return;
+    }
+
     setStatus(null);
 
     // [SUPABASE] Basic custom validation since native required is disabled
@@ -43,20 +58,42 @@ function Login({ setPage }) {
       return;
     }
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    setIsSubmitting(true);
 
-    if (error) {
-      setStatus({ type: 'error', text: error.message });
-      return;
-    }
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
 
-    setStatus({ type: 'success', text: 'Login successful!' });
+      if (error) {
+        const nextFailedAttempts = failedAttempts + 1;
+        setFailedAttempts(nextFailedAttempts);
 
-    // Prefer SPA nav via setPage; fallback to hard redirect if not provided
-    if (typeof setPage === 'function') {
-      setPage('home');              // go to Home "page" in your SPA
-    } else {
-      window.location.href = '/';   // fallback (full reload)
+        if (nextFailedAttempts >= MAX_LOGIN_ATTEMPTS) {
+          setStatus({
+            type: 'error',
+            text: 'Too many incorrect login attempts. Please reset your password or try again later.',
+          });
+        } else {
+          setStatus({
+            type: 'error',
+            text: `${error.message} You have ${MAX_LOGIN_ATTEMPTS - nextFailedAttempts} login attempt${
+              MAX_LOGIN_ATTEMPTS - nextFailedAttempts === 1 ? '' : 's'
+            } remaining.`,
+          });
+        }
+        return;
+      }
+
+      setFailedAttempts(0);
+      setStatus({ type: 'success', text: 'Login successful!' });
+
+      // Prefer SPA nav via setPage; fallback to hard redirect if not provided
+      if (typeof setPage === 'function') {
+        setPage('home'); // go to Home "page" in your SPA
+      } else {
+        window.location.href = '/'; // fallback (full reload)
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -89,6 +126,7 @@ function Login({ setPage }) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             autoComplete="username"
+            disabled={isLockedOut || isSubmitting}
           />
         </label>
 
@@ -102,26 +140,42 @@ function Login({ setPage }) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
+            disabled={isLockedOut || isSubmitting}
           />
         </label>
 
-        <button className='show-password-button' onClick={handleTogglePassword} aria-pressed={showPassword} type='button'>
+        <button
+          className="show-password-button"
+          onClick={handleTogglePassword}
+          aria-pressed={showPassword}
+          type="button"
+          disabled={isLockedOut || isSubmitting}
+        >
           {showPassword ? 'Hide' : 'Show'} Password
         </button>
 
         <div className="form__actions">
-          <button type="submit" className="form__submit">Log In</button>
+          <button type="submit" className="form__submit" disabled={isLockedOut || isSubmitting}>
+            {isSubmitting ? 'Logging In...' : 'Log In'}
+          </button>
 
-          {/* [SUPABASE] Inline status feedback */}
-          {status && (
-            <p
-              className={`form__status ${
-                status.type === 'error' ? 'form__status--error' : 'form__status--success'
-              }`}
-            >
-              {status.text}
-            </p>
-          )}
+          <div className="form__status-container">
+            {status && (
+              <p
+                className={`form__status ${
+                  status.type === 'error' ? 'form__status--error' : 'form__status--success'
+                }`}
+              >
+                {status.text}
+              </p>
+            )}
+
+            {!status && failedAttempts > 0 && !isLockedOut && (
+              <p className="form__status form__status--error">
+                {attemptsRemaining} login attempt{attemptsRemaining === 1 ? '' : 's'} remaining.
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="form__divider" />

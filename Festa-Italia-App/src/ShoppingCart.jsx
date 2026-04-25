@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import "./ShoppingCart.css";
 import { supabase } from "./supabaseClient";
-// NEED TO ADD CART_ITEMS TABLE TO SUPABASE WITH FIELDS: id (uuid), user_id (uuid), item (jsonb), created_at (timestamp)
-// Keep these in sync with CoronationBallTickets.jsx
+// cart_items table: id (uuid, PK), user_id (uuid, FK auth.users), item (jsonb), created_at (timestamptz)
+
 const TICKET_PRICES = { adult: 20, child: 10 };
 
 const FOOD_OPTIONS = {
@@ -54,46 +54,32 @@ export default function ShoppingCart({ cartItems = [], setCartItems, setPage }) 
         setLoading(true);
         try {
           const { data, error } = await supabase
-            .from("pending_orders")
-            .select(
-              `
-                id,
-                order_id,
-                user_id,
-                buyer_email,
-                attendee_names,
-                ticket_types,
-                food_choices,
-                amount,
-                created_at,
-                expires_at,
-                order_type
-              `
-            )
+            .from("cart_items")
+            .select("id, user_id, item, created_at")
             .eq("user_id", sess.user.id)
             .order("created_at", { ascending: true });
    
-          if (error) { console.error("pending_orders fetch error:", error); return; }
+          if (error) { console.error("cart_items fetch error:", error); return; }
           if (cancelled) return;
    
           // Map each row's real columns to the cart item shape ShoppingCart expects.
           const dbItems = (data ?? []).map((row) => ({
             id:          row.id,
-            order_id:    row.order_id,
-            price:       (row.amount ?? 0) / 100,
-            ticketTypes: row.ticket_types ?? [],
+            order_id:    row.item.order_id,
+            price:       (row.item.amount ?? 0) / 100,
+            ticketTypes: row.item.ticket_types ?? [],
             quantities: {
-              adult: (row.ticket_types ?? []).filter((t) => t === "adult").length,
-              child: (row.ticket_types ?? []).filter((t) => t === "child").length,
+              adult: (row.item.ticket_types ?? []).filter((t) => t === "adult").length,
+              child: (row.item.ticket_types ?? []).filter((t) => t === "child").length,
             },
-            names:       row.attendee_names ?? [],
-            foodChoices: row.food_choices   ?? [],
-            buyer_email: row.buyer_email,
-            order_type:  row.order_type,
+            names:       row.item.attendee_names ?? [],
+            foodChoices: row.item.food_choices   ?? [],
+            buyer_email: row.item.buyer_email,
+            order_type:  row.item.order_type,
             created_at:  row.created_at,
-            expires_at:  row.expires_at,
+            expires_at:  row.item.expires_at,
             category:    "ticket",
-            name:        row.order_type ?? "Event Ticket",
+            name:        row.item.order_type ?? "Event Ticket",
             prices:      TICKET_PRICES,
           }));
    
@@ -185,10 +171,21 @@ export default function ShoppingCart({ cartItems = [], setCartItems, setPage }) 
   // ── Sync a single updated cart item back to Supabase ────────────────────
   const syncCartItem = async (updatedItem) => {
     const { error } = await supabase
-      .from("pending_orders")
-      .update({ item: updatedItem })
+      .from("cart_items")
+      .update({ 
+        item: {
+          order_id:       updatedItem.order_id,
+          buyer_email:    updatedItem.buyer_email,
+          attendee_names: updatedItem.names,
+          ticket_types:   updatedItem.ticketTypes,
+          food_choices:   updatedItem.foodChoices,
+          amount:         Math.round((updatedItem.price ?? 0) * 100),
+          order_type:     updatedItem.order_type,
+          expires_at:     updatedItem.expires_at,
+      }
+       })
       .eq("id", updatedItem.id);
-    if (error) console.error("pending_orders sync error:", error);
+    if (error) console.error("cart_items sync error:", error);
   };
 
   // ── Remove item from cart (both state + DB) ───────────────────────────────
@@ -197,8 +194,8 @@ export default function ShoppingCart({ cartItems = [], setCartItems, setPage }) 
     setRemoved((prev) => [...prev, item]);
     setCartItems((prev) => prev.filter((i) => i.id !== id));
 
-    const { error } = await supabase.from("pending_orders").delete().eq("id", id);
-    if (error) console.error("pending_orders delete error:", error);
+    const { error } = await supabase.from("cart_items").delete().eq("id", id);
+    if (error) console.error("cart_items delete error:", error);
   };
 
   const undoRemove = async () => {
@@ -207,17 +204,19 @@ export default function ShoppingCart({ cartItems = [], setCartItems, setPage }) 
       setCartItems((prev) => [...prev, last]);
       setRemoved((prev) => prev.slice(0, -1));
       // Re-insert to DB
-      await supabase.from("pending_orders").insert({
-        id:             last.id,
-        order_id:       last.order_id,
-        user_id:        session?.user?.id,
-        buyer_email:    last.buyer_email  ?? session?.user?.email,
-        attendee_names: last.names        ?? [],
-        ticket_types:   last.ticketTypes  ?? [],
-        food_choices:   last.foodChoices  ?? [],
-        amount:         Math.round((last.price ?? 0) * 100),
-        order_type:     last.order_type,
-        expires_at:     last.expires_at,
+      await supabase.from("cart_items").insert({
+        id:      last.id,
+        user_id: session?.user?.id,
+        item: {
+          order_id:       last.order_id,
+          buyer_email:    last.buyer_email  ?? session?.user?.email,
+          attendee_names: last.names        ?? [],
+          ticket_types:   last.ticketTypes  ?? [],
+          food_choices:   last.foodChoices  ?? [],
+          amount:         Math.round((last.price ?? 0) * 100),
+          order_type:     last.order_type,
+          expires_at:     last.expires_at,
+        },
       });
     };
 
