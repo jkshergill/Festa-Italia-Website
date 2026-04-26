@@ -170,8 +170,8 @@ export default function App(){
         if (pageVisibility["Bocce Dashboard"] === undefined) return null;
         return pageVisibility["Bocce Dashboard"] ? <BocceDash setPage={setPage}/> : <PageOff/>;
       case 'bocce-sign':
-        if (pageVisibility["Bocce Dashboard"] === undefined) return null;
-        return pageVisibility["Bocce Dashboard"] ? <BocceSign setPage={setPage}/> : <PageOff/>;
+        if (pageVisibility["Bocce Sign-Up"] === undefined) return null;
+        return !pageVisibility["Bocce Sign-Up"] ? <PageOff/> : !user ? <SignInWall setPage={setPage} /> : <BocceSign setPage={setPage}/>;
       case 'coronation':
         if (pageVisibility["Coronation Ball Info"] === undefined) return null;
         return pageVisibility["Coronation Ball Info"] ? <CoronationBall setPage={setPage}/> : <PageOff/>;
@@ -180,14 +180,15 @@ export default function App(){
         return !pageVisibility["Coronation Ball Tickets"] ? <PageOff/> : !user ? <SignInWall setPage={setPage}/> : <CoronationTix setPage={setPage}/>;
       case 'donate':
         if (pageVisibility["Donation"] === undefined) return null;
-        return pageVisibility["Donation"] ? <Donate setPage={setPage}/> : <PageOff/>;
+        return !pageVisibility["Donation"] ? <PageOff/> : !user ? <SignInWall setPage={setPage}/> : <Donate setPage={setPage}/>;
       case 'festival':
         if (pageVisibility["Fisherman's Festival Info"] === undefined) return null;
         return pageVisibility["Fisherman's Festival Info"] ? <FestivalInfo setPage={setPage}/> : <PageOff/>;
-      case 'reset-pass': return <ResetPass />
-      case 'home': return <Home setPage={setPage}/>
+      case 'reset-pass':
+        return !user ? <SignInWall setPage={setPage}/> : <ResetPass />;
+      case 'home': return <Home setPage={setPage}/>;
       case 'login': return <Login setPage={setPage}/>;
-      case 'signup': return <Signup setPage={setPage}/>
+      case 'signup': return <Signup setPage={setPage}/>;
       case 'scholarships':
         if (pageVisibility["Scholarships"] === undefined) return null;
         return pageVisibility["Scholarships"] ? <Scholarship setPage={setPage}/> : <PageOff/>;
@@ -198,10 +199,13 @@ export default function App(){
         if (pageVisibility["Volunteer Sign-Up"] === undefined) return null;
         return !pageVisibility["Volunteer Sign-Up"] ? <PageOff/>: !user ?  <SignInWall setPage={setPage} /> : <Volunteer user={user}/>;
       case 'forgot-pass': return <ForgotPass />
-      case 'user-profile': return <UserProfile setPage={setPage} /> // Added by JK
-      case 'user-profile:cart': return <UserProfile setPage={setPage} initialTab="cart" /> // Added by JK
+      case 'user-profile':
+        return !user ? <SignInWall setPage={setPage} /> : <UserProfile setPage={setPage} /> // Added by JK
+      case 'user-profile:cart':
+        return !user ? <SignInWall setPage={setPage} /> : <UserProfile setPage={setPage} initialTab="cart" /> // Added by JK
       case 'donation': return <Donation setPage={setPage}/>
-      case 'delete-account': return <DeleteAccount setPage={setPage} />
+      case 'delete-account':
+        return !user ? <SignInWall setPage={setPage}/> : <DeleteAccount setPage={setPage} />
       case 'sign-in-wall': return <SignInWall setPage={setPage} />
       case 'page-off': return <PageOff setPage={setPage} />
       case 'token-editor': return <TokenEditor />
@@ -209,7 +213,8 @@ export default function App(){
       case 'cancel': return <PaymentCancelled setPage={setPage} />;
       case 'failure': return <PaymentFailed setPage={setPage} />;
       case "queens-editor": return user && userRole === "admin" ? <QueensEditor /> : <SignInWall setPage={setPage}/>;
-      case 'donate': return <Donate setPage={setPage} />;
+      case 'donate':
+        return !user ? <SignInWall setPage={setPage} /> : <Donate setPage={setPage} />;
       case 'donation-success': return <DonationSuccess setPage={setPage} />;
       case 'donation-cancel': return <DonationCancelled setPage={setPage} />;
       case 'donation-failure': return <DonationFailed setPage={setPage} />;
@@ -262,7 +267,7 @@ export default function App(){
           <button role="menuitem" onClick={() => { setPage('bocce-dash'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Bocce Tournament</button>
           <button role="menuitem" onClick={() => { setPage('coronation'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Queen's Court</button>
           <button role="menuitem" onClick={() => { setPage('scholarships'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Scholarships</button>
-          <button role="menuitem" onClick={() => { setPage('donate'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Donate</button>
+          <button role="menuitem" onClick={() => { setPage('donate'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Payments</button>
           <button role="menuitem" onClick={() => { setPage('donation'); setMenuOpen(false); }} className="nav-button" style={{display:'block',padding:'0.5rem 1rem',textAlign:'left',width:'100%'}}>Previous Sponsors</button>
 
 
