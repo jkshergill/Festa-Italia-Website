@@ -268,9 +268,7 @@ input:checked + .toggle-slider:before {
     background: #1976D2;
 }
 
-/* ======================================== */
 /* MOBILE RESPONSIVE STYLES */
-/* ======================================== */
 
 @media (max-width: 768px) {
     .token-editor-container {
