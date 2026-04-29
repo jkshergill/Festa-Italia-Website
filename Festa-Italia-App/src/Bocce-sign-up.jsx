@@ -46,13 +46,13 @@ export default function BocceSignUp( {setPage} ) {
       .from('bocce_teams')
       .insert([
         {
+          id: user.id, 
           team_name: teamName,
           player1: playerNames[0],
           player2: playerNames[1],
           player3: playerNames[2],
           player4: playerNames[3],
-          sponsor_name: sponsorName,
-          user_id: user.id
+          sponsor_name: sponsorName
         }
       ]);
 
