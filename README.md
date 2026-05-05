@@ -26,7 +26,7 @@ The client needs a new website to promote Festa Italia– a large annual Italian
 # Our ERD
 <img width="1525" height="1008" alt="image" src="https://github.com/user-attachments/assets/ded45185-e75d-4d88-bfa1-f609a695d3f0" />
 
-# Some Images of Our Website Prototype (Replace this with finalized pages with descriptions) 
+# Some Images of Our Website
 * Home Page
   <img width="2129" height="1292" alt="Screenshot 2026-05-05 125334" src="https://github.com/user-attachments/assets/f6db18fd-f870-4e2f-9b55-fed826eea356" />
 
