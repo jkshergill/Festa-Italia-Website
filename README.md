@@ -29,20 +29,37 @@ The client needs a new website to promote Festa Italia– a large annual Italian
 # Some Images of Our Website Prototype (Replace this with finalized pages with descriptions) 
 * Home Page
   <img width="2129" height="1292" alt="Screenshot 2026-05-05 125334" src="https://github.com/user-attachments/assets/f6db18fd-f870-4e2f-9b55-fed826eea356" />
-  
+
+* Login Page
+  <img width="2125" height="1109" alt="Screenshot 2026-05-05 134253" src="https://github.com/user-attachments/assets/9ad67645-a298-4082-8aca-464c0ac124a0" />
+
 * Admin Dashboard
   <img width="2125" height="696" alt="Screenshot 2026-05-05 125551" src="https://github.com/user-attachments/assets/61793dee-9862-4c8c-88df-ae45ab576e44" />
+  
+*Fishermans Festival Page
+  <img width="2123" height="1112" alt="Screenshot 2026-05-05 134519" src="https://github.com/user-attachments/assets/9bd37eee-b5c2-4b2f-aa92-6f88199356f8" />
 
 * Volunteer Page
   <img width="2128" height="863" alt="Screenshot 2026-05-05 130039" src="https://github.com/user-attachments/assets/3b750e5b-4689-4775-90e4-e3bb6659a6df" />
-  
+
+* Menu Page
+  <img width="2125" height="1294" alt="Screenshot 2026-05-05 135302" src="https://github.com/user-attachments/assets/c9788821-16ee-438d-b3d6-08589bbe3491" />
+
+* Queen's Court Page
+  <img width="2129" height="1006" alt="Screenshot 2026-05-05 135519" src="https://github.com/user-attachments/assets/f8147d70-69c4-4810-b1f5-5423c7294da8" />
+
 * Coronation Ball Tickets Page
-  <img width="3776" height="1722" alt="image" src="https://github.com/user-attachments/assets/c60ca886-a6aa-47f3-bac4-5bee3e377ba3" />
-  
+  <img width="2128" height="530" alt="Screenshot 2026-05-05 134322" src="https://github.com/user-attachments/assets/abcf4db3-f153-4b59-beee-efda5003f08c" />
+
 * Bocce Tournament Page
   <img width="2124" height="1297" alt="Screenshot 2026-05-05 125409" src="https://github.com/user-attachments/assets/06b400ed-921f-44ec-ba00-8f2d0cda6ce9" />
 
-  
+* Donate Page
+  <img width="2124" height="1232" alt="Screenshot 2026-05-05 135427" src="https://github.com/user-attachments/assets/1e8cb239-b05e-45be-ab00-9d89117653a6" />
+
+* Previous Sponsor's Page
+  <img width="2127" height="1275" alt="Screenshot 2026-05-05 135925" src="https://github.com/user-attachments/assets/05c16114-cd34-48f9-b1dd-308846d37e4e" />
+
 # Testing 
 Testing was used with Vitest. All the packages and dependencies for Vitest have already been installed and setup. All you need to do is the following to start testing:
 * Install Vitest with the following command in your terminal: `npm install -D Vitest`
