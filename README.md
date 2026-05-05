@@ -26,7 +26,7 @@ The client needs a new website to promote Festa Italia– a large annual Italian
 # Our ERD
 <img width="1525" height="1008" alt="image" src="https://github.com/user-attachments/assets/ded45185-e75d-4d88-bfa1-f609a695d3f0" />
 
-# Some Images of Our Website Prototype 
+# Some Images of Our Website Prototype (Replace this with finalized pages with descriptions) 
 * Home Page
   <img width="3744" height="2969" alt="image" src="https://github.com/user-attachments/assets/d3471f9c-950e-49b9-92ff-5742130610bc" />
   
@@ -42,7 +42,12 @@ The client needs a new website to promote Festa Italia– a large annual Italian
 * Bocce Tournament Page
   <img width="3786" height="2579" alt="image" src="https://github.com/user-attachments/assets/0144935d-2031-4a96-8d74-ef06eb21a7d4" />
   
-# Testing (TBD)
+# Testing 
+Testing was used with Vitest. All the packages and dependencies for Vitest have already been installed and setup. All you need to do is the following to start testing:
+* Install Vitest with the following command in your terminal: `npm install -D Vitest`
+* To run all test files in the 'src' folder, type the following command in the terminal: `npm run test`
+* To run a specific test file, type the following command in the terminal: `npm run test [filename].spec.jsx.      
+Optional: You can also install an extension in Visual Studio Code (VS Code) to make running tests easier. The extension is named "Vitest" by vitest.dev
 
 # Deployment (TBD)
 
