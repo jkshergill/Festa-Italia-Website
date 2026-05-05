@@ -26,20 +26,6 @@ The client needs a new website to promote Festa Italia– a large annual Italian
 # Our ERD
 <img width="1525" height="1008" alt="image" src="https://github.com/user-attachments/assets/ded45185-e75d-4d88-bfa1-f609a695d3f0" />
 
-# Jira Timeline 
-* Sprint 5
-  1. Complete frontend for all pages
-  2. Add ability to sign up 
-* Sprint 6
-  1. Connect to clover
-  2. Connect necessary pages to Supabase 
-* Sprint 7
-  1. Add ability for payments using clover
-* Sprint 8
-  1. Finish admin features
-* Sprint 9
-  1. Finalize everything 
-
 # Some Images of Our Website Prototype 
 * Home Page
   <img width="3744" height="2969" alt="image" src="https://github.com/user-attachments/assets/d3471f9c-950e-49b9-92ff-5742130610bc" />
