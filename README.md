@@ -33,6 +33,7 @@ The client, Festa Italia Foundation, Inc., needed a new website to promote Festa
 
 * Login Page
   <img width="2125" height="1109" alt="Screenshot 2026-05-05 134253" src="https://github.com/user-attachments/assets/9ad67645-a298-4082-8aca-464c0ac124a0" />
+  * This is the page the website goes to when a user clicks on the sign in button at the top right of the home screen.
 
 * Admin Dashboard
   <img width="2125" height="696" alt="Screenshot 2026-05-05 125551" src="https://github.com/user-attachments/assets/61793dee-9862-4c8c-88df-ae45ab576e44" />
