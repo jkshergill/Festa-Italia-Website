@@ -266,13 +266,13 @@ function Coronationball({setPage}) {
             
             <div className="info-section">
               <p className="participation-requirements"> 
-                If you are interested in particpating in the Queen's Coronation, <a href="https://festaitaliamonterey.org/Publish/docs/2020_queens_requirements.pdf" target="_blank" >
+                If you are interested in particpating in the Queen's Coronation, <a href="docs/2020_queens_requirements.pdf" target="_blank" >
                   CLICK HERE
                 </a> to view the participation requirements.
               </p>
 
               <p className="participation-application">
-                Then, <a href="https://festaitaliamonterey.org/Publish/docs/2020_queens_application_form.pdf" target="_blank" >
+                Then, <a href="docs/2020_queens_application_form.pdf" target="_blank" >
                   CLICK HERE
                 </a> to download and fill the application.
               </p>
