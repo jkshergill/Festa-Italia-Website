@@ -29,6 +29,7 @@ The client, Festa Italia Foundation, Inc., needed a new website to promote Festa
 # Some Images of Our Website
 * Home Page
   <img width="2129" height="1292" alt="Screenshot 2026-05-05 125334" src="https://github.com/user-attachments/assets/f6db18fd-f870-4e2f-9b55-fed826eea356" />
+  * This is the page the website defaults upon opening, signing in or out, finishing a transaction, etc. This page holds the general information about the foundation, its board members, and upcoming events
 
 * Login Page
   <img width="2125" height="1109" alt="Screenshot 2026-05-05 134253" src="https://github.com/user-attachments/assets/9ad67645-a298-4082-8aca-464c0ac124a0" />
@@ -36,7 +37,7 @@ The client, Festa Italia Foundation, Inc., needed a new website to promote Festa
 * Admin Dashboard
   <img width="2125" height="696" alt="Screenshot 2026-05-05 125551" src="https://github.com/user-attachments/assets/61793dee-9862-4c8c-88df-ae45ab576e44" />
   
-*Fishermans Festival Page
+* Fishermans Festival Page
   <img width="2123" height="1112" alt="Screenshot 2026-05-05 134519" src="https://github.com/user-attachments/assets/9bd37eee-b5c2-4b2f-aa92-6f88199356f8" />
 
 * Volunteer Page
