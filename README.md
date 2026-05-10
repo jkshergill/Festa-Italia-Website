@@ -178,6 +178,13 @@ If issues occur:
 
 -   Re-upload the previous working version of the site
 
+## Deployment Summary
+
+1. Clone repo and install dependencies (`npm install`)
+2. Add Supabase environment variables
+3. Run `npm run build`
+4. Upload `/dist` contents to hosting provider
+
 # Developer Instructions
 
 ## Overview
