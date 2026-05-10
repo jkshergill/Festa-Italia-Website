@@ -14,7 +14,6 @@ function App() {
   const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/; // This is a regular expression that checks if the password contains at least one special character
 
   // Form Fields 
-  const [email, setEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -26,6 +25,21 @@ function App() {
   useEffect(() => {
     document.body.id = 'reset-body-id';
     document.body.className = 'reset-body';
+
+    const hash = window.location.hash;
+    if (hash) {
+      const params = new URLSearchParams(hash.substring(1));
+
+      const access_token = params.get("access_token");
+      const refresh_token = params.get("refresh_token");
+
+      if (access_token && refresh_token) {
+        supabase.auth.setSession({
+          access_token,
+          refresh_token,
+        });
+      }
+    }
   }, []);
 
   const handleUpdatePassword = async (e) => {
@@ -85,13 +99,12 @@ function App() {
     <div className="form-group">
       <form className="reset-form" onSubmit={handleUpdatePassword}>
         <label htmlFor="festa-email" className="form-label">Email Address</label>
-        <input id="festa-email" className="form-input" type="email" placeholder="name@domain.com" value={email} onChange={(e) => setEmail(e.target.value)} required/>
 
         <label htmlFor="festa-password" className="form-label">New Password</label>
         <input id="festa-password" minLength={8} className="form-input" type={passwordType} placeholder="Enter new password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required/>
 
         <label htmlFor="festa-password" className="form-label">Confirm Password</label>
-        <input id="festa-password" minLength={8} className="form-input" type={passwordType} placeholder="Confirm new password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required/>
+        <input id="festa-confirm-password" minLength={8} className="form-input" type={passwordType} placeholder="Confirm new password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required/>
       
         <button className="submit-button" type="submit">Reset Password</button>  
         

@@ -27,30 +27,59 @@ export default function forgotPassword() {
     }
   }
 
-  return (
-    <main>
-      <h1>
-        Forgot Your Password?
-      </h1>
-
+return (
+  <div className="page-root">
+    <main className="forgot-page">
       <form className="forgot-form" onSubmit={handleSubmit}>
-        <label className="email-label">Email Address:</label>
+        <h1>Forgot Password</h1>
+
+        <label className="email-label">Email</label>
         <input
-          className="forgot-email-input"
           type="email"
+          className="forgot-email-input"
           value={email}
-          placeholder="Enter your email"
           onChange={(e) => setEmail(e.target.value)}
           required
         />
 
-        <button className="forgot-button" type="submit">Send Reset Link</button>
-      </form>
+        <button type="submit" className="forgot-button">
+          Send Reset Link
+        </button>
 
-      {message && <p className="reset-message">{message}</p>}
-      <p className="forgot-note">
-        <strong>Note:</strong> After clicking the link in the email, please go to the "Reset Password" page to set your new password.
-      </p>
+        {message && <p className="reset-message">{message}</p>}
+
+        <p className="forgot-note">
+          If an account exists, you will receive an email.
+        </p>
+      </form>
     </main>
-  )
+  </div>
+);return (
+  <div className="page-root">
+    <main className="forgot-page">
+      <form className="forgot-form" onSubmit={handleSubmit}>
+        <h1>Forgot Password</h1>
+
+        <label className="email-label">Email</label>
+        <input
+          type="email"
+          className="forgot-email-input"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+
+        <button type="submit" className="forgot-button">
+          Send Reset Link
+        </button>
+
+        {message && <p className="reset-message">{message}</p>}
+
+        <p className="forgot-note">
+          If an account exists, you will receive an email.
+        </p>
+      </form>
+    </main>
+  </div>
+);
 };

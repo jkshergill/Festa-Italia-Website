@@ -51,6 +51,7 @@
 .form__container {
   min-height: calc(100vh - 84px);
   width: 100%;
+  transform: translateY(-260px);
   display: grid;
   place-items: center;
   padding: 2rem 1rem 3rem;
