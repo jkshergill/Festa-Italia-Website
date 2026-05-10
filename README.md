@@ -65,7 +65,7 @@ The client, Festa Italia Foundation, Inc., needed a new website to promote Festa
 
 * Donate Page
   <img width="2124" height="1232" alt="Screenshot 2026-05-05 135427" src="https://github.com/user-attachments/assets/1e8cb239-b05e-45be-ab00-9d89117653a6" />
-  * This Page is accessed from the burger menu and provides the option for logged in users to make donations or payments to the organization via Clover.
+  * This page is accessed from the burger menu and provides the option for logged in users to make donations or payments to the organization via Clover.
 
 * Previous Sponsor's Page
   <img width="2127" height="1275" alt="Screenshot 2026-05-05 135925" src="https://github.com/user-attachments/assets/05c16114-cd34-48f9-b1dd-308846d37e4e" />
