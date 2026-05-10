@@ -105,7 +105,7 @@ serve(async (req) => {
     // Get Clover credentials
     const cloverApiKey = Deno.env.get("MOCK_CLOVER_API_KEY");
     const cloverMerchantId = Deno.env.get("MOCK_CLOVER_MERCHANT_ID");
-    const frontendOrigin = "https://unhonied-unprematurely-jeffry.ngrok-free.dev";
+    const frontendOrigin = "https://festaitaliamonterey.org";
 
     if (!cloverApiKey || !cloverMerchantId) {
       console.error('Missing Clover credentials');
