@@ -99,7 +99,7 @@ serve(async (req) => {
     const cloverMerchantId = Deno.env.get("MOCK_CLOVER_MERCHANT_ID");
 
     // 🔥 TEMPORARY: Hardcode your ngrok URL for testing
-    const frontendOrigin = 'https://unhonied-unprematurely-jeffry.ngrok-free.dev';
+    const frontendOrigin = 'https://festaitaliamonterey.org';
     console.log('🔍 Using hardcoded origin for testing:', frontendOrigin);
 
     // Log environment variables for debugging
