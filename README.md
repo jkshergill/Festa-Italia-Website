@@ -37,12 +37,15 @@ The client, Festa Italia Foundation, Inc., needed a new website to promote Festa
 
 * Admin Dashboard
   <img width="2125" height="696" alt="Screenshot 2026-05-05 125551" src="https://github.com/user-attachments/assets/61793dee-9862-4c8c-88df-ae45ab576e44" />
+  * This is the page were an admin will be directed to when clicking the Admin Dashboard button in the buger menu with various admin features.
   
 * Fishermans Festival Page
   <img width="2123" height="1112" alt="Screenshot 2026-05-05 134519" src="https://github.com/user-attachments/assets/9bd37eee-b5c2-4b2f-aa92-6f88199356f8" />
+  * This is a page accessed through the burger menu that gives information to a user about various festival details along with the ability to sign up for volunteering and seeing the food menu.
 
 * Volunteer Page
   <img width="2128" height="863" alt="Screenshot 2026-05-05 130039" src="https://github.com/user-attachments/assets/3b750e5b-4689-4775-90e4-e3bb6659a6df" />
+  * This page is accessed from the Fishermans Festival page and allows users to request volunteering by day, time frame, and booth. Only available is a user is signed in.
 
 * Menu Page
   <img width="2125" height="1294" alt="Screenshot 2026-05-05 135302" src="https://github.com/user-attachments/assets/c9788821-16ee-438d-b3d6-08589bbe3491" />
@@ -55,6 +58,7 @@ The client, Festa Italia Foundation, Inc., needed a new website to promote Festa
 
 * Bocce Tournament Page
   <img width="2124" height="1297" alt="Screenshot 2026-05-05 125409" src="https://github.com/user-attachments/assets/06b400ed-921f-44ec-ba00-8f2d0cda6ce9" />
+  * This page is accessed through the burger menu that gives information to a user about various bocce tournament details along with the ability to sign a team up to play in the tournament.
 
 * Donate Page
   <img width="2124" height="1232" alt="Screenshot 2026-05-05 135427" src="https://github.com/user-attachments/assets/1e8cb239-b05e-45be-ab00-9d89117653a6" />
