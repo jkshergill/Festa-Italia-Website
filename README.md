@@ -49,12 +49,15 @@ The client, Festa Italia Foundation, Inc., needed a new website to promote Festa
 
 * Menu Page
   <img width="2125" height="1294" alt="Screenshot 2026-05-05 135302" src="https://github.com/user-attachments/assets/c9788821-16ee-438d-b3d6-08589bbe3491" />
-
+  * This page is accessed from the Fishermans Festival page and allows users to view the menu for the Fishermans Festival as well as calculate the amount of tokens it would take to buy the desired menu items.
+    
 * Queen's Court Page
   <img width="2129" height="1006" alt="Screenshot 2026-05-05 135519" src="https://github.com/user-attachments/assets/f8147d70-69c4-4810-b1f5-5423c7294da8" />
-
+  * This page is accessed from the burger menu and provides information about the current court as well as pictures from previous years. Users can buy tickets to the coronation ball, see participation requirements, and download an application at the bottom of the page.
+    
 * Coronation Ball Tickets Page
   <img width="2128" height="530" alt="Screenshot 2026-05-05 134322" src="https://github.com/user-attachments/assets/abcf4db3-f153-4b59-beee-efda5003f08c" />
+  * This page is accessed through the Queen's Court Page via the buy tickets button. Users must be signed in in order to buy tickets. This page allows users to buy tickets to the coronation ball via Clover. 
 
 * Bocce Tournament Page
   <img width="2124" height="1297" alt="Screenshot 2026-05-05 125409" src="https://github.com/user-attachments/assets/06b400ed-921f-44ec-ba00-8f2d0cda6ce9" />
@@ -62,9 +65,11 @@ The client, Festa Italia Foundation, Inc., needed a new website to promote Festa
 
 * Donate Page
   <img width="2124" height="1232" alt="Screenshot 2026-05-05 135427" src="https://github.com/user-attachments/assets/1e8cb239-b05e-45be-ab00-9d89117653a6" />
+  * This Page is accessed from the burger menu and provides the option for logged in users to make donations or payments to the organization via Clover.
 
 * Previous Sponsor's Page
   <img width="2127" height="1275" alt="Screenshot 2026-05-05 135925" src="https://github.com/user-attachments/assets/05c16114-cd34-48f9-b1dd-308846d37e4e" />
+  * This page is accessed from the burger menu and provides information about previous corporate, public, and private donations.
 
 # Testing 
 Testing was used with Vitest. All the packages and dependencies for Vitest have already been installed and setup. All you need to do is the following to start testing:
