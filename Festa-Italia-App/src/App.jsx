@@ -280,7 +280,7 @@ export default function App(){
     return(
     <div className='footer-div'>
         <div className="container-footer-inner">
-            <img className='footer-logo' src="../../images/logo_01.jpeg" alt="Festa Italia logo" height={100} />
+            <img className='footer-logo' src="/images/logo_01.jpeg" alt="Festa Italia logo" height={100} />
             <p className='footer-text'> Festa Italia Foundation, Inc. All rights reserved.</p>
         </div>
       </div>
@@ -295,10 +295,10 @@ export default function App(){
             <div className="header-inner">
               <div className="logo-wrap">
                 <div className="header-side-logo" aria-hidden="true">
-                  <img src="../images/FestaLogo_01.png" alt="" />
+                  <img src="/images/FestaLogo_01.png" alt="" />
                 </div>
                 <a href="#" className="logo" aria-label="Festa Italia home" onClick={() => { setPage('home'); setMenuOpen(false); }}>
-                  <img src="../images/logo2.gif" alt="Festa Italia logo" />
+                  <img src="/images/logo2.gif" alt="Festa Italia logo" />
                 </a>
               </div>
 
