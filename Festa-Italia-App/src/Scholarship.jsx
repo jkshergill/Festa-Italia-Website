@@ -52,7 +52,7 @@ function Scholarship() {
                 <p className="text-2xl">
                   For scholarship application link:{' '}
                   <a
-                    href="https://festaitaliamonterey.org/Publish/docs/2020_scholarship_application_form.pdf"
+                    href="docs/2020_scholarship_application_form.pdf"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 underline hover:text-blue-800"

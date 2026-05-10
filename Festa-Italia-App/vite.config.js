@@ -10,9 +10,10 @@ export default defineConfig({
       '.ngrok-free.dev' // This allows ALL ngrok subdomains
     ],
   },
-  test: {                    
-    environment: "jsdom",      
-    globals: true,           
-    setupFiles: "./src/setupTests.js", 
-  },
+  test: {
+  globals: true,
+  environment: "jsdom",
+  setupFiles: "./src/setupTests.js",
+  include: ['**/*.spec.{js,jsx}']
+  }
 });

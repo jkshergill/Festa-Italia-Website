@@ -566,48 +566,57 @@ function ConfirmBocceTeams() {
 function ConfirmCoronationTickets() {
     const [eventName, setEventName] = useState('');
     const [newEventName, setNewEventName] = useState('');
+    const [maxTickets, setMaxTickets] = useState('');
+    const [newMaxTickets, setNewMaxTickets] = useState('');
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState(null);
 
-    // Load current event name from settings table
     useEffect(() => {
-        const loadEventName = async () => {
+        const loadSettings = async () => {
             try {
                 const { data, error } = await supabase
                     .from('settings')
-                    .select('value')
+                    .select('value, max_tickets')
                     .eq('key', 'current_event')
                     .single();
 
                 if (error) throw error;
+
                 setEventName(data.value);
                 setNewEventName(data.value);
+                setMaxTickets(data.max_tickets);
+                setNewMaxTickets(data.max_tickets);
             } catch (err) {
-                console.error('Error loading event name:', err);
-                setMessage({ type: 'error', text: 'Failed to load current event name.' });
+                console.error('Error loading settings:', err);
+                setMessage({ type: 'error', text: 'Failed to load settings.' });
             } finally {
                 setLoading(false);
             }
         };
-        loadEventName();
+        loadSettings();
     }, []);
 
-    // Save new event name to settings
-    const handleSaveEventName = async () => {
-        const trimmed = newEventName.trim();
-        if (!trimmed) {
+    const handleSave = async () => {
+        const trimmedName = newEventName.trim();
+        const parsedTickets = parseInt(newMaxTickets);
+
+        if (!trimmedName) {
             setMessage({ type: 'error', text: 'Event name cannot be empty.' });
             return;
         }
-        if (trimmed === eventName) {
+        if (isNaN(parsedTickets) || parsedTickets < 0) {
+            setMessage({ type: 'error', text: 'Max tickets must be a valid number.' });
+            return;
+        }
+        if (trimmedName === eventName && parsedTickets === maxTickets) {
             setMessage({ type: 'info', text: 'No changes to save.' });
             return;
         }
 
-        // Extract year from new name and check for duplicates in orders
-        const yearMatch = trimmed.match(/\d{4}/);
-        if (yearMatch) {
+        // Duplicate year check
+        const yearMatch = trimmedName.match(/\d{4}/);
+        if (yearMatch && trimmedName !== eventName) {
             const year = yearMatch[0];
             const { data: existingOrders } = await supabase
                 .from('orders')
@@ -626,67 +635,75 @@ function ConfirmCoronationTickets() {
 
         setSaving(true);
         setMessage(null);
+
         try {
             const { error } = await supabase
                 .from('settings')
-                .update({ value: trimmed })
+                .update({
+                    value: trimmedName,
+                    max_tickets: parsedTickets
+                })
                 .eq('key', 'current_event');
 
             if (error) throw error;
-            setEventName(trimmed);
-            setMessage({ type: 'success', text: 'Event name updated successfully! All new orders will use this name.' });
+
+            setEventName(trimmedName);
+            setMaxTickets(parsedTickets);
+            setMessage({ type: 'success', text: 'Settings saved successfully!' });
         } catch (err) {
-            console.error('Error saving event name:', err);
-            setMessage({ type: 'error', text: 'Failed to save event name: ' + err.message });
+            console.error('Error saving settings:', err);
+            setMessage({ type: 'error', text: 'Failed to save settings: ' + err.message });
         } finally {
             setSaving(false);
         }
     };
 
-    if (loading) {
-        return (
-            <div className="section-content">
-                <p>Loading event settings...</p>
-            </div>
-        );
-    }
+    if (loading) return <div className="section-content"><p>Loading event settings...</p></div>;
 
     return (
         <div className="section-content">
-            <h3>Event Name Management</h3>
-            <p style={{ color: '#666', marginBottom: '1rem' }}>
-                Change the event name used for new Coronation Ball ticket orders.
-                Current event: <strong>{eventName}</strong>
+            <h3>Event Settings</h3>
+            <p style={{ color: '#666', marginBottom: '1.5rem' }}>
+                Current event: <strong>{eventName}</strong> &nbsp;·&nbsp; Max tickets: <strong>{maxTickets}</strong>
             </p>
 
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'stretch', marginBottom: '1rem', flexWrap: 'wrap' }}>
-                <input
-                    type="text"
-                    value={newEventName}
-                    onChange={(e) => setNewEventName(e.target.value)}
-                    placeholder="Enter new event name"
-                    style={{
-                        padding: '0.6rem 0.8rem',
-                        border: '1px solid #ccc',
-                        borderRadius: '6px',
-                        fontSize: '1rem',
-                        minWidth: '300px',
-                        height: '40px',
-                        boxSizing: 'border-box'
-                    }}
-                    disabled={saving}
-                />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '500px' }}>
+                <label style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontWeight: 500 }}>
+                    Event Name
+                    <input
+                        type="text"
+                        value={newEventName}
+                        onChange={(e) => setNewEventName(e.target.value)}
+                        placeholder="Enter event name"
+                        disabled={saving}
+                        style={{ padding: '0.6rem 0.8rem', border: '1px solid #ccc', borderRadius: '6px', fontSize: '1rem' }}
+                    />
+                </label>
+
+                <label style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontWeight: 500 }}>
+                    Max Tickets
+                    <input
+                        type="number"
+                        value={newMaxTickets}
+                        onChange={(e) => setNewMaxTickets(e.target.value)}
+                        placeholder="Enter max tickets"
+                        min={0}
+                        disabled={saving}
+                        style={{ padding: '0.6rem 0.8rem', border: '1px solid #ccc', borderRadius: '6px', fontSize: '1rem' }}
+                    />
+                </label>
+
                 <button
-                    onClick={handleSaveEventName}
+                    onClick={handleSave}
                     disabled={saving}
                     className="save-btn"
-                    style={{ whiteSpace: 'nowrap', height: '40px', boxSizing: 'border-box', marginTop: 0, padding: '0 1.5rem', display: 'flex', alignItems: 'center' }}
+                    style={{ marginTop: '0.5rem', alignSelf: 'flex-start' }}
                 >
-                    {saving ? 'Saving...' : 'Save Event Name'}
+                    {saving ? 'Saving...' : 'Save Settings'}
                 </button>
             </div>
 
-            <p style={{ fontSize: '0.85rem', color: '#888', marginBottom: '1rem' }}>
+            <p style={{ fontSize: '0.85rem', color: '#888', marginTop: '1rem' }}>
                 Existing orders will keep their original event name. Only new purchases will use the updated name.
             </p>
 
@@ -694,7 +711,7 @@ function ConfirmCoronationTickets() {
                 <div style={{
                     padding: '0.75rem 1rem',
                     borderRadius: '6px',
-                    marginTop: '0.5rem',
+                    marginTop: '1rem',
                     backgroundColor: message.type === 'success' ? '#e8f5e9' : message.type === 'error' ? '#ffebee' : '#e3f2fd',
                     color: message.type === 'success' ? '#2e7d32' : message.type === 'error' ? '#c62828' : '#1565c0',
                     border: `1px solid ${message.type === 'success' ? '#a5d6a7' : message.type === 'error' ? '#ef9a9a' : '#90caf9'}`

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';
-import './PaymentSuccess.css'; // Reuse the same CSS
+import './PaymentSuccess.css';
 
 export default function DonationSuccess({ setPage }) {
   const [status, setStatus] = useState('processing');
@@ -28,6 +28,8 @@ export default function DonationSuccess({ setPage }) {
           return;
         }
 
+        console.log('✅ User authenticated:', session.user.id);
+
         // Get pending donation
         const { data: pendingDonation, error: pendingError } = await supabase
           .from('pending_orders')
@@ -37,37 +39,53 @@ export default function DonationSuccess({ setPage }) {
           .single();
 
         if (pendingError || !pendingDonation) {
-          console.error('Pending donation error:', pendingError);
+          console.error('❌ Pending donation error:', pendingError);
           setError('Donation record not found');
           setStatus('error');
           return;
         }
 
+        console.log('✅ Pending donation found:', pendingDonation);
         setDonationDetails(pendingDonation);
 
-        // Create the actual donation record
-        const donationRecord = {
-          donor_id: session.user.id,
-          amount_cents: pendingDonation.amount,
-          donation_type: pendingDonation.metadata.donation_type,
-          is_anonymous: pendingDonation.metadata?.is_anonymous ?? false,
-          consent_to_share: pendingDonation.metadata?.consent_to_share ?? false,
-          donated_at: new Date().toISOString(),
-          order_id: orderId,
-          donor_name: pendingDonation.metadata.donor_name,
-          donor_note: pendingDonation.metadata.donation_note || null
-        };
+        const donorName = pendingDonation.metadata?.donor_name || 'Anonymous Donor';
 
-        const { error: insertError } = await supabase
+const donationRecord = {
+  donor_id: crypto.randomUUID(),  // ✅ Generate a new ID for each donation
+  first_name: pendingDonation.metadata?.donor_name?.split(' ')[0] || null,
+  last_name: pendingDonation.metadata?.donor_name?.split(' ').slice(1).join(' ') || null,
+  amount_cents: pendingDonation.amount,
+  donation_type: pendingDonation.metadata?.donation_type || 'Basic',
+  is_anonymous: false,
+  consent_to_share: true,
+  donated_at: new Date().toISOString(),
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+  order_id: orderId,
+  donor_name: pendingDonation.metadata?.donor_name || 'Anonymous Donor',
+  donor_note: pendingDonation.metadata?.donation_note || null
+};
+
+        console.log('🔍 Inserting donation record:', donationRecord);
+
+        const { data, error: insertError } = await supabase
           .from('donors')
-          .insert(donationRecord);
+          .insert(donationRecord)
+          .select();
 
         if (insertError) {
-          console.error('Donation insert error:', insertError);
-          setError('Failed to record donation. Please contact support.');
+          console.error('❌ Donation insert error details:', {
+            message: insertError.message,
+            code: insertError.code,
+            details: insertError.details,
+            hint: insertError.hint
+          });
+          setError(`Failed to record donation: ${insertError.message}`);
           setStatus('error');
           return;
         }
+
+        console.log('✅ Donation inserted successfully:', data);
 
         // Clean up pending order
         await supabase
@@ -78,7 +96,7 @@ export default function DonationSuccess({ setPage }) {
         setStatus('success');
 
       } catch (err) {
-        console.error('Success handler error:', err);
+        console.error('❌ Success handler error:', err);
         setError('An unexpected error occurred');
         setStatus('error');
       }
