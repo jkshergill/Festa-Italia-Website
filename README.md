@@ -162,9 +162,6 @@ export default defineConfig({
     port: 5173,       // Local dev server port (default)
     open: true,       // Automatically open the browser on start
   },
-  build: {
-    outDir: 'dist',   // Output directory for production builds (uploaded to hosting)
-  },
   test: {
     environment: 'jsdom',   // Required for Vitest DOM testing
     globals: true,          // Allows test globals (describe, it, expect) without imports
@@ -176,7 +173,6 @@ Key sections explained:
 
 - **`plugins`** — Enables React support (JSX transformation and Fast Refresh during development).
 - **`server.port`** — The port the local dev server runs on. Change this if port 5173 is already in use.
-- **`build.outDir`** — Where Vite writes the production build. The contents of this folder are what you upload to the hosting provider.
 - **`test`** — Vitest reads its configuration from `vite.config.js` as well. The `jsdom` environment simulates a browser DOM for component tests, and `globals: true` means you do not need to import `describe`, `it`, or `expect` in every test file.
 
 If you need to change the dev server port (e.g. it conflicts with another process), update `server.port` here rather than passing flags on the command line.
@@ -203,8 +199,6 @@ VITE_SUPABASE_ANON_KEY=your-anon-key-here
 ```
 
 Vite automatically loads variables prefixed with `VITE_` and makes them available in the app via `import.meta.env.VITE_SUPABASE_URL`, etc.
-
-> **Important:** Add `.env` to your `.gitignore` file so credentials are never committed to GitHub.
 
 The project's `supabaseClient.js` initialises the client using these variables:
 
