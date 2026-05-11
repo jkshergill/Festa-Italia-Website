@@ -3,16 +3,16 @@
 <img width="1914" height="1323" alt="image" src="https://github.com/user-attachments/assets/7816a50c-4e82-471c-8781-1802319bbb19" />
 
 # The Team 
-|Name|
-|--------------------|
-|John Campo|
-|Ricardo Olivares Bravo|
-|Devin Wynne|
-|Ryan Lee|
-|Jagjeet Kaur|
-|Jack Harrison|
-|Pratish Patil|
-|Adrian Gamez|
+|Name|Email|
+|--------------------|------------------|
+|John Campo |jjcampo@protonmail.com |
+|Ricardo Olivares Bravo |ricardo127olivares@gmail.com |
+|Devin Wynne| devinwynne259@gmail.com |
+|Ryan Lee| ryanplee0327@gmail.com |
+|Jagjeet Kaur| jagjeetk.shergill@gmail.com |
+|Jack Harrison |jackrharry@gmail.com |
+|Pratish Patil| Pratish.u.patil@gmail.com |
+|Adrian Gamez| adriangam00@gmail.com |
 
 # Business 
 Festa Italia Foundation, Inc. is a non-profit public benefit organization whose main goals are to promote the Italian heritage, tradition, and culture, to honor the fishermen of Monterey, California and to educate the public on how the Italian fishermen have contributed to their community. The foundation holds a three-day festival of Italian art, food, and music bringing people together from across the globe along with many smaller events throughout the year. Sponsors aid the foundation in providing thousands of dollars in scholarships each year to local high school and college students from the community.
